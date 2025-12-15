@@ -1,73 +1,56 @@
-# React + TypeScript + Vite
+# Grade Calculator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A compact, browser-based grade management app built with React and TypeScript. Track semesters and subjects and calculate weighted averages with local persistence — no account required.
 
-Currently, two official plugins are available:
+Table of contents
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [Features](#features)
+- [Quick start](#quick-start)
+- [Usage](#usage)
+- [Developer notes](#developer-notes)
+- [Contributing](#contributing)
+- [License](#license)
 
-## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Quick start
 
-## Expanding the ESLint configuration
+Prerequisites: Node 18+ and a package manager (npm, pnpm, or yarn).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Install dependencies and start the dev server:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Useful scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `npm run dev` — start the development server (HMR)
+- `npm run build` — compile TypeScript and build for production (`tsc -b && vite build`)
+- `npm run preview` — preview the production build locally
+- `npm run lint` — run ESLint across the project
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Usage
+
+1. Click the Add Semester row to append a new semester.
+2. Use the searchable dropdown to add a course from the catalog or create a custom subject.
+3. Click a subject to open the advanced editor and set scores/weights per component.
+4. Review the Summary rows for weighted semester averages and the overall average.
+5. Close the app or reload the page — your data is automatically saved to `localStorage`.
+
+Developer notes
+
+- State and persistence: `src/hooks/useGradeApp.ts`
+- Grade and score calculations: `src/utils/gradeUtils.ts`
+- Course catalog: `src/assets/courses_weighted.json`
+
+If you add or change fields related to scores or weights, add tests or manually verify behavior in the UI to avoid regressions.
+
+Contributing
+
+Contributions are welcome. Please open an issue to discuss larger changes, or submit a pull request for smaller fixes and improvements.
+
+License
+
+No license is included in this repository. To add one, create a `LICENSE` file with your preferred open-source license.
+
