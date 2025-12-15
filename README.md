@@ -2,15 +2,6 @@
 
 A compact, browser-based grade management app built with React and TypeScript. Track semesters and subjects and calculate weighted averages with local persistence — no account required.
 
-Table of contents
-
-- [Features](#features)
-- [Quick start](#quick-start)
-- [Usage](#usage)
-- [Developer notes](#developer-notes)
-- [Contributing](#contributing)
-- [License](#license)
-
 
 Quick start
 
@@ -46,11 +37,5 @@ Developer notes
 
 If you add or change fields related to scores or weights, add tests or manually verify behavior in the UI to avoid regressions.
 
-Contributing
 
-Contributions are welcome. Please open an issue to discuss larger changes, or submit a pull request for smaller fixes and improvements.
-
-License
-
-No license is included in this repository. To add one, create a `LICENSE` file with your preferred open-source license.
 
