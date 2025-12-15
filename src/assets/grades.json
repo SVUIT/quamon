@@ -1,0 +1,36 @@
+{
+  "$id": "https://example.com/grades.json",
+  "$schema": "http://json-schema.org/draft/2020-12/schema",
+  "title": "Grades",
+  "type": "object",
+  "properties": {
+    "courseCode": { "type": "string", "maxLength": 7 },
+    "progressScore": { "type": "number" },
+    "practiceScore": { "type": "number" },
+    "midtermScore": { "type": "number" },
+    "finaltermScore": { "type": "number" },
+    "customWeights": {
+      "type": "object",
+      "properties": {
+        "progressWeight": { "type": "number" },
+        "practiceWeight": { "type": "number" },
+        "midtermWeight": { "type": "number" },
+        "finalWeight": { "type": "number" }
+      },
+      "required": [
+        "progressWeight",
+        "practiceWeight",
+        "midtermWeight",
+        "finaltermWeight"
+      ]
+    }
+  },
+  "required": [
+    "courseCode",
+    "progressScore",
+    "practiceScore",
+    "midtermScore",
+    "finaltermScore",
+    "customWeights"
+  ]
+}

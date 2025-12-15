@@ -1,0 +1,36 @@
+{
+  "$id": "https://example.com/course.json",
+  "$schema": "http://json-schema.org/draft/2020-12/schema",
+  "title": "Course",
+  "type": "object",
+  "properties": {
+    "courseCode": { "type": "string", "maxLength": 7 },
+    "courseNameEn": { "type": "string" },
+    "courseNameVi": { "type": "string" },
+    "courseType": { "type": "string" },
+    "credits": { "type": "number" },
+    "defaultWeights": {
+      "type": "object",
+      "properties": {
+        "progressWeight": { "type": "number" },
+        "practiceWeight": { "type": "number" },
+        "midtermWeight": { "type": "number" },
+        "finalTermWeight": { "type": "number" }
+      },
+      "required": [
+        "progressWeight",
+        "practiceWeight",
+        "midtermWeight",
+        "finalTermWeight"
+      ]
+    }
+  },
+  "required": [
+    "courseCode",
+    "courseNameEn",
+    "courseNameVi",
+    "courseType",
+    "credits",
+    "defaultWeights"
+  ]
+}
