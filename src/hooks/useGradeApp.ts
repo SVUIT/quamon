@@ -43,8 +43,9 @@ export const useGradeApp = () => {
     // Default initial state
     return [
       {
-        id: generateId(),
+        id: 'default-semester',
         name: "Học kỳ 1",
+        isDefault: true,
         subjects: [
           {
             maHP: "",
