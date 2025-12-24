@@ -1,46 +1,47 @@
-// Appwrite configuration
-export const APPWRITE_ENDPOINT = import.meta.env.VITE_APPWRITE_ENDPOINT || 'https://69478a26003b6dfde997.syd.appwrite.run';
-export const APPWRITE_PROJECT_ID = import.meta.env.VITE_APPWRITE_PROJECT_ID || '';
-export const APPWRITE_BUCKET_ID = import.meta.env.VITE_APPWRITE_BUCKET_ID || '';
-export const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT || 'https://69478a26003b6dfde997.syd.appwrite.run';
+import { Client, Functions, type Models } from 'appwrite';
+
+// Initialize the Appwrite client
+const client = new Client()
+  .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
+  .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID);
+
+const functions = new Functions(client);
 
 // File upload utility
 export const uploadPdf = async (file: File): Promise<any> => {
-  const formData = new FormData();
-  formData.append('file', file);
-
   try {
-    // In development, use the Vite proxy path
-    const baseUrl = import.meta.env.DEV ? '/api' : API_ENDPOINT;
-    
-    // For development, we just need to use the path since it's a relative URL
-    const requestUrl = import.meta.env.DEV 
-      ? `${baseUrl}?_t=${Date.now()}`
-      : `${baseUrl}?_t=${Date.now()}`;
-    
-    const response = await fetch(requestUrl, {
-      method: 'POST',
-      body: formData,
-      // No need for CORS headers when using the proxy
+    // Convert file to base64
+    const fileData = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Server response error:', errorText);
-      throw new Error(`HTTP error! status: ${response.status}: ${errorText}`);
+    // Call the Appwrite function
+    const response = await functions.createExecution(
+      import.meta.env.VITE_APPWRITE_FUNCTION_ID,
+      JSON.stringify({
+        file: fileData,
+        filename: file.name,
+        key: import.meta.env.VITE_GRADES_PDF_EXTRACTOR_KEY
+      }),
+      true
+    ) as Models.Execution & { stderr?: string; response?: string };
+
+    if (response.status === 'failed') {
+      throw new Error(response.stderr || 'Function execution failed');
     }
 
-    try {
-      return await response.json();
-    } catch (jsonError) {
-      console.error('Error parsing JSON response:', jsonError);
-      throw new Error('Invalid JSON response from server');
-    }
+    return response.response ? JSON.parse(response.response) : {};
   } catch (error) {
     console.error('Error uploading file:', error);
     if (error instanceof TypeError) {
       throw new Error('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng của bạn.');
     }
-    throw error;
+    if (error instanceof Error) {
+      throw new Error(`Upload failed: ${error.message}`);
+    }
+    throw new Error('An unknown error occurred during file upload');
   }
 };
