@@ -1,49 +1,266 @@
-import { Client, Functions, type Models } from 'appwrite';
+import { Client, Functions, Storage } from 'node-appwrite';
+
+/**
+ * Sanitizes a filename by removing or replacing non-ASCII characters
+ * @param filename The original filename
+ * @returns A sanitized filename with only ASCII characters
+ */
+const sanitizeFilename = (filename: string): string => {
+  return filename
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9.\-]/g, '_')
+    .replace(/_{2,}/g, '_')
+    .replace(/^_+|_+$/g, '');
+};
 
 // Initialize the Appwrite client
 const client = new Client()
-  .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
-  .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID);
+  .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT || '')
+  .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID || '')
+  .setSelfSigned(true); // Only for development with self-signed certificates
+
+// Set the API key if it exists
+if (import.meta.env.VITE_APPWRITE_API_KEY) {
+  client.setKey(import.meta.env.VITE_APPWRITE_API_KEY);
+}
+
+// Default headers for fetch requests
+const defaultHeaders = {
+  'Content-Type': 'application/json',
+  'X-Appwrite-Project': import.meta.env.VITE_APPWRITE_PROJECT_ID || '',
+  'X-Appwrite-Key': import.meta.env.VITE_APPWRITE_API_KEY || '',
+  'Accept': 'application/json',
+};
 
 const functions = new Functions(client);
+const storage = new Storage(client);
 
-// File upload utility
-export const uploadPdf = async (file: File): Promise<any> => {
+// Helper function to create a file reader promise
+const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as ArrayBuffer);
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+};
+
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = error => reject(error);
+  });
+};
+
+// Method 1: Direct file upload using fetch API
+export const uploadPdfDirect = async (file: File): Promise<any> => {
   try {
-    // Convert file to base64
-    const fileData = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = error => reject(error);
-    });
+    console.log('Starting direct file upload...');
+    
+    // Read the file as ArrayBuffer first
+    const arrayBuffer = await file.arrayBuffer();
+    // Convert to base64
+    const base64Data = btoa(
+      new Uint8Array(arrayBuffer).reduce(
+        (data, byte) => data + String.fromCharCode(byte),
+        ''
+      )
+    );
 
-    // Call the Appwrite function
+    const payload = {
+      file: base64Data,
+      filename: sanitizeFilename(file.name),
+      key: import.meta.env.VITE_GRADES_PDF_EXTRACTOR_KEY || ''
+    };
+
+    const functionUrl = `${import.meta.env.VITE_APPWRITE_ENDPOINT}/functions/${
+      import.meta.env.VITE_APPWRITE_FUNCTION_ID
+    }/executions`;
+
+    console.log('Sending request to:', functionUrl);
+    console.log('File size:', file.size, 'bytes');
+    console.log('Payload keys:', Object.keys(payload));
+    
+    // Try using the Appwrite client first
+    try {
+      const response = await functions.createExecution(
+        import.meta.env.VITE_APPWRITE_FUNCTION_ID,
+        JSON.stringify(payload),
+        false
+      ) as any;
+
+      console.log('Upload successful via Appwrite client. Response:', {
+        id: response.$id,
+        status: response.status,
+        responseType: typeof response.response,
+        responseLength: typeof response.response === 'string' ? response.response.length : 'N/A'
+      });
+      
+      // Handle the response
+      if (response.response) {
+        try {
+          const responseData = typeof response.response === 'string' 
+            ? JSON.parse(response.response) 
+            : response.response;
+          
+          console.log('Parsed response data:', responseData);
+          
+          // Check if the response has the expected structure
+          if (responseData.semesters || responseData.courseCode) {
+            return responseData;
+          } else if (responseData.error) {
+            throw new Error(responseData.error);
+          } else {
+            // If we can't find the expected structure, return the full response
+            // and let the calling function handle it
+            return responseData;
+          }
+        } catch (e) {
+          console.warn('Error parsing response:', e);
+          console.warn('Raw response:', response.response);
+          // Return the raw response if parsing fails
+          return { response: response.response };
+        }
+      }
+      
+      return response;
+      
+    } catch (error) {
+      console.error('Appwrite client upload failed:', error);
+      
+      // Fallback to direct fetch
+      try {
+        console.log('Falling back to direct fetch...');
+        const fetchResponse = await fetch(functionUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Appwrite-Project': import.meta.env.VITE_APPWRITE_PROJECT_ID || '',
+            'X-Appwrite-Key': import.meta.env.VITE_APPWRITE_API_KEY || '',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+        
+        console.log('Direct fetch response status:', fetchResponse.status);
+        
+        if (!fetchResponse.ok) {
+          const errorText = await fetchResponse.text();
+          console.error('Error response:', errorText);
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch (e) {
+            errorData = { message: errorText };
+          }
+          throw new Error(
+            `HTTP error! status: ${fetchResponse.status}, message: ${errorData.message || 'Unknown error'}`
+          );
+        }
+        
+        const data = await fetchResponse.json();
+        console.log('Upload successful via direct fetch:', data);
+        
+        if (data.response) {
+          try {
+            const parsedResponse = typeof data.response === 'string' 
+              ? JSON.parse(data.response) 
+              : data.response;
+            
+            // Check if the response has the expected structure
+            if (parsedResponse.semesters || parsedResponse.courseCode) {
+              return parsedResponse;
+            }
+            return parsedResponse;
+          } catch (e) {
+            console.warn('Could not parse response:', data.response);
+            return data;
+          }
+        }
+        
+        return data;
+        
+      } catch (fetchError) {
+        console.error('Direct fetch also failed:', fetchError);
+        throw new Error(`Both Appwrite client and direct fetch failed: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`);
+      }
+    }
+  } catch (error) {
+    console.error('Error in direct upload:', {
+      error,
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    throw error;
+  }
+};
+
+// Method 2: Upload to Storage first, then process
+const uploadPdfViaStorage = async (file: File): Promise<any> => {
+  try {
+    console.log('Starting storage-based file upload...');
+    
+    // Upload file to storage
+    const fileId = `temp_${Date.now()}_${file.name}`;
+    const uploadedFile = await storage.createFile(
+      'default',
+      fileId,
+      file
+    );
+
+    console.log('File uploaded to storage, processing...');
+    
+    // Call function with file ID
     const response = await functions.createExecution(
       import.meta.env.VITE_APPWRITE_FUNCTION_ID,
       JSON.stringify({
-        file: fileData,
-        filename: file.name,
-        key: import.meta.env.VITE_GRADES_PDF_EXTRACTOR_KEY
+        fileId: uploadedFile.$id,
+        filename: sanitizeFilename(file.name),
+        key: import.meta.env.VITE_APPWRITE_API_KEY
       }),
-      true
-    ) as Models.Execution & { stderr?: string; response?: string };
+      false
+    ) as {
+      status: string;
+      stderr?: string;
+      stdout?: string;
+      response?: string;
+      error?: string;
+    };
 
-    if (response.status === 'failed') {
-      throw new Error(response.stderr || 'Function execution failed');
+    // Clean up the file from storage
+    try {
+      await storage.deleteFile(
+        'default',
+        uploadedFile.$id
+      );
+    } catch (cleanupError) {
+      console.warn('Failed to clean up temporary file:', cleanupError);
     }
 
-    return response.response ? JSON.parse(response.response) : {};
+    return response;
   } catch (error) {
-    console.error('Error uploading file:', error);
-    if (error instanceof TypeError) {
-      throw new Error('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng của bạn.');
-    }
-    if (error instanceof Error) {
-      throw new Error(`Upload failed: ${error.message}`);
-    }
-    throw new Error('An unknown error occurred during file upload');
+    console.error('Error in storage-based uploadPdf:', error);
+    throw new Error(`Storage upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
+};
+
+// Main upload function that tries both methods
+export const uploadPdf = async (file: File): Promise<any> => {
+  // For small files (< 5MB), try direct upload first
+  if (file.size <= 5 * 1024 * 1024) {
+    try {
+      return await uploadPdfDirect(file);
+    } catch (error) {
+      console.log('Direct upload failed, falling back to storage upload...');
+      return uploadPdfViaStorage(file);
+    }
+  }
+  
+  // For larger files, use storage upload directly
+  return uploadPdfViaStorage(file);
 };
 
 interface AcademicRecord {
