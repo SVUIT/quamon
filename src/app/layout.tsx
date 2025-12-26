@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import "../index.css";
-import "../App.css";
 
 // Create a client component that wraps the children
 function ClientLayout({ children }: { children: React.ReactNode }) {
