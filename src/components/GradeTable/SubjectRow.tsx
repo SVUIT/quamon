@@ -56,9 +56,22 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
 }) => {
 
   const handleScoreBlur = (f: string, text: string, target: HTMLElement) => {
-    updateSubjectField(si, i, f, text);
+    // Only update if the text is not empty
+    if (text.trim() === '') {
+      updateSubjectField(si, i, f, '');
+      if (target) target.innerText = '';
+      return;
+    }
+    
+    // Only normalize non-empty values
     const normalized = normalizeScore(text);
-    if (target) target.innerText = normalized;
+    if (normalized !== '') {
+      updateSubjectField(si, i, f, normalized);
+      if (target) target.innerText = normalized;
+    } else {
+      updateSubjectField(si, i, f, '');
+      if (target) target.innerText = '';
+    }
 
     const updated = [...semesters];
     (updated[si].subjects[i] as any)[f] = normalized;
@@ -241,7 +254,7 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
               background: hasMinScore
                 ? isOver10
                   ? "transparent"
-                  : "var(--primary-purple)"
+                  : "transparent"
                 : "transparent",
             }}
           >
@@ -267,14 +280,14 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
               }}
               onBlur={(e) => handleScoreBlur(f.key, e.target.innerText, e.target as HTMLElement)}
             >
-              {hasMinScore ? minScore : score}
+              {score != null ? score : ''}
             </div>
           </td>
         );
       })}
 
       <td style={{ textAlign: "center" }}>
-        <b style={{ color: "var(--text-color)" }}>{calcSubjectScore(sub)}</b>
+        <b style={{ color: "var(--text-color)" }}>{calcSubjectScore(sub) || ''}</b>
       </td>
 
       <td style={{ position: "relative" }}>

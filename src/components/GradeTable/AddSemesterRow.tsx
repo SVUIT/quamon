@@ -25,6 +25,8 @@ const AddSemesterRow: React.FC<AddSemesterRowProps> = ({
                   {
                     id: newId,
                     name: "Nhập tên học kỳ",
+                    semesterName: `Học kỳ ${semesters.length + 1}`,
+                    year: "2024-2025", // Default year, can be made dynamic
                     subjects: [
                       {
                         id: newSubId,
@@ -52,15 +54,34 @@ const AddSemesterRow: React.FC<AddSemesterRowProps> = ({
             }
           }}
           style={{
-            padding: "6px 12px",
-            borderRadius: 4,
             background: "transparent",
-            color: "#8C8C8C",
+            color: "var(--primary-purple)",
             border: "none",
-            cursor: "pointer"
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            fontWeight: "bold",
+            padding: "8px 16px",
+            borderRadius: "4px",
           }}
         >
-          + Thêm học kỳ
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8 3.33334V12.6667M3.33333 8H12.6667"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Thêm học kỳ
         </button>
       </td>
     </tr>

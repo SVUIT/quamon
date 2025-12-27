@@ -1,35 +1,33 @@
 {
-  "name": "my-react-app",
+  "name": "grade-calculator",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "0.1.0",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "react-router-dom": "^7.9.6"
+    "appwrite": "^21.5.0",
+    "next": "^16.1.1",
+    "node-appwrite": "^21.1.0",
+    "pdf-parse": "^1.1.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
-    "@types/node": "^24.10.1",
-    "@types/react": "^19.2.5",
-    "@types/react-dom": "^19.2.3",
-    "@types/react-router-dom": "^5.3.3",
-    "@vitejs/plugin-react": "^5.1.1",
-    "eslint": "^9.39.1",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.4.24",
-    "globals": "^16.5.0",
-    "typescript": "~5.9.3",
-    "typescript-eslint": "^8.46.4",
-    "vite": "npm:rolldown-vite@7.2.5"
-  },
-  "overrides": {
-    "vite": "npm:rolldown-vite@7.2.5"
+    "@types/node": "^20.10.5",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@types/uuid": "^11.0.0",
+    "autoprefixer": "^10.4.16",
+    "critters": "^0.0.23",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "14.0.4",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.6",
+    "typescript": "^5.3.3"
   }
 }
