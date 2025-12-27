@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import './globals.css';
 
 // Create a client component that wraps the children
 function ClientLayout({ children }: { children: React.ReactNode }) {
@@ -9,17 +10,17 @@ function ClientLayout({ children }: { children: React.ReactNode }) {
     const removeExtensionAttributes = () => {
       document.documentElement.removeAttribute('crxlauncher');
     };
-    
+
     // Run once on mount
     removeExtensionAttributes();
-    
+
     // Set up a mutation observer to handle dynamic changes
     const observer = new MutationObserver(removeExtensionAttributes);
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['crxlauncher']
     });
-    
+
     return () => observer.disconnect();
   }, []);
 

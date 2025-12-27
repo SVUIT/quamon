@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-color: #646cff;
+  --bg-color: #242424;
+  --text-color: rgba(255, 255, 255, 0.87);
+}
+
+.light-mode {
+  --bg-color: #ffffff;
+  --text-color: #213547;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.app-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.grade-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.grade-table th,
+.grade-table td {
+  border: 1px solid #444;
+  padding: 8px;
+  text-align: center;
+}
+
+.light-mode .grade-table th,
+.light-mode .grade-table td {
+  border: 1px solid #ddd;
+}
+
+.semester-bg {
+  width: 20px;
+  background-color: #444;
+}
+
+.light-mode .semester-bg {
+  background-color: #eee;
+}
+
+.button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+.button:hover {
+  border-color: #646cff;
+}
+
+.button:focus,
+.button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.semester-title {
+  text-align: left;
+  font-weight: bold;
+  padding-left: 1rem;
+}
+
+.summary-label {
+  text-align: right;
+  padding-right: 1rem;
+  font-weight: bold;
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--bg-color);
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid #444;
+}
+
+.light-mode .modal-content {
+  border: 1px solid #ccc;
+}
