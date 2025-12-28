@@ -8,19 +8,16 @@ interface GradeTableProps {
   semesters: Semester[];
   setSemesters: (semesters: Semester[] | ((prev: Semester[]) => Semester[])) => void;
   updateSubjectField: (s: number, i: number, f: string, v: string) => void;
-  deleteSemester: (id: string) => void; // Changed from index to ID
+  deleteSemester: (id: string) => void;
   deleteSubject: (s: number, i: number) => void;
   openAdvancedModal: (s: number, i: number) => void;
-  
-  // Menu & Dropdown State
+
   openMenu: { s: number; i: number } | null;
   setOpenMenu: (val: { s: number; i: number } | null) => void;
-  
-  // Semester Menu State
+
   semesterMenuOpen?: number | null;
   setSemesterMenuOpen?: (val: number | null) => void;
 
-  // Add Dropdown
   addDropdownOpen: number | null;
   setAddDropdownOpen: (val: number | null) => void;
   addSearchTerm: string;
@@ -29,7 +26,6 @@ interface GradeTableProps {
   addExpandedCategories: Set<string>;
   setAddExpandedCategories: (cats: Set<string>) => void;
 
-  // Edit Dropdown
   editDropdownOpen: { s: number; i: number; field: string } | null;
   setEditDropdownOpen: (
     val: { s: number; i: number; field: string } | null
@@ -67,36 +63,35 @@ const GradeTable: React.FC<GradeTableProps> = ({
   editExpandedCategories,
   setEditExpandedCategories,
 }) => {
-
   useEffect(() => {
     const handler = (e: Event) => {
       try {
         const detail = (e as CustomEvent).detail;
-        if (!detail) return;
-        // Replace semesters with provided updated data
-        setSemesters(detail);
-      } catch (err) {
-        // ignore
-      }
+        if (detail) setSemesters(detail);
+      } catch {}
     };
 
     window.addEventListener("applyExpectedOverall", handler as EventListener);
-    return () => window.removeEventListener("applyExpectedOverall", handler as EventListener);
+    return () =>
+      window.removeEventListener("applyExpectedOverall", handler as EventListener);
   }, [setSemesters]);
+
   return (
     <table className="grade-table">
+      {/* Column definitions */}
       <colgroup>
         <col className="col-stt" />
         <col className="col-mahp" />
         <col className="col-tenhp" />
         <col className="col-tc" />
-        <col className="col-score" /> {/* QT */}
-        <col className="col-score" /> {/* GK */}
-        <col className="col-score" /> {/* TH */}
-        <col className="col-score" /> {/* CK */}
+        <col className="col-score" />
+        <col className="col-score" />
+        <col className="col-score" />
+        <col className="col-score" />
         <col className="col-diemhp" />
         <col className="col-expected" />
       </colgroup>
+
       <thead>
         <tr>
           <th>STT</th>
@@ -115,8 +110,7 @@ const GradeTable: React.FC<GradeTableProps> = ({
       <tbody>
         {semesters.map((sem, si) => (
           <SemesterBlock
-            // Use ID for key to ensure React handles deletion correctly
-            key={sem.id || `sem-${si}`} 
+            key={sem.id || `sem-${si}`}
             semester={sem}
             semesterIndex={si}
             semesters={semesters}
