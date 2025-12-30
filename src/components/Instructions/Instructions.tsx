@@ -85,6 +85,71 @@ const Instructions: React.FC = () => {
           </ul>
         </div>
       </section>
+
+      <section>
+        <h2>5. Hướng dẫn nhập điểm từ file PDF</h2>
+        <div className="instruction-item">
+          <h3>Cách nhập điểm từ file PDF</h3>
+          <ol>
+            <li>Lấy file PDF từ hệ thống UIT:
+              <ol type="a">
+                <li>Truy cập <a href="https://student.uit.edu.vn/sinhvien/kqhoctap" target="_blank" rel="noopener noreferrer">https://student.uit.edu.vn/sinhvien/kqhoctap</a></li>
+                <li>Nhấn vào nút <strong>"In Bảng Điểm"</strong></li>
+                <li>Nhấn <kbd>CTRL + P</kbd>, chọn lưu dưới dạng PDF và bấm lưu</li>
+              </ol>
+            </li>
+            <li>Trong ứng dụng này, nhấn vào nút <strong>"Nhập từ PDF"</strong> ở góc trên bên phải màn hình</li>
+            <li>Chọn file PDF vừa tải về</li>
+            <li>Chờ hệ thống xử lý và trích xuất dữ liệu</li>
+            <li>Kiểm tra và xác nhận dữ liệu đã được nhập tự động</li>
+          </ol>
+          
+          <h3>Lưu ý khi sử dụng tính năng nhập từ PDF</h3>
+          <ul>
+            <li>Chỉ hỗ trợ file PDF xuất từ hệ thống quản lý đào tạo của trường</li>
+            <li>Đảm bảo file PDF không bị khóa hoặc bảo vệ bằng mật khẩu</li>
+            <li>Hệ thống sẽ tự động nhận diện và điền các thông tin:
+              <ul>
+                <li>Mã học phần và tên học phần</li>
+                <li>Số tín chỉ</li>
+                <li>Điểm quá trình, giữa kỳ, thực hành, cuối kỳ (nếu có)</li>
+                <li>Trọng số mặc định của từng môn học</li>
+              </ul>
+            </li>
+            <li>Sau khi nhập, bạn có thể chỉnh sửa lại thông tin nếu cần thiết</li>
+          </ul>
+          
+          <p className="note">
+            <strong>Lưu ý quan trọng:</strong> Vui lòng kiểm tra kỹ dữ liệu sau khi nhập từ file PDF để đảm bảo tính chính xác.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>6. Xuất dữ liệu ra file Excel</h2>
+        <div className="instruction-item">
+          <h3>Cách xuất dữ liệu ra Excel</h3>
+          <ol>
+            <li>Đảm bảo bạn đã nhập đầy đủ dữ liệu điểm số</li>
+            <li>Nhấn vào nút <strong>"Xuất Excel"</strong> ở góc trên bên phải màn hình</li>
+            <li>Chọn vị trí lưu file trên máy tính của bạn</li>
+            <li>Đặt tên file và nhấn <strong>Lưu</strong></li>
+          </ol>
+          
+          <h3>Thông tin có trong file Excel</h3>
+          <ul>
+            <li>Toàn bộ thông tin môn học đã nhập</li>
+            <li>Điểm các thành phần (quá trình, giữa kỳ, thực hành, cuối kỳ)</li>
+            <li>Trọng số từng phần</li>
+            <li>Điểm tổng kết môn học</li>
+            <li>Điểm kỳ vọng (nếu có)</li>
+          </ul>
+          
+          <p className="note">
+            <strong>Lưu ý:</strong> File Excel có thể được mở bằng Microsoft Excel, Google Sheets hoặc các phần mềm tương thích khác.
+          </p>
+        </div>
+      </section>
     </div>
   );
 };
