@@ -268,7 +268,11 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
                     : "text-white"
                   : "text-normal"
               }`}
-              data-placeholder={`Nhập điểm ${f.label}`}
+              data-placeholder={
+                isZeroWeight
+                  ? `Điểm ${f.label}`
+                  : `Nhập điểm ${f.label}`
+              }
               role="textbox"
               tabIndex={0}
               onKeyDown={(e) => {
@@ -280,7 +284,7 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
               onBlur={(e) => handleScoreBlur(f.key, e.target.innerText, e.target as HTMLElement)}
               style={{
                 color: hasMinScore ? (isOver10 ? "red" : "var(--primary-purple)") : (isZeroWeight ? "var(--text-muted)" : "inherit"),
-                fontWeight: (hasMinScore || isZeroWeight) ? "bold" : "normal",
+                fontWeight: hasMinScore ? "bold" : "normal",
                 fontStyle: hasMinScore ? "italic" : "normal",
                 minHeight: "32px",
                 opacity: isZeroWeight ? 0.8 : 1

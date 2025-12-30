@@ -53,6 +53,12 @@ body {
   margin: 0;
 }
 
+html.light-mode,
+body.light-mode {
+  background-color: #ffffff !important;
+}
+
+
 .app-root {
   min-height: 100%;
   display: flex;
@@ -94,7 +100,6 @@ body {
 /* Global Layout */
 .app-container {
   width: 100%;
-  max-width: 1400px; /* Limit max width on huge screens */
   margin: 0 auto;
   /* Responsive Padding: Increased significantly for "breathing room" */
   padding: 40px 15% 40px 15%; 
@@ -105,6 +110,7 @@ body {
   flex-direction: column;
   background-color: var(--bg-container);
 }
+
 
 /* Tab Navigation */
 .tab-navigation {
@@ -137,6 +143,25 @@ body {
   background: rgba(255, 255, 255, 0.05);
 }
 
+.action-btn {
+  height: 40px;
+  min-width: 160px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 12px;        /* ❗ bỏ padding top/bottom */
+  line-height: 1;         /* ❗ RẤT QUAN TRỌNG */
+  font-size: 14px;
+  font-weight: bold;
+
+  border-radius: 4px;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+
 .light-mode .tab-button:hover:not(.active) {
   background: rgba(0, 0, 0, 0.05);
 }
@@ -167,6 +192,7 @@ body {
   padding: 20px;
   border-radius: 12px;
   margin-bottom: 20px;
+  word-break: break-all;
 }
 
 .instruction-item h3 {
@@ -265,7 +291,7 @@ body {
 }
 
 .light-mode .footer {
-    background: #f0f0f0;
+    background: #fff;
     border-top: 1px solid #ccc;
 }
 .light-mode .footer h2,
@@ -526,7 +552,7 @@ body {
   border: 1px solid var(--dropdown-border);
   border-radius: 8px;
   z-index: 20;
-  max-height: 400px;
+  max-height: 250px;
   overflow-y: hidden;
   display: flex;
   flex-direction: column;
@@ -600,7 +626,6 @@ body {
 .subject-name { color: var(--text-color); opacity: 0.9; }
 
 .pdf-import-btn {
-  padding: 10px 16px;
   background-color: var(--primary-purple);
   color: #ffffff;
   border-radius: 6px;
@@ -750,19 +775,15 @@ body {
   }
 
   .button-group {
-    display: flex;
-    align-items: center !important;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
-  .pdf-import-wrapper,
+  .pdf-import-btn,
   .export-excel-btn {
-    height: 40px;                
-    display: flex;
-    align-items: center;
-  }
-
-  .pdf-import-btn {
-    height: 100%;
+    min-width: 140px !important;
+    height: 38px;
+    font-size: 13px;
   }
 
   .app-container { 
@@ -946,9 +967,9 @@ body {
   .pdf-import-btn {
     width: 100%;
     text-align: center;
-    padding: 8px;
     font-size: 9px;
   }
+  
 
   .pdf-import-wrapper {
     justify-content: center !important;
