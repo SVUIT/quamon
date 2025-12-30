@@ -48,12 +48,6 @@ export interface Subject {
   midtermScore: string;
   finalScore: string;
 
-  // Min Scores
-  minProgressScore: string;
-  minPracticeScore: string;
-  minMidtermScore: string;
-  minFinalScore: string;
-
   // Weights
   progressWeight: string;
   practiceWeight: string;
@@ -63,6 +57,11 @@ export interface Subject {
   score: string;
   expectedScore: string;
   [key: string]: any;
+}
+
+// Helper function to find course by code
+export function findCourseByCode(courseCode: string, coursesData: any[]): any | undefined {
+  return coursesData.find(course => course.courseCode === courseCode);
 }
 
 export interface Semester {
