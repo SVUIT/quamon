@@ -146,7 +146,7 @@ const Instructions: React.FC = () => {
                 <li>Nhấn <kbd>CTRL + P</kbd>, chọn lưu dưới dạng PDF và bấm lưu</li>
               </ol>
             </li>
-            <li>Trong ứng dụng này, nhấn vào nút <strong>"Nhập từ PDF"</strong> ở góc trên bên phải màn hình</li>
+            <li>Trong ứng dụng này, nhấn vào nút <strong>"Nhập từ PDF"</strong></li>
             <li>Chọn file PDF vừa tải về</li>
             <li>Chờ hệ thống xử lý và trích xuất dữ liệu</li>
             <li>Kiểm tra và xác nhận dữ liệu đã được nhập tự động</li>
