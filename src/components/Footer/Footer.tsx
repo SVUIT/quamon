@@ -7,33 +7,6 @@ const Footer: React.FC = () => {
         STUDY VAULT OF UIT
       </h2>
 
-      <div className="footer-links flex gap-10 text-sm font-bold">
-        <a 
-          href="https://svuit.org/mmtt/" 
-          className="text-white no-underline hover:text-[#2C84FA] transition-colors"
-          target="_blank" 
-          rel="noreferrer"
-        >
-          Kho tài liệu
-        </a>
-        <a 
-          href="https://svuit.org/mmtt/docs/contribute" 
-          className="text-white no-underline hover:text-[#2C84FA] transition-colors"
-          target="_blank" 
-          rel="noreferrer"
-        >
-          Đóng góp
-        </a>
-        <a 
-          href="https://svuit.org/mmtt/docs/ThongBao/index" 
-          className="text-white no-underline hover:text-[#2C84FA] transition-colors"
-          target="_blank" 
-          rel="noreferrer"
-        >
-          Thông báo
-        </a>
-      </div>
-
       <div className="footer-icons flex gap-6 items-center">
         {/* Facebook */}
         <a href="https://www.facebook.com/studyvault.uit" target="_blank" rel="noreferrer" className="hover:opacity-80 transition-opacity">
@@ -70,7 +43,7 @@ const Footer: React.FC = () => {
       </div>
 
       <a 
-        href="https://github.com/SVUIT/mmtt/issues/new/choose" 
+        href="https://github.com/SVUIT/grade-calculator/issues/new/choose"
         className="text-white no-underline font-bold text-sm hover:text-[#2C84FA] transition-colors"
         target="_blank" 
         rel="noreferrer"
