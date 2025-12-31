@@ -179,7 +179,7 @@ const Instructions: React.FC = () => {
           <h3>Cách xuất dữ liệu ra Excel</h3>
           <ol>
             <li>Đảm bảo bạn đã nhập đầy đủ dữ liệu điểm số</li>
-            <li>Nhấn vào nút <strong>"Xuất Excel"</strong> ở góc trên bên phải màn hình</li>
+            <li>Nhấn vào nút <strong>"Xuất Excel"</strong></li>
             <li>Chọn vị trí lưu file trên máy tính của bạn</li>
             <li>Đặt tên file và nhấn <strong>Lưu</strong></li>
           </ol>
