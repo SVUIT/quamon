@@ -235,52 +235,51 @@ export default function Home() {
             </h1>
 
             {/* Nút PDF nằm bên phải, phía dưới */}
-            <div className="button-group" style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '20px', alignItems: 'center' }}>
-              <div className="pdf-import-wrapper">
-                <label
-                  htmlFor="pdf-upload"
-                  className="pdf-import-btn"
-                  style={{
-                    padding: '10px 10px',
-                    height: '40px',
-                    minWidth: '160px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    borderRadius: '4px',
-                    backgroundColor: '#2196F3',
-                    color: 'white',
-                    border: 'none',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    transition: 'all 0.3s',
-                    whiteSpace: 'nowrap',
-                    boxSizing: 'border-box',
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1976D2'}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2196F3'}
-                >
-                  {loadingPdf ? "Đang xử lý..." : "Nhập điểm từ PDF"}
-                </label>
+            {/* Nút PDF nằm bên phải, phía dưới */}
+            <div className="button-group" style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px', marginBottom: '10px', alignItems: 'stretch' }}>
+              <label
+                htmlFor="pdf-upload"
+                className="action-btn pdf-import-btn"
+                style={{
+                  height: '40px',
+                  width: '160px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  borderRadius: '4px',
+                  backgroundColor: '#2196F3',
+                  color: 'white',
+                  border: 'none',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  transition: 'all 0.3s',
+                  whiteSpace: 'nowrap',
+                  boxSizing: 'border-box',
+                  padding: '0 12px',
+                  lineHeight: '1',
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1976D2'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2196F3'}
+              >
+                {loadingPdf ? "Đang xử lý..." : "Nhập điểm từ PDF"}
+              </label>
 
-                <input
-                  id="pdf-upload"
-                  type="file"
-                  accept=".pdf"
-                  hidden
-                  disabled={loadingPdf}
-                  onChange={handlePdfUpload}
-                />
-              </div>
+              <input
+                id="pdf-upload"
+                type="file"
+                accept=".pdf"
+                hidden
+                disabled={loadingPdf}
+                onChange={handlePdfUpload}
+              />
               
               <button 
                 onClick={() => exportToExcel(semesters)}
-                className="export-excel-btn"
+                className="action-btn export-excel-btn"
                 style={{
-                  padding: '10px 10px',
                   height: '40px',
-                  minWidth: '160px',
+                  width: '160px',
                   backgroundColor: '#4CAF50',
                   color: 'white',
                   border: 'none',
@@ -294,6 +293,8 @@ export default function Home() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  padding: '0 12px',
+                  lineHeight: '1',
                 }}
                 onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#45a049'}
                 onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
@@ -330,8 +331,9 @@ export default function Home() {
                 setEditSearchTerm={setEditSearchTerm}
                 editSearchResults={editSearchResults}
                 editExpandedCategories={editExpandedCategories}
-                setEditExpandedCategories={setEditExpandedCategories}
-              />
+                setEditExpandedCategories={setEditExpandedCategories} cumulativeExpected={""} setCumulativeExpected={function (): void {
+                  throw new Error("Function not implemented.");
+                } }              />
             </div>
           </>
         ) : (
