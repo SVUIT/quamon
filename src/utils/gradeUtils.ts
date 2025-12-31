@@ -137,6 +137,65 @@ export const hasAllScores = (subj: Subject): boolean => {
   });
 };
 
+// ================== CALCULATE TARGET COURSE GPA =================
+export const calculateTargetCourseGpa = (
+  expectedSemesterGpa: number,
+  subjects: { credits: number; currentGpa?: number | null }[]
+): {
+  requiredGpaForRemaining: number;
+  isFeasible: boolean;
+  totalCredits: number;
+  accumulatedScore: number;
+  remainingCredits: number;
+} => {
+  let totalCredits = 0;
+  let accumulatedScore = 0;
+  let remainingCredits = 0;
+
+  subjects.forEach((sub) => {
+    totalCredits += sub.credits;
+    if (sub.currentGpa !== null && sub.currentGpa !== undefined) {
+      accumulatedScore += sub.currentGpa * sub.credits;
+    } else {
+      remainingCredits += sub.credits;
+    }
+  });
+
+  if (totalCredits === 0) {
+    return {
+      requiredGpaForRemaining: 0,
+      isFeasible: true,
+      totalCredits: 0,
+      accumulatedScore: 0,
+      remainingCredits: 0,
+    };
+  }
+
+  const targetTotalScore = expectedSemesterGpa * totalCredits;
+  const remainingScoreNeeded = targetTotalScore - accumulatedScore;
+
+  if (remainingCredits === 0) {
+    const currentGpa = accumulatedScore / totalCredits;
+    return {
+      requiredGpaForRemaining: 0,
+      isFeasible: currentGpa >= expectedSemesterGpa - 0.001,
+      totalCredits,
+      accumulatedScore,
+      remainingCredits,
+    };
+  }
+
+  const requiredGpaForRemaining = remainingScoreNeeded / remainingCredits;
+
+  return {
+    requiredGpaForRemaining,
+    isFeasible: requiredGpaForRemaining <= 10,
+    totalCredits,
+    accumulatedScore,
+    remainingCredits,
+  };
+};
+
 // ================== SEARCH HELPER =================
 export const getSearchResults = (searchTerm: string, data: Record<string, Course[]>) => {
   if (!searchTerm.trim()) {
