@@ -1,6 +1,6 @@
 import React from "react";
 import type { Semester, Course } from "../../types";
-import { calcSemesterAverage, calcRequiredScores } from "../../utils/gradeUtils";
+import { calcSemesterAverage, calcRequiredScores, calculateTargetCourseGpa, isSubjectComplete, calcSubjectScore } from "../../utils/gradeUtils";
 import SearchDropdown from "./SearchDropdown";
 import SubjectRow from "./SubjectRow";
 
@@ -239,33 +239,55 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
             onBlur={(e) => {
               const text = e.currentTarget.textContent?.trim() || "";
               
-              // Lưu giá trị expectedAverage cho học kỳ (kể cả rỗng)
               setSemesters((prev) => {
                 const updated = JSON.parse(JSON.stringify(prev));
-                const target = updated[si];
-                if (!target) return prev;
+                const targetSemester = updated[si];
+                if (!targetSemester) return prev;
                 
-                // Lưu giá trị nhập vào
-                target.expectedAverage = text;
+                targetSemester.expectedAverage = text;
 
                 if (text === "") return updated;
-                const xp = Number(text);
-                if (isNaN(xp)) return updated;
+                const semesterTargetGpa = Number(text);
+                if (isNaN(semesterTargetGpa)) return updated;
 
-                // Áp dụng cho các môn chưa có đủ điểm
-                target.subjects.forEach((sub: any) => {
+                // Prepare data for calculation
+                const subjectData = targetSemester.subjects.map((sub: any) => {
+                  const credits = Number(sub.credits) || 0;
+                  const isComplete = isSubjectComplete(sub);
+
+                  // If complete, use the calculated score. If not, it's a variable.
+                  let currentGpa: number | null = null;
+                  if (isComplete) {
+                    const scoreStr = calcSubjectScore(sub);
+                    if (scoreStr && scoreStr !== "") {
+                      currentGpa = Number(scoreStr);
+                    }
+                  }
+
+                  return { credits, currentGpa, originalSubject: sub };
+                });
+
+                const { requiredGpaForRemaining } = calculateTargetCourseGpa(semesterTargetGpa, subjectData);
+
+                // Apply the calculated target GPA to incomplete subjects
+                targetSemester.subjects.forEach((sub: any) => {
                   if (!sub) return;
-                  const hasAll = ["progressScore", "midtermScore", "practiceScore", "finalScore"].every((f) => {
-                    const v = (sub as any)[f];
-                    return v !== undefined && v.toString().trim() !== "";
-                  });
-                  if (hasAll) return;
+                  const isComplete = isSubjectComplete(sub);
 
-                  sub.expectedScore = xp.toString();
-                  const required = calcRequiredScores(sub, xp);
-                  Object.entries(required).forEach(([field, value]) => {
-                    (sub as any)[field] = value;
-                  });
+                  if (!isComplete) {
+                     // If feasible, use the calculated requirement.
+                     // If not feasible (e.g. > 10), we still set it so user sees the impossible number.
+                     const targetScore = requiredGpaForRemaining;
+
+                     // Format to 2 decimal places for display
+                     sub.expectedScore = targetScore.toFixed(2);
+
+                     // Calculate required component scores based on this new target
+                     const required = calcRequiredScores(sub, targetScore);
+                     Object.entries(required).forEach(([field, value]) => {
+                       (sub as any)[field] = value;
+                     });
+                  }
                 });
 
                 return updated;
