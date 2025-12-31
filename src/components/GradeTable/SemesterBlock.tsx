@@ -267,10 +267,10 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
                   return { credits, currentGpa, originalSubject: sub };
                 });
 
-                const { requiredGpaForRemaining, isFeasible } = calculateTargetCourseGpa(semesterTargetGpa, subjectData);
+                const { requiredGpaForRemaining } = calculateTargetCourseGpa(semesterTargetGpa, subjectData);
 
                 // Apply the calculated target GPA to incomplete subjects
-                targetSemester.subjects.forEach((sub: any, idx: number) => {
+                targetSemester.subjects.forEach((sub: any) => {
                   if (!sub) return;
                   const isComplete = hasAllScores(sub);
 
