@@ -1,6 +1,6 @@
 import React from "react";
 import type { Semester, Course } from "../../types";
-import { calcSemesterAverage, calcRequiredScores, calculateTargetCourseGpa, hasAllScores, calcSubjectScore } from "../../utils/gradeUtils";
+import { calcSemesterAverage, calcRequiredScores, calculateTargetCourseGpa, isSubjectComplete, calcSubjectScore } from "../../utils/gradeUtils";
 import SearchDropdown from "./SearchDropdown";
 import SubjectRow from "./SubjectRow";
 
@@ -253,7 +253,7 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
                 // Prepare data for calculation
                 const subjectData = targetSemester.subjects.map((sub: any) => {
                   const credits = Number(sub.credits) || 0;
-                  const isComplete = hasAllScores(sub);
+                  const isComplete = isSubjectComplete(sub);
 
                   // If complete, use the calculated score. If not, it's a variable.
                   let currentGpa: number | null = null;
@@ -272,7 +272,7 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
                 // Apply the calculated target GPA to incomplete subjects
                 targetSemester.subjects.forEach((sub: any) => {
                   if (!sub) return;
-                  const isComplete = hasAllScores(sub);
+                  const isComplete = isSubjectComplete(sub);
 
                   if (!isComplete) {
                      // If feasible, use the calculated requirement.

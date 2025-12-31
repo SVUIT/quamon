@@ -128,13 +128,27 @@ export const calcRequiredScores = (subj: Subject, expected: number): Partial<Sub
   return result;
 };
 
-// ================== CHECK ĐỦ 4 CỘT ĐIỂM =================
-export const hasAllScores = (subj: Subject): boolean => {
+// ================== CHECK ĐỦ CÁC CỘT ĐIỂM (CÓ TRỌNG SỐ) =================
+export const isSubjectComplete = (subj: Subject): boolean => {
   const fields: (keyof Subject)[] = ["progressScore", "midtermScore", "practiceScore", "finalScore"];
-  return fields.every((f) => {
-    const val = subj[f];
-    return val !== undefined && val.toString().trim() !== "";
-  });
+  const weightFields: (keyof Subject)[] = ["progressWeight", "midtermWeight", "practiceWeight", "finalWeight"];
+
+  for (let i = 0; i < fields.length; i++) {
+    const weight = Number(subj[weightFields[i]]) || 0;
+    // Nếu trọng số > 0 thì bắt buộc phải có điểm
+    if (weight > 0) {
+      const val = subj[fields[i]];
+      if (val === undefined || val.toString().trim() === "") {
+        return false;
+      }
+    }
+  }
+  return true;
+};
+
+// ================== CHECK ĐỦ 4 CỘT ĐIỂM (Legacy) =================
+export const hasAllScores = (subj: Subject): boolean => {
+  return isSubjectComplete(subj);
 };
 
 // ================== CALCULATE TARGET COURSE GPA =================
