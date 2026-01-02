@@ -92,14 +92,23 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
     if (hasAllScores(sub)) return;
     const val = e.currentTarget.innerText.trim();
     const updated = [...semesters];
-    updated[si].subjects[i].expectedScore = val;
+    
+    if (val === "") {
+      // Người dùng xóa điểm kỳ vọng
+      updated[si].subjects[i].expectedScore = "";
+      updated[si].subjects[i].isExpectedManual = false;
+    } else {
+      // Người dùng nhập điểm kỳ vọng
+      updated[si].subjects[i].expectedScore = val;
+      updated[si].subjects[i].isExpectedManual = true;
 
-    const xp = Number(val);
-    if (!isNaN(xp) && val !== "") {
-      const required = calcRequiredScores(updated[si].subjects[i], xp);
-      Object.entries(required).forEach(([field, value]) => {
-         (updated[si].subjects[i] as any)[field] = value;
-      });
+      const xp = Number(val);
+      if (!isNaN(xp) && val !== "") {
+        const required = calcRequiredScores(updated[si].subjects[i], xp);
+        Object.entries(required).forEach(([field, value]) => {
+          (updated[si].subjects[i] as any)[field] = value;
+        });
+      }
     }
     setSemesters(updated);
   };
@@ -315,8 +324,11 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
           suppressContentEditableWarning
           data-placeholder={hasAllScores(sub) ? "" : "Nhập điểm\nkỳ vọng"}
           className={`editable-cell expected-score-cell ${
-            hasAllScores(sub) ? "text-gray cursor-not-allowed" : "text-yellow"
+            hasAllScores(sub) ? "text-gray cursor-not-allowed" : ""
           }`}
+          style={{
+            color: sub.isExpectedManual ? "white" : undefined
+          }}
           role="textbox"
           tabIndex={hasAllScores(sub) ? -1 : 0}
           onBlur={handleExpectedScoreBlur}

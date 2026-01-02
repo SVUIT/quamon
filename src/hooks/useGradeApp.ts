@@ -12,6 +12,7 @@ import { SUBJECTS_DATA } from "../constants";
 const LOCAL_STORAGE_KEY = "grade_app_semesters";
 const THEME_KEY = "grade_app_theme";
 const CUMULATIVE_KEY = "grade_app_cumulative";
+const CUMULATIVE_MANUAL_KEY = "grade_app_cumulative_manual";
 
 const generateId = (prefix = "sem") =>
   `${prefix}-${crypto.randomUUID()}`; 
@@ -35,6 +36,7 @@ const createEmptySubject = (): Subject => ({
   finalWeight: "40",
   score: "",
   expectedScore: "",
+  isExpectedManual: false,
 });
 
 export const useGradeApp = () => {
@@ -56,15 +58,19 @@ export const useGradeApp = () => {
 
   /* ================= CUMULATIVE GPA ================= */
   const [cumulativeExpected, setCumulativeExpected] = useState("");
+  const [isCumulativeManual, setIsCumulativeManual] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem(CUMULATIVE_KEY);
+    const savedManual = localStorage.getItem(CUMULATIVE_MANUAL_KEY);
     if (saved) setCumulativeExpected(saved);
+    if (savedManual) setIsCumulativeManual(savedManual === "true");
   }, []);
 
   useEffect(() => {
     localStorage.setItem(CUMULATIVE_KEY, cumulativeExpected);
-  }, [cumulativeExpected]);
+    localStorage.setItem(CUMULATIVE_MANUAL_KEY, isCumulativeManual.toString());
+  }, [cumulativeExpected, isCumulativeManual]);
 
   /* ================= SEMESTERS ================= */
   const [semesters, setSemesters] = useState<Semester[]>([]);
@@ -78,10 +84,12 @@ export const useGradeApp = () => {
           ...s,
           id: s.id || generateId("sem"),
           expectedAverage: s.expectedAverage || "",
+          isExpectedAverageManual: s.isExpectedAverageManual || false,
           subjects: s.subjects.map((sub: any) => ({
             ...sub,
             id: sub.id || generateId("sub"),
             expectedScore: sub.expectedScore || "",
+            isExpectedManual: sub.isExpectedManual || false,
           })),
         }))
       );
@@ -92,6 +100,7 @@ export const useGradeApp = () => {
           name: "Học kỳ 1",
           subjects: [createEmptySubject()],
           expectedAverage: "",
+          isExpectedAverageManual: false,
         },
       ]);
     }
@@ -129,7 +138,7 @@ export const useGradeApp = () => {
     setModalOpen(true);
   };
 
-  /* ================= CALCULATION LOGIC (GIỮ NGUYÊN) ================= */
+  /* ================= CALCULATION LOGIC ================= */
   const distributeToSubjects = (
     subjects: Subject[],
     targetGPA: number,
@@ -153,6 +162,8 @@ export const useGradeApp = () => {
         lockedPoints += (Number(sub.expectedScore) || 0) * cred;
       } else if (hasAllScores(sub)) {
         lockedPoints += Number(calcSubjectScore(sub)) * cred;
+      } else if (sub.isExpectedManual && sub.expectedScore) {
+        lockedPoints += Number(sub.expectedScore) * cred;
       } else {
         flexibleCredits += cred;
         flexibleIndices.push(idx);
@@ -162,10 +173,11 @@ export const useGradeApp = () => {
     if (flexibleCredits > 0) {
       const avg = Math.max(
         0,
-        (targetGPA * totalCredits - lockedPoints) / flexibleCredits
+        Math.min(10, (targetGPA * totalCredits - lockedPoints) / flexibleCredits)
       );
       flexibleIndices.forEach((idx) => {
         subjects[idx].expectedScore = avg.toFixed(2);
+        subjects[idx].isExpectedManual = false;
         Object.assign(subjects[idx], calcRequiredScores(subjects[idx], avg));
       });
     }
@@ -190,16 +202,29 @@ export const useGradeApp = () => {
       if (!credits) return;
       totalCredits += credits;
 
-      if (idx === sIdx || sem.subjects.every(hasAllScores)) {
-        sem.subjects.forEach((sub) => {
-          locked +=
-            (hasAllScores(sub)
-              ? Number(calcSubjectScore(sub))
-              : Number(sub.expectedScore || 0)) *
-            (Number(sub.credits) || 0);
-        });
+      let semLocked = 0;
+      let semFlexCredits = 0;
+      let hasFlexible = false;
+
+      sem.subjects.forEach((sub) => {
+        const cred = Number(sub.credits) || 0;
+        if (hasAllScores(sub)) {
+          semLocked += Number(calcSubjectScore(sub)) * cred;
+        } else if (sub.isExpectedManual && sub.expectedScore) {
+          semLocked += Number(sub.expectedScore) * cred;
+        } else {
+          semFlexCredits += cred;
+          hasFlexible = true;
+        }
+      });
+
+      if (idx === sIdx || !hasFlexible) {
+        locked += semLocked + (sem.expectedAverage && hasFlexible ? Number(sem.expectedAverage) * semFlexCredits : 0);
+      } else if (sem.isExpectedAverageManual && sem.expectedAverage) {
+        locked += semLocked + Number(sem.expectedAverage) * semFlexCredits;
       } else {
-        flexCredits += credits;
+        locked += semLocked;
+        flexCredits += semFlexCredits;
         flexIdx.push(idx);
       }
     });
@@ -207,10 +232,11 @@ export const useGradeApp = () => {
     if (flexCredits > 0) {
       const avg = Math.max(
         0,
-        (target * totalCredits - locked) / flexCredits
+        Math.min(10, (target * totalCredits - locked) / flexCredits)
       );
       flexIdx.forEach((idx) => {
         updated[idx].expectedAverage = avg.toFixed(2);
+        updated[idx].isExpectedAverageManual = false;
         updated[idx].subjects = distributeToSubjects(
           updated[idx].subjects,
           avg
@@ -247,7 +273,16 @@ export const useGradeApp = () => {
   ) => {
     setSemesters((prev) => {
       const updated = JSON.parse(JSON.stringify(prev));
-      updated[sIdx].subjects[subIdx].expectedScore = value;
+      const sub = updated[sIdx].subjects[subIdx];
+      
+      if (value === "") {
+        sub.expectedScore = "";
+        sub.isExpectedManual = false;
+      } else {
+        sub.expectedScore = value;
+        sub.isExpectedManual = true;
+      }
+      
       return rebalanceGlobal(updated, sIdx);
     });
   };
@@ -255,7 +290,65 @@ export const useGradeApp = () => {
   const updateSemesterExpectedAverage = (sIdx: number, value: string) => {
     setSemesters((prev) => {
       const updated = JSON.parse(JSON.stringify(prev));
-      updated[sIdx].expectedAverage = value;
+      
+      if (value === "") {
+        updated[sIdx].expectedAverage = "";
+        updated[sIdx].isExpectedAverageManual = false;
+        updated[sIdx].subjects.forEach((sub: any) => {
+          if (!sub.isExpectedManual) {
+            sub.expectedScore = "";
+          }
+        });
+      } else {
+        const targetAvg = Number(value);
+        if (!isNaN(targetAvg) && targetAvg >= 0 && targetAvg <= 10) {
+          updated[sIdx].expectedAverage = value;
+          updated[sIdx].isExpectedAverageManual = true;
+          
+          let totalCredits = 0;
+          let lockedCredits = 0;
+          let lockedPoints = 0;
+          
+          updated[sIdx].subjects.forEach((sub: any) => {
+            const credits = Number(sub.credits) || 0;
+            totalCredits += credits;
+            
+            const hasAll = ["progressScore", "midtermScore", "practiceScore", "finalScore"].every((f) => {
+              const v = (sub as any)[f];
+              return v !== undefined && v.toString().trim() !== "";
+            });
+            
+            if (hasAll) {
+              lockedCredits += credits;
+              lockedPoints += Number(calcSubjectScore(sub)) * credits;
+            } else if (sub.isExpectedManual && sub.expectedScore) {
+              lockedCredits += credits;
+              lockedPoints += Number(sub.expectedScore) * credits;
+            }
+          });
+          
+          const remainingCredits = totalCredits - lockedCredits;
+          if (remainingCredits > 0) {
+            const requiredAvg = Math.max(0, Math.min(10, (targetAvg * totalCredits - lockedPoints) / remainingCredits));
+            
+            updated[sIdx].subjects.forEach((sub: any) => {
+              const hasAll = ["progressScore", "midtermScore", "practiceScore", "finalScore"].every((f) => {
+                const v = (sub as any)[f];
+                return v !== undefined && v.toString().trim() !== "";
+              });
+              
+              if (!hasAll && !sub.isExpectedManual) {
+                sub.expectedScore = requiredAvg.toFixed(2);
+                const required = calcRequiredScores(sub, requiredAvg);
+                Object.entries(required).forEach(([field, val]) => {
+                  (sub as any)[field] = val;
+                });
+              }
+            });
+          }
+        }
+      }
+      
       return rebalanceGlobal(updated, sIdx);
     });
   };
@@ -287,6 +380,8 @@ export const useGradeApp = () => {
     setSemesters,
     cumulativeExpected,
     setCumulativeExpected,
+    isCumulativeManual,
+    setIsCumulativeManual,
     updateSubjectExpectedScore,
     updateSemesterExpectedAverage,
     modalOpen,

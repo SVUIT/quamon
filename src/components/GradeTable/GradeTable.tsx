@@ -9,6 +9,8 @@ interface GradeTableProps {
   setSemesters: (semesters: Semester[] | ((prev: Semester[]) => Semester[])) => void;
   cumulativeExpected: string;
   setCumulativeExpected: (value: string) => void;
+  isCumulativeManual: boolean;
+  setIsCumulativeManual: (value: boolean) => void;
   updateSubjectField: (s: number, i: number, f: string, v: string) => void;
   deleteSemester: (id: string) => void;
   deleteSubject: (s: number, i: number) => void;
@@ -44,6 +46,8 @@ const GradeTable: React.FC<GradeTableProps> = ({
   setSemesters,
   cumulativeExpected,
   setCumulativeExpected,
+  isCumulativeManual,
+  setIsCumulativeManual,
   updateSubjectField,
   deleteSemester,
   deleteSubject,
@@ -142,6 +146,8 @@ const GradeTable: React.FC<GradeTableProps> = ({
           cumulativeExpected={cumulativeExpected}
           onApplyExpectedOverall={handleApplyExpectedOverall}
           onSetCumulativeExpected={setCumulativeExpected}
+          isCumulativeManual={isCumulativeManual}
+          setIsCumulativeManual={setIsCumulativeManual}
         />
       </tbody>
     </table>

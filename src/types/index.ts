@@ -56,6 +56,7 @@ export interface Subject {
 
   score: string;
   expectedScore: string;
+  isExpectedManual?: boolean;
   [key: string]: any;
 }
 
@@ -69,4 +70,5 @@ export interface Semester {
   name: string;
   subjects: Subject[];
   expectedAverage?: string;
+  isExpectedAverageManual?: boolean;
 }

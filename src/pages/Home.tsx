@@ -24,6 +24,10 @@ export default function Home() {
     toggleTheme,
     semesters,
     setSemesters,
+    cumulativeExpected,
+    setCumulativeExpected,
+    isCumulativeManual,
+    setIsCumulativeManual,
     modalOpen,
     setModalOpen,
     editing,
@@ -115,15 +119,6 @@ export default function Home() {
         sheet.column("H").width(8);   // CK
         sheet.column("I").width(12);  // Điểm HP
         sheet.column("J").width(15);  // Điểm kỳ vọng
-        sheet.column("B").width(10);
-        sheet.column("C").width(40);
-        sheet.column("D").width(5);
-        sheet.column("E").width(5);
-        sheet.column("F").width(5);
-        sheet.column("G").width(5);
-        sheet.column("H").width(5);
-        sheet.column("I").width(10);
-        sheet.column("J").width(15);
       });
 
       const blob = await workbook.outputAsync();
@@ -193,8 +188,11 @@ export default function Home() {
               // Set total score if available
               score: c.scores?.totalScore?.toString() || "",
               expectedScore: "",
+              isExpectedManual: false,
             };
           }),
+          expectedAverage: "",
+          isExpectedAverageManual: false,
         };
       });
 
@@ -229,80 +227,79 @@ export default function Home() {
         {activeTab === "grades" ? (
           <>
             <div style={{ marginBottom: "20px" }}>
-            {/* Tiêu đề ở giữa */}
-            <h1 style={{ textAlign: "center", marginBottom: "10px" }}>
-              Bảng điểm
-            </h1>
+              {/* Tiêu đề ở giữa */}
+              <h1 style={{ textAlign: "center", marginBottom: "10px" }}>
+                Bảng điểm
+              </h1>
 
-            {/* Nút PDF nằm bên phải, phía dưới */}
-            {/* Nút PDF nằm bên phải, phía dưới */}
-            <div className="button-group" style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px', marginBottom: '10px', alignItems: 'stretch' }}>
-              <label
-                htmlFor="pdf-upload"
-                className="action-btn pdf-import-btn"
-                style={{
-                  height: '40px',
-                  width: '160px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  borderRadius: '4px',
-                  backgroundColor: '#2196F3',
-                  color: 'white',
-                  border: 'none',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  transition: 'all 0.3s',
-                  whiteSpace: 'nowrap',
-                  boxSizing: 'border-box',
-                  padding: '0 12px',
-                  lineHeight: '1',
-                }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1976D2'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2196F3'}
-              >
-                {loadingPdf ? "Đang xử lý..." : "Nhập điểm từ PDF"}
-              </label>
+              {/* Nút PDF và Excel */}
+              <div className="button-group" style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px', marginBottom: '10px', alignItems: 'stretch' }}>
+                <label
+                  htmlFor="pdf-upload"
+                  className="action-btn pdf-import-btn"
+                  style={{
+                    height: '40px',
+                    width: '160px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    borderRadius: '4px',
+                    backgroundColor: '#2196F3',
+                    color: 'white',
+                    border: 'none',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    transition: 'all 0.3s',
+                    whiteSpace: 'nowrap',
+                    boxSizing: 'border-box',
+                    padding: '0 12px',
+                    lineHeight: '1',
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1976D2'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2196F3'}
+                >
+                  {loadingPdf ? "Đang xử lý..." : "Nhập điểm từ PDF"}
+                </label>
 
-              <input
-                id="pdf-upload"
-                type="file"
-                accept=".pdf"
-                hidden
-                disabled={loadingPdf}
-                onChange={handlePdfUpload}
-              />
-              
-              <button 
-                onClick={() => exportToExcel(semesters)}
-                className="action-btn export-excel-btn"
-                style={{
-                  height: '40px',
-                  width: '160px',
-                  backgroundColor: '#4CAF50',
-                  color: 'white',
-                  border: 'none',
-                  whiteSpace: 'nowrap',
-                  boxSizing: 'border-box',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  transition: 'background-color 0.3s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '0 12px',
-                  lineHeight: '1',
-                }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#45a049'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
-              >
-                Xuất Excel
-              </button>
+                <input
+                  id="pdf-upload"
+                  type="file"
+                  accept=".pdf"
+                  hidden
+                  disabled={loadingPdf}
+                  onChange={handlePdfUpload}
+                />
+                
+                <button 
+                  onClick={() => exportToExcel(semesters)}
+                  className="action-btn export-excel-btn"
+                  style={{
+                    height: '40px',
+                    width: '160px',
+                    backgroundColor: '#4CAF50',
+                    color: 'white',
+                    border: 'none',
+                    whiteSpace: 'nowrap',
+                    boxSizing: 'border-box',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    transition: 'background-color 0.3s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0 12px',
+                    lineHeight: '1',
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#45a049'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
+                >
+                  Xuất Excel
+                </button>
+              </div>
             </div>
-          </div>
 
             {pdfError && <p style={{ color: "red" }}>{pdfError}</p>}
 
@@ -310,6 +307,10 @@ export default function Home() {
               <GradeTable
                 semesters={semesters}
                 setSemesters={setSemesters}
+                cumulativeExpected={cumulativeExpected}
+                setCumulativeExpected={setCumulativeExpected}
+                isCumulativeManual={isCumulativeManual}
+                setIsCumulativeManual={setIsCumulativeManual}
                 updateSubjectField={updateSubjectField}
                 deleteSemester={deleteSemester}
                 deleteSubject={deleteSubject}
@@ -331,9 +332,8 @@ export default function Home() {
                 setEditSearchTerm={setEditSearchTerm}
                 editSearchResults={editSearchResults}
                 editExpandedCategories={editExpandedCategories}
-                setEditExpandedCategories={setEditExpandedCategories} cumulativeExpected={""} setCumulativeExpected={function (): void {
-                  throw new Error("Function not implemented.");
-                } }              />
+                setEditExpandedCategories={setEditExpandedCategories}
+              />
             </div>
           </>
         ) : (
