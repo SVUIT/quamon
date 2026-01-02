@@ -1,6 +1,6 @@
 import React from "react";
 import type { Semester, Course } from "../../types";
-import { calcSemesterAverage, calcRequiredScores, calculateTargetCourseGpa, isSubjectComplete, calcSubjectScore } from "../../utils/gradeUtils";
+import { calcSemesterAverage, calcRequiredScores } from "../../utils/gradeUtils";
 import SearchDropdown from "./SearchDropdown";
 import SubjectRow from "./SubjectRow";
 
@@ -12,6 +12,7 @@ interface SemesterBlockProps {
 
   // Handlers for subjects
   updateSubjectField: (s: number, i: number, f: string, v: string) => void;
+  updateSubjectExpectedScore: (s: number, i: number, v: string) => void; // ← THÊM DÒNG NÀY
   deleteSemester: (id: string) => void;
   deleteSubject: (s: number, i: number) => void;
   openAdvancedModal: (s: number, i: number) => void;
@@ -49,6 +50,7 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
   semesters,
   setSemesters,
   updateSubjectField,
+  updateSubjectExpectedScore, // ← THÊM DÒNG NÀY
   deleteSemester,
   deleteSubject,
   openAdvancedModal,
@@ -156,6 +158,7 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
                               finalWeight: wCK,
                               score: "",
                               expectedScore: "",
+                              isExpectedManual: false,
                           });
                       }
                       return updated;
@@ -197,6 +200,7 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
           semesters={semesters}
           setSemesters={setSemesters}
           updateSubjectField={updateSubjectField}
+          updateSubjectExpectedScore={updateSubjectExpectedScore} // ← THÊM DÒNG NÀY
           deleteSubject={deleteSubject}
           openAdvancedModal={openAdvancedModal}
           openMenu={openMenu}
@@ -214,7 +218,8 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
       {/* TRUNG BÌNH HỌC KỲ */}
       <tr style={{ background: "transparent", fontWeight: "bold" }}>
         <td className="semester-bg"></td>
-        <td colSpan={2} className="summary-label">Trung bình học kỳ</td>
+        <td></td> 
+        <td className="summary-label">Trung bình học kỳ</td>
         <td style={{ textAlign: "center" }}>{avg.tc}</td>
         {/* Empty cells for QT, GK, TH, CK to show grid lines */}
         <td></td>
@@ -228,6 +233,7 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
             suppressContentEditableWarning
             data-placeholder={"Nhập điểm kỳ vọng học kỳ"}
             className="editable-cell expected-score-cell"
+            style={{ color: sem.isExpectedAverageManual ? "white" : undefined }}
             role="textbox"
             tabIndex={0}
             onKeyDown={(e) => {
@@ -241,54 +247,82 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
               
               setSemesters((prev) => {
                 const updated = JSON.parse(JSON.stringify(prev));
-                const targetSemester = updated[si];
-                if (!targetSemester) return prev;
+                const target = updated[si];
+                if (!target) return prev;
                 
-                targetSemester.expectedAverage = text;
-
-                if (text === "") return updated;
-                const semesterTargetGpa = Number(text);
-                if (isNaN(semesterTargetGpa)) return updated;
-
-                // Prepare data for calculation
-                const subjectData = targetSemester.subjects.map((sub: any) => {
-                  const credits = Number(sub.credits) || 0;
-                  const isComplete = isSubjectComplete(sub);
-
-                  // If complete, use the calculated score. If not, it's a variable.
-                  let currentGpa: number | null = null;
-                  if (isComplete) {
-                    const scoreStr = calcSubjectScore(sub);
-                    if (scoreStr && scoreStr !== "") {
-                      currentGpa = Number(scoreStr);
+                if (text === "") {
+                  // Xóa điểm kỳ vọng học kỳ
+                  target.expectedAverage = "";
+                  target.isExpectedAverageManual = false;
+                  
+                  // Xóa các điểm kỳ vọng môn được tính tự động
+                  target.subjects.forEach((sub: any) => {
+                    if (!sub.isExpectedManual) {
+                      sub.expectedScore = "";
                     }
+                  });
+                  return updated;
+                }
+
+                const xp = Number(text);
+                if (isNaN(xp) || xp < 0 || xp > 10) return prev;
+
+                // Đánh dấu là người dùng nhập
+                target.expectedAverage = text;
+                target.isExpectedAverageManual = true;
+
+                // Tính toán điểm cần thiết cho các môn chưa có điểm
+                let totalCredits = 0;
+                let lockedCredits = 0;
+                let lockedPoints = 0;
+                
+                target.subjects.forEach((sub: any) => {
+                  const credits = Number(sub.credits) || 0;
+                  totalCredits += credits;
+                  
+                  const hasAll = ["progressScore", "midtermScore", "practiceScore", "finalScore"].every((f) => {
+                    const v = (sub as any)[f];
+                    return v !== undefined && v.toString().trim() !== "";
+                  });
+                  
+                  if (hasAll) {
+                    // Môn đã có đủ điểm
+                    lockedCredits += credits;
+                    const score = (
+                      Number(sub.progressScore || 0) * Number(sub.progressWeight || 0) / 100 +
+                      Number(sub.midtermScore || 0) * Number(sub.midtermWeight || 0) / 100 +
+                      Number(sub.practiceScore || 0) * Number(sub.practiceWeight || 0) / 100 +
+                      Number(sub.finalScore || 0) * Number(sub.finalWeight || 0) / 100
+                    );
+                    lockedPoints += score * credits;
+                  } else if (sub.isExpectedManual && sub.expectedScore) {
+                    // Môn có điểm kỳ vọng do người dùng nhập
+                    lockedCredits += credits;
+                    lockedPoints += Number(sub.expectedScore) * credits;
                   }
-
-                  return { credits, currentGpa, originalSubject: sub };
                 });
-
-                const { requiredGpaForRemaining } = calculateTargetCourseGpa(semesterTargetGpa, subjectData);
-
-                // Apply the calculated target GPA to incomplete subjects
-                targetSemester.subjects.forEach((sub: any) => {
-                  if (!sub) return;
-                  const isComplete = isSubjectComplete(sub);
-
-                  if (!isComplete) {
-                     // If feasible, use the calculated requirement.
-                     // If not feasible (e.g. > 10), we still set it so user sees the impossible number.
-                     const targetScore = requiredGpaForRemaining;
-
-                     // Format to 2 decimal places for display
-                     sub.expectedScore = targetScore.toFixed(2);
-
-                     // Calculate required component scores based on this new target
-                     const required = calcRequiredScores(sub, targetScore);
-                     Object.entries(required).forEach(([field, value]) => {
-                       (sub as any)[field] = value;
-                     });
-                  }
-                });
+                
+                // Tính điểm cần thiết cho các môn còn lại
+                const remainingCredits = totalCredits - lockedCredits;
+                if (remainingCredits > 0) {
+                  const requiredAvg = Math.max(0, Math.min(10, (xp * totalCredits - lockedPoints) / remainingCredits));
+                  
+                  target.subjects.forEach((sub: any) => {
+                    const hasAll = ["progressScore", "midtermScore", "practiceScore", "finalScore"].every((f) => {
+                      const v = (sub as any)[f];
+                      return v !== undefined && v.toString().trim() !== "";
+                    });
+                    
+                    // Chỉ cập nhật môn chưa có đủ điểm VÀ chưa được người dùng nhập
+                    if (!hasAll && !sub.isExpectedManual) {
+                      sub.expectedScore = requiredAvg.toFixed(2);
+                      const required = calcRequiredScores(sub, requiredAvg);
+                      Object.entries(required).forEach(([field, value]) => {
+                        (sub as any)[field] = value;
+                      });
+                    }
+                  });
+                }
 
                 return updated;
               });

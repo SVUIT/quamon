@@ -11,8 +11,7 @@ const Instructions: React.FC = () => {
         <div className="instruction-item">
           <h3>Điểm học phần (Môn học)</h3>
           <p>
-            Điểm học phần được tính dựa trên <strong>các điểm thành phần mà bạn nhập thủ công</strong>, 
-            theo công thức:
+            Điểm học phần được tính dựa trên <strong>các điểm thành phần mà bạn nhập thủ công</strong>, theo công thức:
           </p>
           <code>
             Điểm HP = (QT × wQT) + (GK × wGK) + (TH × wTH) + (CK × wCK)
@@ -41,25 +40,100 @@ const Instructions: React.FC = () => {
       </section>
 
       <section>
+        <h2>2. Phân biệt màu sắc điểm</h2>
+
+        <div className="instruction-item">
+          <p>
+            Hệ thống sử dụng <strong>màu sắc</strong> để phân biệt rõ nguồn gốc của điểm:
+          </p>
+
+          <ul>
+            <li>
+              <strong>Màu trắng / đen:</strong>{" "}
+              Là <u>điểm do người dùng nhập thủ công</u>.  
+              Đây là <strong>điểm thực tế</strong> và
+              <strong> được dùng để tính Điểm HP, TBHK và ĐTB chung</strong>.
+            </li>
+
+            <li>
+              <strong>Màu vàng / xanh dương:</strong>{" "}
+              Là <u>điểm do hệ thống tự động tính toán</u> dựa trên các mục tiêu
+              <strong> Điểm kỳ vọng</strong>.  
+              Các điểm này <strong>chỉ mang tính tham khảo</strong>,
+              <strong> không được xem là điểm thật</strong> và
+              <strong> không ảnh hưởng đến kết quả tính GPA</strong>.
+            </li>
+          </ul>
+
+          <p>
+            Khi bạn <strong>click và nhập lại</strong> vào một ô điểm đang được hệ thống gợi ý,
+            ô đó sẽ chuyển sang <strong>màu trắng / đen</strong> và được xem là
+            <strong> điểm do người dùng xác nhận</strong>.
+          </p>
+        </div>
+      </section>
+
+      <section>
         <h2>2. Điểm kỳ vọng (Expected Score)</h2>
 
         <div className="instruction-item">
           <h3>Cách thức hoạt động</h3>
           <p>
             Khi bạn nhập giá trị vào cột <strong>"Điểm kỳ vọng"</strong>, hệ thống sẽ 
-            <strong>tính toán và hiển thị điểm tối thiểu cần đạt</strong> ở các cột điểm 
+            <strong> tính toán và hiển thị điểm tối thiểu cần đạt</strong> ở các cột điểm 
             chưa có kết quả.
           </p>
 
-          <p>Công thức gợi ý:</p>
+          <p>Công thức:</p>
           <code>
             Điểm cần đạt = (Điểm kỳ vọng − Điểm đã có) / Trọng số còn lại
           </code>
 
+        
+          <h3>Điểm kỳ vọng Trung bình học kỳ (TBHK)</h3>
+
+          <ul>
+            <li>
+              Khi bạn nhập <strong>TBHK kỳ vọng</strong>,
+              hệ thống sẽ ưu tiên giữ nguyên
+              <strong> các điểm kỳ vọng môn đã nhập thủ công</strong> (nếu có).
+            </li>
+            <li>
+              Các môn còn <strong>điểm kỳ vọng trống</strong> sẽ được
+              hệ thống tự động phân bổ điểm để đạt TBHK mục tiêu.
+            </li>
+            <li>
+              Nếu bạn <strong>xóa điểm kỳ vọng của một môn</strong>, hệ thống sẽ coi môn đó là trống và<strong> tính lại điểm kỳ vọng cho môn đó</strong> dựa trên TBHK đã nhập.
+            </li>
+          </ul>
+        
+
+        
+          <h3>Điểm kỳ vọng Trung bình toàn khóa (ĐTB chung)</h3>
+
+          <ul>
+            <li>
+              Khi nhập <strong>ĐTB chung kỳ vọng</strong>,
+              hệ thống sẽ phân bổ mục tiêu này xuống
+              các <strong>học kỳ chưa hoàn thành</strong>.
+            </li>
+            <li>
+              Nếu học kỳ hoặc môn học đã có
+              <strong> điểm kỳ vọng do người dùng nhập</strong>,
+              hệ thống sẽ <strong>giữ nguyên</strong> và chỉ tính cho phần còn thiếu.
+            </li>
+            <li>
+              Khi bạn sửa hoặc xóa bất kỳ điểm kỳ vọng nào,
+              hệ thống sẽ <strong>tự động tính lại</strong>
+              để đảm bảo toàn bộ mục tiêu vẫn nhất quán.
+            </li>
+          </ul>
+      
+
           <p>
             Các điểm này chỉ mang tính <strong>tham khảo / hỗ trợ lập kế hoạch</strong>, 
-            <strong>không được xem là điểm thật</strong> và 
-            <strong>không ảnh hưởng đến Điểm HP</strong> nếu bạn chưa nhập điểm thực tế.
+            <strong> không được xem là điểm thật</strong> và 
+            <strong> không ảnh hưởng đến Điểm HP</strong> nếu bạn chưa nhập điểm thực tế.
           </p>
 
           <p>

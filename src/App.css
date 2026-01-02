@@ -116,6 +116,31 @@ body.light-mode {
   background-color: var(--bg-container);
 }
 
+.expected-score-cell {
+  color: yellow;
+}
+
+.light-mode .expected-score-cell {
+  color: #3915c9;
+}
+
+/* Ghi đè màu cho điểm người dùng nhập - luôn màu trắng */
+.expected-score-cell[style*="color: white"] {
+  color: white !important;
+}
+.light-mode .expected-score-cell[style*="color: white"] {
+  color: black !important;
+}
+
+/* Utilities */
+.text-white { color: #ffffff !important; }
+.text-normal { color: var(--text-color); }
+.score-over-10 { color: #FF4D4F; font-weight: bold; }
+.light-mode .score-over-10 { color: #CF1322; }
+.text-gray { color: #888; }
+.cursor-not-allowed { cursor: not-allowed; }
+
+/* ... (giữ nguyên phần còn lại) */
 
 /* Tab Navigation */
 .tab-navigation {
@@ -197,7 +222,8 @@ body.light-mode {
   padding: 20px;
   border-radius: 12px;
   margin-bottom: 20px;
-  word-break: break-all;
+  word-break: mormal;
+  overflow-wrap: break-word;
 }
 
 .instruction-item h3 {
@@ -449,6 +475,7 @@ body.light-mode {
   width: 100%;
   padding-right: 0;
   box-sizing: border-box;
+  color: yellow;
 }
 
 /* 3-Dots Action Menu */
@@ -870,11 +897,11 @@ body.light-mode {
 
   /* Summary Labels - Prevent wrapping/Small size */
   .summary-label {
-  display: inline-flex;    
-  align-items: center;
+  display: table-cell;    
+  vertical-align: middle; 
   line-height: normal;        
   font-size: 7px !important;  
-  }
+}
   
 
   /* Ultra-compact columns for Mobile */
