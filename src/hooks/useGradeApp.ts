@@ -313,7 +313,7 @@ export const useGradeApp = () => {
               let lockedCredits = 0;
               let lockedPoints = 0;
               
-              updated[sIdx].subjects.forEach((s: any, idx: number) => {
+              updated[sIdx].subjects.forEach((s: any) => {
                 const credits = Number(s.credits) || 0;
                 totalCredits += credits;
                 
