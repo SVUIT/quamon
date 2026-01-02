@@ -274,11 +274,23 @@ export const useGradeApp = () => {
     setSemesters((prev) => {
       const updated = JSON.parse(JSON.stringify(prev));
       const sub = updated[sIdx].subjects[subIdx];
+      const semester = updated[sIdx];
       
       if (value === "") {
         // Người dùng xóa điểm kỳ vọng
         sub.expectedScore = "";
         sub.isExpectedManual = false;
+        
+        // Nếu có TBHK kỳ vọng, phân bổ lại
+        if (semester.expectedAverage && semester.expectedAverage.trim() !== "") {
+          const targetAvg = Number(semester.expectedAverage);
+          if (!isNaN(targetAvg)) {
+            updated[sIdx].subjects = distributeToSubjects(
+              updated[sIdx].subjects,
+              targetAvg
+            );
+          }
+        }
       } else {
         // Người dùng nhập điểm kỳ vọng
         const expectedVal = Number(value);
@@ -291,41 +303,59 @@ export const useGradeApp = () => {
           Object.entries(required).forEach(([field, val]) => {
             (sub as any)[field] = val;
           });
-        }
-      }
-      
-      // Tính toán lại điểm trung bình kỳ vọng học kỳ
-      // Dựa trên các môn đã có điểm kỳ vọng
-      let totalCredits = 0;
-      let lockedCredits = 0;
-      let lockedPoints = 0;
-      
-      updated[sIdx].subjects.forEach((s: any) => {
-        const credits = Number(s.credits) || 0;
-        totalCredits += credits;
-        
-        const hasAll = ["progressScore", "midtermScore", "practiceScore", "finalScore"].every((f) => {
-          const v = (s as any)[f];
-          return v !== undefined && v.toString().trim() !== "";
-        });
-        
-        if (hasAll) {
-          lockedCredits += credits;
-          lockedPoints += Number(calcSubjectScore(s)) * credits;
-        } else if (s.isExpectedManual && s.expectedScore) {
-          lockedCredits += credits;
-          lockedPoints += Number(s.expectedScore) * credits;
-        }
-      });
-      
-      // Cập nhật điểm trung bình kỳ vọng học kỳ nếu chưa được người dùng nhập
-      if (!updated[sIdx].isExpectedAverageManual && totalCredits > 0) {
-        if (lockedCredits === totalCredits) {
-          // Tất cả môn đều có điểm
-          updated[sIdx].expectedAverage = (lockedPoints / totalCredits).toFixed(2);
-        } else if (lockedCredits > 0) {
-          // Có một số môn đã có điểm, tính trung bình tạm
-          updated[sIdx].expectedAverage = (lockedPoints / totalCredits).toFixed(2);
+          
+          // Nếu có TBHK kỳ vọng, phân bổ lại các môn khác
+          if (semester.expectedAverage && semester.expectedAverage.trim() !== "") {
+            const targetAvg = Number(semester.expectedAverage);
+            if (!isNaN(targetAvg)) {
+              // Tính tổng tín chỉ và điểm đã lock
+              let totalCredits = 0;
+              let lockedCredits = 0;
+              let lockedPoints = 0;
+              
+              updated[sIdx].subjects.forEach((s: any, idx: number) => {
+                const credits = Number(s.credits) || 0;
+                totalCredits += credits;
+                
+                const hasAll = ["progressScore", "midtermScore", "practiceScore", "finalScore"].every((f) => {
+                  const v = (s as any)[f];
+                  return v !== undefined && v.toString().trim() !== "";
+                });
+                
+                if (hasAll) {
+                  // Môn đã có đủ điểm
+                  lockedCredits += credits;
+                  lockedPoints += Number(calcSubjectScore(s)) * credits;
+                } else if (s.isExpectedManual && s.expectedScore) {
+                  // Môn có điểm kỳ vọng do người dùng nhập (bao gồm môn vừa nhập)
+                  lockedCredits += credits;
+                  lockedPoints += Number(s.expectedScore) * credits;
+                }
+              });
+              
+              // Tính điểm cần thiết cho các môn còn lại
+              const remainingCredits = totalCredits - lockedCredits;
+              if (remainingCredits > 0) {
+                const requiredAvg = Math.max(0, Math.min(10, (targetAvg * totalCredits - lockedPoints) / remainingCredits));
+                
+                updated[sIdx].subjects.forEach((s: any) => {
+                  const hasAll = ["progressScore", "midtermScore", "practiceScore", "finalScore"].every((f) => {
+                    const v = (s as any)[f];
+                    return v !== undefined && v.toString().trim() !== "";
+                  });
+                  
+                  // Chỉ cập nhật môn chưa có đủ điểm VÀ chưa được người dùng nhập
+                  if (!hasAll && !s.isExpectedManual) {
+                    s.expectedScore = requiredAvg.toFixed(2);
+                    const req = calcRequiredScores(s, requiredAvg);
+                    Object.entries(req).forEach(([field, val]) => {
+                      (s as any)[field] = val;
+                    });
+                  }
+                });
+              }
+            }
+          }
         }
       }
       
