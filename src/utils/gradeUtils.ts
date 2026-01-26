@@ -1,7 +1,21 @@
 import type { Subject, Course } from "../types";
 
+// ================== CHECK EXEMPT COURSE =======================
+export const isExemptCourse = (subject: Subject): boolean => {
+  // Check if course name contains "Mien" (case insensitive)
+  const courseName = subject.courseName?.toLowerCase() || "";
+  const courseCode = subject.courseCode?.toLowerCase() || "";
+  
+  return courseName.includes("mien") || courseCode.includes("mien");
+};
+
 // ================== AUTO CALCULATE - ĐIỂM HP =================
 export const calcSubjectScore = (subj: Partial<Subject>): string => {
+  // If this is a Mien subject, set score to 0
+  if (isExemptCourse(subj as Subject)) {
+    return "0";
+  }
+
   const scores = [
     Number(subj.progressScore) || 0,
     Number(subj.midtermScore) || 0,
@@ -57,6 +71,11 @@ export const calcSemesterAverage = (subjects: Subject[]) => {
   let totalScore = 0;
 
   subjects.forEach((sub) => {
+    // Skip exempt courses from GPA calculation
+    if (isExemptCourse(sub)) {
+      return;
+    }
+
     const hp = Number(calcSubjectScore(sub));
     const tc = Number(sub.credits);
     if (!isNaN(hp) && !isNaN(tc)) {
