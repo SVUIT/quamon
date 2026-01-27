@@ -42,7 +42,7 @@ export default function Home() {
     deleteSubject,
     openAdvancedModal,
     updateSubjectField,
-    updateSubjectExpectedScore, // ← THÊM DÒNG NÀY
+    updateSubjectExpectedScore,
     openMenu,
     setOpenMenu,
     semesterMenuOpen,
@@ -474,7 +474,7 @@ export default function Home() {
                           transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                           whiteSpace: 'nowrap',
                           boxSizing: 'border-box',
-                          padding: '0 12px 0 62px', // Reduced right padding
+                          padding: '0 12px 0 62px',
                           lineHeight: '1',
                           boxShadow: '0 8px 32px rgba(99, 102, 241, 0.25)',
                           backdropFilter: 'blur(20px)',
