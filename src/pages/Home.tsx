@@ -416,14 +416,10 @@ export default function Home() {
         {activeTab === "grades" ? (
           <>
             <div style={{ marginBottom: "20px" }}>
-              {/* Tiêu đề ở giữa */}
               <h1 style={{ textAlign: "center", marginBottom: "10px" }}>
                 Bảng điểm
               </h1>
-
-              {/* Nút nhập điểm và xuất Excel */}
               <div className="button-group" style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px', marginBottom: '10px', alignItems: 'stretch' }}>
-                {/* Nút import với dropdown tích hợp */}
                 <div style={{ position: 'relative', display: 'inline-block' }}>
                   <select
                     value={importType}

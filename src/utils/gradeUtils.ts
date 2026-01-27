@@ -65,7 +65,7 @@ export const calcSubjectScore = (subj: Partial<Subject>): string => {
   return total.toFixed(2);
 };
 
-// ================== TRUNG BÌNH HỌC KỲ =======================
+
 export const calcSemesterAverage = (subjects: Subject[]) => {
   let totalTC = 0;
   let totalScore = 0;
@@ -92,16 +92,16 @@ export const calcSemesterAverage = (subjects: Subject[]) => {
 export const normalizeScore = (value: string): string => {
   const trimmed = value.trim();
 
-  // Nếu rỗng → trả rỗng (không mặc định 0)
+  
   if (trimmed === "") return "";
 
   let num = Number(trimmed);
 
-  if (isNaN(num)) return ""; // không phải số thì trả rỗng
-  if (num < 0) num = 0; // không cho âm
-  if (num > 10) num = 10; // không cho > 10
+  if (isNaN(num)) return "";
+  if (num < 0) num = 0; 
+  if (num > 10) num = 10; 
 
-  // làm tròn tối đa 2 chữ số thập phân
+  
   return parseFloat(num.toFixed(2)).toString();
 };
 
@@ -123,20 +123,20 @@ export const calcRequiredScores = (subj: Subject, expected: number): Partial<Sub
     const w = weightVal / 100;
 
     if (raw.trim() !== "" && !isNaN(score)) {
-      currentSum += score * w; // đã có điểm
+      currentSum += score * w; 
     } else if (weightVal > 0) {
-      missingWeight += w; // chưa nhập
+      missingWeight += w; 
       missingFields.push(f as string);
       missingMinFields.push(minFields[idx] as string);
 
     }
   });
 
-  if (missingWeight <= 0) return {}; // không có mục trống → không tính được
+  if (missingWeight <= 0) return {}; 
 
   const need = (expected - currentSum) / missingWeight;
 
-  // cho phép > 10, không giới hạn
+  
   const valid = Math.max(0, need);
 
   const result: Partial<Subject> = {};
@@ -147,14 +147,14 @@ export const calcRequiredScores = (subj: Subject, expected: number): Partial<Sub
   return result;
 };
 
-// ================== CHECK ĐỦ CÁC CỘT ĐIỂM (CÓ TRỌNG SỐ) =================
+
 export const isSubjectComplete = (subj: Subject): boolean => {
   const fields: (keyof Subject)[] = ["progressScore", "midtermScore", "practiceScore", "finalScore"];
   const weightFields: (keyof Subject)[] = ["progressWeight", "midtermWeight", "practiceWeight", "finalWeight"];
 
   for (let i = 0; i < fields.length; i++) {
     const weight = Number(subj[weightFields[i]]) || 0;
-    // Nếu trọng số > 0 thì bắt buộc phải có điểm
+    
     if (weight > 0) {
       const val = subj[fields[i]];
       if (val === undefined || val.toString().trim() === "") {
@@ -165,7 +165,7 @@ export const isSubjectComplete = (subj: Subject): boolean => {
   return true;
 };
 
-// ================== CHECK ĐỦ 4 CỘT ĐIỂM (Legacy) =================
+
 export const hasAllScores = (subj: Subject): boolean => {
   return isSubjectComplete(subj);
 };
