@@ -6,7 +6,18 @@ export const isExemptCourse = (subject: Subject): boolean => {
   const courseName = subject.courseName?.toLowerCase() || "";
   const courseCode = subject.courseCode?.toLowerCase() || "";
   
-  return courseName.includes("mien") || courseCode.includes("mien");
+  // Check for "mien" in name or code
+  if (courseName.includes("mien") || courseCode.includes("mien")) {
+    return true;
+  }
+  
+  // Check for specific exempt English courses
+  const exemptEnglishCourses = ["eng01", "eng02", "eng03", "eng04", "eng05"];
+  if (exemptEnglishCourses.includes(courseCode)) {
+    return true;
+  }
+  
+  return false;
 };
 
 // ================== DISPLAY TEXT FOR EXEMPT COURSES ============

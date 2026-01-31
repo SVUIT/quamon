@@ -238,64 +238,50 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
         const weight = Number((sub as any)[f.weightKey]) || 0;
         const isZeroWeight = weight === 0;
         
-        // Check if this is an exempt course
-        const isExempt = getScoreDisplayText(sub, f.key) === "Miễn";
-        const displayText = isExempt ? "Miễn" : (hasMinScore ? minScore : score);
+        // Don't show "Miễn" in individual score columns, only in total score column
+        const displayText = hasMinScore ? minScore : score;
 
         return (
           <td
             key={f.key}
             className="score-cell"
             style={{
-              background: isExempt 
-                ? "rgba(34, 197, 94, 0.15)" // Green background for exempt
-                : (isZeroWeight 
-                  ? "rgba(128, 128, 128, 0.15)"
-                  : (hasMinScore ? (isOver10 ? "rgba(255, 0, 0, 0)" : "var(--primary-purple)") : "transparent"))
+              background: isZeroWeight 
+                ? "rgba(128, 128, 128, 0.15)"
+                : (hasMinScore ? (isOver10 ? "rgba(255, 0, 0, 0)" : "var(--primary-purple)") : "transparent") 
             }}
           >
             <div
-              contentEditable={!isExempt}
+              contentEditable
               suppressContentEditableWarning
               title={`Trọng số: ${weight}%`}
               className={`score-content ${
-                isExempt
-                  ? "text-exempt"
-                  : (hasMinScore
-                    ? isOver10
-                      ? "score-over-10"
-                      : "text-white"
-                    : "text-normal")
+                hasMinScore
+                  ? isOver10
+                    ? "score-over-10"
+                    : "text-white"
+                  : "text-normal"
               }`}
               data-placeholder={
-                isExempt
-                  ? "Miễn"
-                  : (isZeroWeight
-                    ? `Điểm ${f.label}`
-                    : `Nhập điểm ${f.label}`)
+                isZeroWeight
+                  ? `Điểm ${f.label}`
+                  : `Nhập điểm ${f.label}`
               }
               role="textbox"
-              tabIndex={isExempt ? -1 : 0}
+              tabIndex={0}
               onKeyDown={(e) => {
-                if (isExempt) return;
                 if (e.key === "Enter") {
                   e.preventDefault();
                   e.currentTarget.blur();
                 }
               }}
-              onBlur={(e) => {
-                if (isExempt) return;
-                handleScoreBlur(f.key, e.target.innerText, e.target as HTMLElement);
-              }}
+              onBlur={(e) => handleScoreBlur(f.key, e.target.innerText, e.target as HTMLElement)}
               style={{
-                color: isExempt 
-                  ? "var(--success-green)" 
-                  : (hasMinScore ? (isOver10 ? "red" : "var(--primary-purple)") : (isZeroWeight ? "var(--text-muted)" : "inherit")),
-                fontWeight: isExempt ? "bold" : (hasMinScore ? "bold" : "normal"),
-                fontStyle: isExempt ? "italic" : (hasMinScore ? "italic" : "normal"),
+                color: hasMinScore ? (isOver10 ? "red" : "var(--primary-purple)") : (isZeroWeight ? "var(--text-muted)" : "inherit"),
+                fontWeight: hasMinScore ? "bold" : "normal",
+                fontStyle: hasMinScore ? "italic" : "normal",
                 minHeight: "32px",
-                opacity: isExempt ? 1 : (isZeroWeight ? 0.8 : 1),
-                cursor: isExempt ? "not-allowed" : "text"
+                opacity: isZeroWeight ? 0.8 : 1
               }}
             >
               {displayText}
