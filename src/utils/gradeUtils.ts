@@ -9,6 +9,14 @@ export const isExemptCourse = (subject: Subject): boolean => {
   return courseName.includes("mien") || courseCode.includes("mien");
 };
 
+// ================== DISPLAY TEXT FOR EXEMPT COURSES ============
+export const getScoreDisplayText = (subject: Subject, scoreField: string): string => {
+  if (isExemptCourse(subject)) {
+    return "Miễn";
+  }
+  return (subject as any)[scoreField] || "";
+};
+
 // ================== AUTO CALCULATE - ĐIỂM HP =================
 export const calcSubjectScore = (subj: Partial<Subject>): string => {
   // If this is a Mien subject, set score to 0

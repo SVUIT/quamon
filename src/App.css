@@ -30,6 +30,7 @@ html {
   --text-muted: #999;
   --dropdown-border: #454545;
   --tab-inactive: #3F3F46;
+  --success-green: #22C55E;
 }
 
 .light-mode {
@@ -47,6 +48,7 @@ html {
   --text-muted: #555;
   --dropdown-border: #ccc;
   --tab-inactive: #e0e0e0;
+  --success-green: #16A34A;
 }
 
 body {
@@ -139,6 +141,7 @@ body.light-mode {
 .light-mode .score-over-10 { color: #CF1322; }
 .text-gray { color: #888; }
 .cursor-not-allowed { cursor: not-allowed; }
+.text-exempt { color: var(--success-green) !important; }
 
 /* ... (giữ nguyên phần còn lại) */
 

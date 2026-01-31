@@ -5,6 +5,7 @@ import {
   calcSubjectScore,
   hasAllScores,
   normalizeScore,
+  getScoreDisplayText,
 } from "../../utils/gradeUtils";
 import SearchDropdown from "./SearchDropdown";
 
@@ -236,51 +237,68 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
         const isOver10 = hasMinScore && Number(minScore) > 10;
         const weight = Number((sub as any)[f.weightKey]) || 0;
         const isZeroWeight = weight === 0;
+        
+        // Check if this is an exempt course
+        const isExempt = getScoreDisplayText(sub, f.key) === "Miễn";
+        const displayText = isExempt ? "Miễn" : (hasMinScore ? minScore : score);
 
         return (
           <td
             key={f.key}
             className="score-cell"
             style={{
-              background: isZeroWeight 
-                ? "rgba(128, 128, 128, 0.15)"
-                : (hasMinScore ? (isOver10 ? "rgba(255, 0, 0, 0)" : "var(--primary-purple)") : "transparent") 
+              background: isExempt 
+                ? "rgba(34, 197, 94, 0.15)" // Green background for exempt
+                : (isZeroWeight 
+                  ? "rgba(128, 128, 128, 0.15)"
+                  : (hasMinScore ? (isOver10 ? "rgba(255, 0, 0, 0)" : "var(--primary-purple)") : "transparent"))
             }}
           >
             <div
-              contentEditable
+              contentEditable={!isExempt}
               suppressContentEditableWarning
               title={`Trọng số: ${weight}%`}
               className={`score-content ${
-                hasMinScore
-                  ? isOver10
-                    ? "score-over-10"
-                    : "text-white"
-                  : "text-normal"
+                isExempt
+                  ? "text-exempt"
+                  : (hasMinScore
+                    ? isOver10
+                      ? "score-over-10"
+                      : "text-white"
+                    : "text-normal")
               }`}
               data-placeholder={
-                isZeroWeight
-                  ? `Điểm ${f.label}`
-                  : `Nhập điểm ${f.label}`
+                isExempt
+                  ? "Miễn"
+                  : (isZeroWeight
+                    ? `Điểm ${f.label}`
+                    : `Nhập điểm ${f.label}`)
               }
               role="textbox"
-              tabIndex={0}
+              tabIndex={isExempt ? -1 : 0}
               onKeyDown={(e) => {
+                if (isExempt) return;
                 if (e.key === "Enter") {
                   e.preventDefault();
                   e.currentTarget.blur();
                 }
               }}
-              onBlur={(e) => handleScoreBlur(f.key, e.target.innerText, e.target as HTMLElement)}
+              onBlur={(e) => {
+                if (isExempt) return;
+                handleScoreBlur(f.key, e.target.innerText, e.target as HTMLElement);
+              }}
               style={{
-                color: hasMinScore ? (isOver10 ? "red" : "var(--primary-purple)") : (isZeroWeight ? "var(--text-muted)" : "inherit"),
-                fontWeight: hasMinScore ? "bold" : "normal",
-                fontStyle: hasMinScore ? "italic" : "normal",
+                color: isExempt 
+                  ? "var(--success-green)" 
+                  : (hasMinScore ? (isOver10 ? "red" : "var(--primary-purple)") : (isZeroWeight ? "var(--text-muted)" : "inherit")),
+                fontWeight: isExempt ? "bold" : (hasMinScore ? "bold" : "normal"),
+                fontStyle: isExempt ? "italic" : (hasMinScore ? "italic" : "normal"),
                 minHeight: "32px",
-                opacity: isZeroWeight ? 0.8 : 1
+                opacity: isExempt ? 1 : (isZeroWeight ? 0.8 : 1),
+                cursor: isExempt ? "not-allowed" : "text"
               }}
             >
-              {hasMinScore ? minScore : score}
+              {displayText}
             </div>
           </td>
         );
@@ -292,10 +310,11 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
           display: "flex", 
           alignItems: "center", 
           justifyContent: "center",
-          color: "var(--text-muted)",
-          fontWeight: "bold"
+          color: getScoreDisplayText(sub, "score") === "Miễn" ? "var(--success-green)" : "var(--text-muted)",
+          fontWeight: "bold",
+          fontStyle: getScoreDisplayText(sub, "score") === "Miễn" ? "italic" : "normal"
         }}>
-          {calcSubjectScore(sub)}
+          {getScoreDisplayText(sub, "score") === "Miễn" ? "Miễn" : calcSubjectScore(sub)}
         </div>      
       </td>
 
