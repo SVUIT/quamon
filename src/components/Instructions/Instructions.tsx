@@ -309,6 +309,28 @@ const Instructions: React.FC = () => {
         </div>
       </section>
 
+      <section>
+        <h2>7. Xuất dữ liệu ra file Excel</h2>
+        <div className="instruction-item">
+          <h3>Cách xuất dữ liệu ra Excel</h3>
+          <ol>
+            <li>Đảm bảo bạn đã nhập đầy đủ dữ liệu điểm số</li>
+            <li>Nhấn vào nút <strong>"Xuất Excel"</strong></li>
+            <li>Chọn vị trí lưu file trên máy tính của bạn</li>
+            <li>Đặt tên file và nhấn <strong>Lưu</strong></li>
+          </ol>
+
+          <h3>Thông tin có trong file Excel</h3>
+          <ul>
+            <li>Toàn bộ thông tin môn học đã nhập</li>
+            <li>Điểm các thành phần (quá trình, giữa kỳ, thực hành, cuối kỳ)</li>
+            <li>Trọng số từng phần</li>
+            <li>Điểm tổng kết môn học</li>
+            <li>Điểm kỳ vọng (nếu có)</li>
+          </ul>
+        </div>
+      </section>
+
     </div>
   );
 };
