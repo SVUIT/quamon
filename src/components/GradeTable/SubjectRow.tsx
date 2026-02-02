@@ -5,6 +5,7 @@ import {
   calcSubjectScore,
   hasAllScores,
   normalizeScore,
+  getScoreDisplayText,
 } from "../../utils/gradeUtils";
 import SearchDropdown from "./SearchDropdown";
 
@@ -236,6 +237,9 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
         const isOver10 = hasMinScore && Number(minScore) > 10;
         const weight = Number((sub as any)[f.weightKey]) || 0;
         const isZeroWeight = weight === 0;
+        
+        // Don't show "Miễn" in individual score columns, only in total score column
+        const displayText = hasMinScore ? minScore : score;
 
         return (
           <td
@@ -280,7 +284,7 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
                 opacity: isZeroWeight ? 0.8 : 1
               }}
             >
-              {hasMinScore ? minScore : score}
+              {displayText}
             </div>
           </td>
         );
@@ -292,10 +296,11 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
           display: "flex", 
           alignItems: "center", 
           justifyContent: "center",
-          color: "var(--text-muted)",
-          fontWeight: "bold"
+          color: getScoreDisplayText(sub, "score") === "Miễn" ? "var(--success-green)" : "var(--text-muted)",
+          fontWeight: "bold",
+          fontStyle: getScoreDisplayText(sub, "score") === "Miễn" ? "italic" : "normal"
         }}>
-          {calcSubjectScore(sub)}
+          {getScoreDisplayText(sub, "score") === "Miễn" ? "Miễn" : calcSubjectScore(sub)}
         </div>      
       </td>
 
