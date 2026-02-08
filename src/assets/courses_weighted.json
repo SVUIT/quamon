@@ -1220,6 +1220,18 @@
       "midtermWeight": 0,
       "finalTermWeight": 0.5
     }
+  },
+{
+  "courseCode": "IT022",
+  "courseNameEn": "test3",
+  "courseNameVi": "test3",
+  "courseType": "ĐC",
+  "credits": 4,
+  "defaultWeights": {
+    "progressWeight": 0.2,
+    "practiceWeight": 0.2,
+    "midtermWeight": 0.2,
+    "finalTermWeight": 0.4
   }
+}
 ]
-
