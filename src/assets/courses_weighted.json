@@ -1220,6 +1220,18 @@
       "midtermWeight": 0,
       "finalTermWeight": 0.5
     }
+  },
+{
+  "courseCode": "",
+  "courseNameEn": "",
+  "courseNameVi": "",
+  "courseType": "ĐC",
+  "credits": 4,
+  "defaultWeights": {
+    "progressWeight": 0.2,
+    "practiceWeight": 0.2,
+    "midtermWeight": 0.2,
+    "finalTermWeight": 0.4
   }
+}
 ]
-
