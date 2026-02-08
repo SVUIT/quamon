@@ -698,7 +698,7 @@
       "progressWeight": 0,
       "practiceWeight": 0,
       "midtermWeight": 0,
-      "finalTermWeight": 1.0
+      "finalTermWeight": 1
     }
   },
   {
@@ -711,7 +711,7 @@
       "progressWeight": 0,
       "practiceWeight": 0,
       "midtermWeight": 0,
-      "finalTermWeight": 1.0
+      "finalTermWeight": 1
     }
   },
   {
@@ -724,10 +724,10 @@
       "progressWeight": 0,
       "practiceWeight": 0,
       "midtermWeight": 0,
-      "finalTermWeight": 1.0
+      "finalTermWeight": 1
     }
   },
-  { 
+  {
     "courseCode": "CS112",
     "courseNameEn": "Algorithm Analysis and Design",
     "courseNameVi": "Phân tích và thiết kế thuật toán",
@@ -740,7 +740,7 @@
       "finalTermWeight": 0.6
     }
   },
-  { 
+  {
     "courseCode": "CS115",
     "courseNameEn": "Mathematics for Computer Science",
     "courseNameVi": "Toán cho khoa học máy tính",
@@ -753,7 +753,7 @@
       "finalTermWeight": 0.4
     }
   },
-  { 
+  {
     "courseCode": "CS221",
     "courseNameEn": "Natural Language Processing",
     "courseNameVi": "Xử lý ngôn ngữ tự nhiên",
@@ -766,7 +766,7 @@
       "finalTermWeight": 0.4
     }
   },
-  { 
+  {
     "courseCode": "CS231",
     "courseNameEn": "Introduction to Computer Vision",
     "courseNameVi": "Nhập môn Thị giác máy tính",
@@ -779,7 +779,7 @@
       "finalTermWeight": 0.4
     }
   },
-  { 
+  {
     "courseCode": "CS116",
     "courseNameEn": "Python Programming for Machine Learning",
     "courseNameVi": "Lập trình Python cho Máy học",
@@ -792,7 +792,7 @@
       "finalTermWeight": 0.4
     }
   },
-  { 
+  {
     "courseCode": "CS117",
     "courseNameEn": "Computational Thinking",
     "courseNameVi": "Tư duy tính toán",
@@ -1220,6 +1220,18 @@
       "midtermWeight": 0,
       "finalTermWeight": 0.5
     }
+  },
+  {
+    "courseCode": "IT020",
+    "courseNameEn": "test",
+    "courseNameVi": "test",
+    "courseType": "ĐC",
+    "credits": 4,
+    "defaultWeights": {
+      "progressWeight": 0.2,
+      "practiceWeight": 0.2,
+      "midtermWeight": 0.2,
+      "finalTermWeight": 0.4
+    }
   }
 ]
-
