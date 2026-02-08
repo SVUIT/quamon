@@ -1220,6 +1220,18 @@
       "midtermWeight": 0,
       "finalTermWeight": 0.5
     }
+  },
+{
+  "courseCode": "IT100",
+  "courseNameEn": "test10",
+  "courseNameVi": "test10",
+  "courseType": "ĐC",
+  "credits": 1,
+  "defaultWeights": {
+    "progressWeight": 0.2,
+    "practiceWeight": 0.2,
+    "midtermWeight": 0.2,
+    "finalTermWeight": 0.4
   }
+}
 ]
-
