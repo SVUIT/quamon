@@ -69,6 +69,12 @@ const Navbar: React.FC<NavbarProps> = ({
         >
           Hướng dẫn
         </button>
+        <button 
+          className={`tab-button ${activeTab === 'add_subject' ? 'active' : ''}`}
+          onClick={() => setActiveTab('add_subject')}
+        >
+          Thêm môn
+        </button>
       </div>
 
       {/* THEME TOGGLE */}
