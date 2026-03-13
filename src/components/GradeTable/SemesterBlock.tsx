@@ -1,6 +1,6 @@
 import React from "react";
-import type { Semester, Course } from "../../types";
-import { calcSemesterAverage, calcRequiredScores } from "../../utils/gradeUtils";
+import type { Semester, Course, GpaScale } from "../../types";
+import { calcSemesterAverage, calcRequiredScores, convertGpaScale, formatGpaDisplay } from "../../utils/gradeUtils";
 import SearchDropdown from "./SearchDropdown";
 import SubjectRow from "./SubjectRow";
 
@@ -9,6 +9,7 @@ interface SemesterBlockProps {
   semesterIndex: number;
   semesters: Semester[];
   setSemesters: (semesters: Semester[] | ((prev: Semester[]) => Semester[])) => void;
+  gpaScale: GpaScale;
 
   // Handlers for subjects
   updateSubjectField: (s: number, i: number, f: string, v: string) => void;
@@ -49,6 +50,7 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
   semesterIndex: si,
   semesters,
   setSemesters,
+  gpaScale,
   updateSubjectField,
   updateSubjectExpectedScore,
   deleteSemester,
@@ -72,6 +74,8 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
   setEditExpandedCategories,
 }) => {
   const avg = calcSemesterAverage(sem.subjects);
+  const convertedAvg = convertGpaScale(Number(avg.avg), "10", gpaScale);
+  const displayAvg = formatGpaDisplay(convertedAvg, gpaScale);
 
   return (
     <React.Fragment>
@@ -226,7 +230,7 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
         <td></td>
         <td></td>
         <td></td>
-        <td style={{ textAlign: "center" }}>{avg.avg}</td>
+        <td style={{ textAlign: "center" }}>{displayAvg}</td>
         <td>
           <div
             contentEditable

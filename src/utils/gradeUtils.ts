@@ -1,4 +1,69 @@
-import type { Subject, Course } from "../types";
+import type { Subject, Course, GpaScale } from "../types";
+
+// ================== GPA CONVERSION UTILITIES ==================
+export const convertGpaScale = (value: number, fromScale: GpaScale, toScale: GpaScale): number => {
+  if (fromScale === toScale) return value;
+  
+  // First convert to 10-point scale as base
+  let base10Value: number;
+  
+  switch (fromScale) {
+    case "10":
+      base10Value = value;
+      break;
+    case "4":
+      base10Value = value * 2.5; // 4.0 * 2.5 = 10.0
+      break;
+    case "100":
+      base10Value = value / 10; // 100 / 10 = 10.0
+      break;
+    default:
+      base10Value = value;
+  }
+  
+  // Then convert from 10-point scale to target scale
+  switch (toScale) {
+    case "10":
+      return base10Value;
+    case "4":
+      return base10Value / 2.5;
+    case "100":
+      return base10Value * 10;
+    default:
+      return base10Value;
+  }
+};
+
+export const formatGpaDisplay = (value: number, scale: GpaScale): string => {
+  switch (scale) {
+    case "10":
+      return value.toFixed(2);
+    case "4":
+      return value.toFixed(2);
+    case "100":
+      return Math.round(value).toString();
+    default:
+      return value.toFixed(2);
+  }
+};
+
+export const getMaxScoreForScale = (scale: GpaScale): number => {
+  switch (scale) {
+    case "10":
+      return 10;
+    case "4":
+      return 4;
+    case "100":
+      return 100;
+    default:
+      return 10;
+  }
+};
+
+export const validateScoreForScale = (value: number, scale: GpaScale): boolean => {
+  const maxScore = getMaxScoreForScale(scale);
+  return value >= 0 && value <= maxScore;
+};
 
 // ================== CHECK EXEMPT COURSE =======================
 export const isExemptCourse = (subject: Subject): boolean => {
@@ -108,7 +173,7 @@ export const calcSemesterAverage = (subjects: Subject[]) => {
 };
 
 // ================== VALIDATE SCORE INPUT ======================
-export const normalizeScore = (value: string): string => {
+export const normalizeScore = (value: string, scale: GpaScale = "10"): string => {
   const trimmed = value.trim();
 
   
@@ -117,14 +182,16 @@ export const normalizeScore = (value: string): string => {
   let num = Number(trimmed);
 
   if (isNaN(num)) return "";
+  
+  const maxScore = getMaxScoreForScale(scale);
   if (num < 0) num = 0; 
-  if (num > 10) num = 10; 
+  if (num > maxScore) num = maxScore; 
 
   
   return parseFloat(num.toFixed(2)).toString();
 };
 
-export const calcRequiredScores = (subj: Subject, expected: number): Partial<Subject> => {
+export const calcRequiredScores = (subj: Subject, expected: number, scale: GpaScale = "10"): Partial<Subject> => {
   const fields: (keyof Subject)[] = ["progressScore", "midtermScore", "practiceScore", "finalScore"];
   const weightFields: (keyof Subject)[] = ["progressWeight", "midtermWeight", "practiceWeight", "finalWeight"];
   const minFields: (keyof Subject)[] = ["minProgressScore", "minMidtermScore", "minPracticeScore", "minFinalScore"];
@@ -156,7 +223,8 @@ export const calcRequiredScores = (subj: Subject, expected: number): Partial<Sub
   const need = (expected - currentSum) / missingWeight;
 
   
-  const valid = Math.max(0, need);
+  const maxScore = getMaxScoreForScale(scale);
+  const valid = Math.max(0, Math.min(maxScore, need));
 
   const result: Partial<Subject> = {};
   missingMinFields.forEach((f) => {
@@ -192,7 +260,8 @@ export const hasAllScores = (subj: Subject): boolean => {
 // ================== CALCULATE TARGET COURSE GPA =================
 export const calculateTargetCourseGpa = (
   expectedSemesterGpa: number,
-  subjects: { credits: number; currentGpa?: number | null }[]
+  subjects: { credits: number; currentGpa?: number | null }[],
+  scale: GpaScale = "10"
 ): {
   requiredGpaForRemaining: number;
   isFeasible: boolean;
@@ -238,10 +307,11 @@ export const calculateTargetCourseGpa = (
   }
 
   const requiredGpaForRemaining = remainingScoreNeeded / remainingCredits;
+  const maxScore = getMaxScoreForScale(scale);
 
   return {
     requiredGpaForRemaining,
-    isFeasible: requiredGpaForRemaining <= 10,
+    isFeasible: requiredGpaForRemaining <= maxScore,
     totalCredits,
     accumulatedScore,
     remainingCredits,

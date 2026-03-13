@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Semester, Subject } from "../types";
+import { Semester, Subject, GpaScale } from "../types";
 import {
   getSearchResults,
   normalizeScore,
@@ -13,6 +13,7 @@ const LOCAL_STORAGE_KEY = "grade_app_semesters";
 const THEME_KEY = "grade_app_theme";
 const CUMULATIVE_KEY = "grade_app_cumulative";
 const CUMULATIVE_MANUAL_KEY = "grade_app_cumulative_manual";
+const GPA_SCALE_KEY = "grade_app_gpa_scale";
 
 const generateId = (prefix = "sem") =>
   `${prefix}-${crypto.randomUUID()}`; 
@@ -55,6 +56,20 @@ export const useGradeApp = () => {
 
   const toggleTheme = () =>
     setTheme((p) => (p === "dark" ? "light" : "dark"));
+
+  /* ================= GPA SCALE ================= */
+  const [gpaScale, setGpaScale] = useState<GpaScale>("10");
+
+  useEffect(() => {
+    const saved = localStorage.getItem(GPA_SCALE_KEY) as GpaScale | null;
+    if (saved && ["10", "4", "100"].includes(saved)) {
+      setGpaScale(saved);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(GPA_SCALE_KEY, gpaScale);
+  }, [gpaScale]);
 
   /* ================= CUMULATIVE GPA ================= */
   const [cumulativeExpected, setCumulativeExpected] = useState("");
@@ -178,7 +193,7 @@ export const useGradeApp = () => {
       flexibleIndices.forEach((idx) => {
         subjects[idx].expectedScore = avg.toFixed(2);
         subjects[idx].isExpectedManual = false;
-        Object.assign(subjects[idx], calcRequiredScores(subjects[idx], avg));
+        Object.assign(subjects[idx], calcRequiredScores(subjects[idx], avg, gpaScale));
       });
     }
     return subjects;
@@ -260,7 +275,7 @@ export const useGradeApp = () => {
         ["progressScore", "midtermScore", "practiceScore", "finalScore"].includes(
           field
         )
-          ? normalizeScore(value)
+          ? normalizeScore(value, gpaScale)
           : value;
       return rebalanceGlobal(updated, sIdx);
     });
@@ -299,7 +314,7 @@ export const useGradeApp = () => {
           sub.isExpectedManual = true;
           
           // Tính toán điểm yêu cầu cho môn này
-          const required = calcRequiredScores(sub, expectedVal);
+          const required = calcRequiredScores(sub, expectedVal, gpaScale);
           Object.entries(required).forEach(([field, val]) => {
             (sub as any)[field] = val;
           });
@@ -347,7 +362,7 @@ export const useGradeApp = () => {
                   // Chỉ cập nhật môn chưa có đủ điểm VÀ chưa được người dùng nhập
                   if (!hasAll && !s.isExpectedManual) {
                     s.expectedScore = requiredAvg.toFixed(2);
-                    const req = calcRequiredScores(s, requiredAvg);
+                    const req = calcRequiredScores(s, requiredAvg, gpaScale);
                     Object.entries(req).forEach(([field, val]) => {
                       (s as any)[field] = val;
                     });
@@ -415,7 +430,7 @@ export const useGradeApp = () => {
               
               if (!hasAll && !sub.isExpectedManual) {
                 sub.expectedScore = requiredAvg.toFixed(2);
-                const required = calcRequiredScores(sub, requiredAvg);
+                const required = calcRequiredScores(sub, requiredAvg, gpaScale);
                 Object.entries(required).forEach(([field, val]) => {
                   (sub as any)[field] = val;
                 });
@@ -452,6 +467,8 @@ export const useGradeApp = () => {
   return {
     theme,
     toggleTheme,
+    gpaScale,
+    setGpaScale,
     semesters,
     setSemesters,
     cumulativeExpected,
