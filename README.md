@@ -14,7 +14,7 @@ npm install
 npm run dev
 ```
 
-Useful scripts
+Useful scripts  
 
 - `npm run dev` — start the development server (HMR)
 - `npm run build` — compile TypeScript and build for production (`tsc -b && vite build`)
