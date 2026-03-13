@@ -1,4 +1,4 @@
-# Grade Calculator
+# Grade Calculator  
 
 A compact, browser-based grade management app built with React and TypeScript. Track semesters and subjects and calculate weighted averages with local persistence — no account required.
 
