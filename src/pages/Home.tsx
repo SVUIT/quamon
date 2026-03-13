@@ -7,13 +7,14 @@ import Footer from "../components/Footer/Footer";
 import EditModal from "../components/GradeTable/EditModal";
 import GradeTable from "../components/GradeTable/GradeTable";
 import Instructions from "../components/Instructions/Instructions";
+import AddSubjectForm from "../components/AddSubject/AddSubjectForm";
 import { useGradeApp } from "../hooks/useGradeApp";
 import { uploadPdf } from "../config/appwrite";
 import { Subject, ProcessedPdfData, findCourseByCode, Semester } from "../types";
 import { SUBJECTS_DATA } from "../constants";
 import { isExemptCourse } from "../utils/gradeUtils";
 
-export type TabType = "grades" | "instructions";
+export type TabType = "grades" | "instructions" | "add_subject";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabType>("grades");
@@ -413,7 +414,7 @@ export default function Home() {
           setAddDropdownOpen(null);
         }}
       >
-        {activeTab === "grades" ? (
+        {activeTab === "grades" && (
           <>
             <div style={{ marginBottom: "20px" }}>
               <h1 style={{ textAlign: "center", marginBottom: "10px" }}>
@@ -666,7 +667,7 @@ export default function Home() {
                 isCumulativeManual={isCumulativeManual}
                 setIsCumulativeManual={setIsCumulativeManual}
                 updateSubjectField={updateSubjectField}
-                updateSubjectExpectedScore={updateSubjectExpectedScore} // ← THÊM DÒNG NÀY
+                updateSubjectExpectedScore={updateSubjectExpectedScore} 
                 deleteSemester={deleteSemester}
                 deleteSubject={deleteSubject}
                 openAdvancedModal={openAdvancedModal}
@@ -691,8 +692,25 @@ export default function Home() {
               />
             </div>
           </>
-        ) : (
-          <Instructions />
+        )}
+
+        {activeTab === 'instructions' && <Instructions />}
+        
+        {activeTab === 'add_subject' && (
+          <AddSubjectForm 
+            onAdd={(newSubject) => {
+              setSemesters(prev => {
+                const next = [...prev];
+                if (next.length === 0) {
+                  next.push({ id: `sem-${self.crypto.randomUUID()}`, name: "Học kỳ 1", subjects: [newSubject] });
+                } else {
+                  next[next.length - 1].subjects.push(newSubject);
+                }
+                return next;
+              });
+              setActiveTab("grades");
+            }}
+          />
         )}
 
         {modalOpen && editing && (

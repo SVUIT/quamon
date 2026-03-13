@@ -12,7 +12,7 @@ interface SemesterBlockProps {
 
   // Handlers for subjects
   updateSubjectField: (s: number, i: number, f: string, v: string) => void;
-  updateSubjectExpectedScore: (s: number, i: number, v: string) => void; // ← THÊM DÒNG NÀY
+  updateSubjectExpectedScore: (s: number, i: number, v: string) => void; 
   deleteSemester: (id: string) => void;
   deleteSubject: (s: number, i: number) => void;
   openAdvancedModal: (s: number, i: number) => void;
@@ -50,7 +50,7 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
   semesters,
   setSemesters,
   updateSubjectField,
-  updateSubjectExpectedScore, // ← THÊM DÒNG NÀY
+  updateSubjectExpectedScore,
   deleteSemester,
   deleteSubject,
   openAdvancedModal,
@@ -200,7 +200,7 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
           semesters={semesters}
           setSemesters={setSemesters}
           updateSubjectField={updateSubjectField}
-          updateSubjectExpectedScore={updateSubjectExpectedScore} // ← THÊM DÒNG NÀY
+          updateSubjectExpectedScore={updateSubjectExpectedScore} 
           deleteSubject={deleteSubject}
           openAdvancedModal={openAdvancedModal}
           openMenu={openMenu}
