@@ -9,7 +9,7 @@ Prerequisites: Node 18+ and a package manager (npm, pnpm, or yarn).
 
 Install dependencies and start the dev server:
 
-```bash
+```bash  
 npm install
 npm run dev
 ```
