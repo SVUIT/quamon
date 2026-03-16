@@ -14,7 +14,7 @@ html {
   padding: 0;
 }
 
-/* ================== CSS VARIABLES & THEMING ================== */   
+/* ================== CSS VARIABLES & THEMING ================== */        
 :root {
   /* Default Dark Mode */
   --bg-body: #27262B;
