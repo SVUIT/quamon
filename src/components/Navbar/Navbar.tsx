@@ -31,7 +31,6 @@ const Navbar: React.FC<NavbarProps> = ({
 
   if (!mounted) return null;
 
-  // Cụm Actions (GitHub + Toggle) - Có scale 0.75 khi mobile
   const ActionGroup = (
     <div style={{ 
       display: 'flex', 
@@ -45,7 +44,6 @@ const Navbar: React.FC<NavbarProps> = ({
     </div>
   );
 
-  // Cụm 3 Nút Tabs
   const NavigationTabs = (
     <div style={{ 
       display: 'flex', 
@@ -111,7 +109,6 @@ const Navbar: React.FC<NavbarProps> = ({
       }}
     >
       {isMobile ? (
-        /* --- LAYOUT MOBILE (2 HÀNG THEO Ý ANH LEADER) --- */
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -125,20 +122,19 @@ const Navbar: React.FC<NavbarProps> = ({
           </div>
         </>
       ) : (
-        /* --- LAYOUT LAPTOP (3 CỘT: TRÁI - GIỮA - PHẢI) --- */
         <>
-          {/* Cột trái: Logo */}
+          {/* Left: Logo */}
           <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
             <img src={logoSrc} alt="Quamon Logo" style={{ height: 42, marginRight: 12 }} />
             <span style={{ fontWeight: 800, fontSize: '24px', color: 'var(--text-color)' }}>Quamon</span>
           </div>
 
-          {/* Cột giữa: 3 Nút (Canh giữa tuyệt đối) */}
+          {/* Middle: 3 Buttons */}
           <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             {NavigationTabs}
           </div>
 
-          {/* Cột phải: GitHub + Toggle */}
+          {/* Right: GitHub + Toggle */}
           <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
             {ActionGroup}
           </div>
