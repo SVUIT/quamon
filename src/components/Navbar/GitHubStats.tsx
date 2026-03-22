@@ -34,7 +34,6 @@ const GitHubStats: React.FC = () => {
         alignItems: 'center',
         padding: '5px 12px',
         backgroundColor: 'rgba(128, 128, 128, 0.08)', 
-        border: '1px solid rgba(128, 128, 128, 0.15)',
         borderRadius: '8px',
         textDecoration: 'none',
         color: 'var(--text-color)',
