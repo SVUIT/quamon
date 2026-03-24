@@ -301,6 +301,14 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
       return;
     }
 
+    const isConfirmed = confirm(
+      "⚠️ Dữ liệu này chỉ được lưu tạm thời trên trình duyệt.\n" +
+      "Bạn sẽ mất dữ liệu nếu xóa cache hoặc khi website được cập nhật.\n\n" +
+      "Bạn vẫn muốn thêm vào bảng điểm?"
+    );
+
+    if (!isConfirmed) return;
+
     const courseObj = getCourseObject();
     
     const newSubject: Subject = {
@@ -455,10 +463,24 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
             >
               {isSubmittingPR ? "Đang tạo PR..." : "Gửi đóng góp (Tạo PR)"}
             </button>
-           <button type="submit" className="btn-submit-form">
-              Thêm vào bảng điểm
-           </button>
+           <button 
+            type="submit" 
+            className="btn-submit-form"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '2px', 
+            }}
+          >
+              <span>Thêm vào bảng điểm</span>
+              <span style={{ fontSize: '12px', fontWeight: 'normal', textAlign: 'left'}}>
+                * Dữ liệu chỉ lưu tạm trên trình duyệt và có thể bị mất khi xoá cache hoặc cập nhật website
+              </span>
+  </button>
+           
         </div>
+        
       </form>
     </div>
   );
