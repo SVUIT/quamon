@@ -15,6 +15,13 @@ export async function OPTIONS() {
 
 export async function POST(request: Request) {
   try {
+    const contentLength = request.headers.get('content-length');
+    if (contentLength && parseInt(contentLength, 10) > MAX_FILE_SIZE + 1024 * 1024) {
+      return NextResponse.json(
+        { success: false, error: 'Payload too large. Maximum payload size is 5MB.' },
+        { status: 413, headers: corsHeaders }
+      );
+    }
     // Check content type
     const contentType = request.headers.get('content-type');
     if (!contentType || !contentType.includes('multipart/form-data')) {
