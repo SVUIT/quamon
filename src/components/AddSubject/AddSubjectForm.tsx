@@ -14,6 +14,7 @@ const regex = {
   courseNameEn: /^[a-zA-Z0-9\s]{3,100}$/,
   credits: /^(10|[1-9])$/,
   weight: /^(100|[1-9]?[0-9])$/,
+  description: /^[a-zA-ZÀ-ỹ0-9\s.,\-()]{0,255}$/,
 };
 
 const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
@@ -31,6 +32,7 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
     midtermWeight: "20",
     practiceWeight: "20",
     finalTermWeight: "40",
+    description: "",
   });
 
   const [isSubmittingPR, setIsSubmittingPR] = useState(false);
@@ -98,6 +100,12 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
           return "Phải từ 0–100";
         }
         break;
+      
+      case "description":
+        if (!regex.description.test(value)) {
+          return "Ghi chú tối đa 255 ký tự, không chứa ký tự đặc biệt lạ";
+        }
+        break;
     }
 
     return "";
@@ -126,7 +134,8 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
         practiceWeight: (Number(form.practiceWeight) || 0) / 100,
         midtermWeight: (Number(form.midtermWeight) || 0) / 100,
         finalTermWeight: (Number(form.finalTermWeight) || 0) / 100,
-      }
+      },
+      description: form.description,
     };
   };
 
@@ -172,6 +181,10 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
       newErrors.midtermWeight = "Tổng trọng số phải = 100";
       newErrors.practiceWeight = "Tổng trọng số phải = 100";
       newErrors.finalTermWeight = "Tổng trọng số phải = 100";
+    }
+
+    if (!regex.description.test(form.description)) {
+      newErrors.description = "Ghi chú không hợp lệ";
     }
 
     setErrors(newErrors);
@@ -409,6 +422,27 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
               {errors.finalTermWeight && <p className="error-text">{errors.finalTermWeight}</p>}
             </div>
           </div>
+        </div>
+
+        <div className="form-section-card">
+          <label className="form-label">Ghi chú</label>
+          <p className="form-description">
+            Thêm mô tả hoặc thông tin bổ sung cho học phần.
+          </p>
+
+          <input
+            type="text"
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            placeholder="Nhập ghi chú..."
+            className={`form-white-input ${errors.description ? "input-error" : ""}`}
+          />
+
+          {errors.description && (
+            <p className="error-text">{errors.description}</p>
+          )}
         </div>
 
         <div className="form-actions" style={{ gap: '15px' }}>
