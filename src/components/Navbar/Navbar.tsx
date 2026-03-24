@@ -21,7 +21,7 @@ const Navbar: React.FC<NavbarProps> = ({
 
   useEffect(() => {
     setMounted(true);
-    const handleResize = () => setIsMobile(window.innerWidth < 850); // Ngưỡng rộng hơn chút cho an toàn
+    const handleResize = () => setIsMobile(window.innerWidth < 850); 
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
