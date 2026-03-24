@@ -11,7 +11,6 @@ const handler = NextAuth({
 
   callbacks: {
     async jwt({ token, profile }) {
-      // 👉 khi login lần đầu, profile có dữ liệu GitHub
       if (profile) {
         token.username = (profile as any).login;
       }
@@ -19,7 +18,6 @@ const handler = NextAuth({
     },
 
     async session({ session, token }) {
-      // 👉 đưa username vào session
       if (session.user) {
         (session.user as any).username = token.username;
       }

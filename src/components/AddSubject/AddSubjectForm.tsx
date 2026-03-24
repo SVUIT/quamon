@@ -51,7 +51,7 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
     let newValue = value;
 
     if (typeof value === "string") {
-    newValue = value.replace(/[<>]/g, ""); // tránh inject HTML
+    newValue = value.replace(/[<>]/g, ""); 
   }
 
     setForm(prev => ({ ...prev, [name]: newValue }));
@@ -133,7 +133,6 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    // ❗ check rỗng
     Object.entries(form).forEach(([key, value]) => {
       if (value === "" || value === null) {
         newErrors[key] = "Không được để trống";
@@ -145,7 +144,6 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
       return newErrors;
     }
 
-    // ✅ regex validate
     if (!regex.courseCode.test(form.courseCode)) {
       newErrors.courseCode = "Mã học phần phải dạng IT001, CS313...";
     }
@@ -162,14 +160,12 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
       newErrors.credits = "Tín chỉ phải từ 1–10";
     }
 
-    // ✅ validate weight từng cái
     ["progressWeight", "midtermWeight", "practiceWeight", "finalTermWeight"].forEach((key) => {
       if (!regex.weight.test(form[key as keyof typeof form])) {
         newErrors[key] = "Phải là số từ 0–100";
       }
     });
 
-    // ✅ tổng = 100
     const totalWeight = getTotalWeight();
     if (totalWeight !== 100) {
       newErrors.progressWeight = "Tổng trọng số phải = 100";
@@ -182,7 +178,7 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
     return newErrors;
   };
 
-  const createPR = async (courseObj: Course) => {
+  const createPR = async (courseObj: Course, newTab?: Window | null) => {
     try {
       setIsSubmittingPR(true);
 
@@ -197,7 +193,6 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
             name: session?.user?.name,
             username: (session?.user as any)?.username,
             profileUrl: `https://github.com/${(session?.user as any)?.username}`,
-            email: session?.user?.email,
           }
         }),
       });
@@ -208,12 +203,15 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
         throw new Error(data.error || "Tạo PR thất bại");
       }
 
-      // ❗ clear trước
       localStorage.removeItem("pendingPR");
 
-      // ❗ mở link trước để không bị block
       if (data.url) {
-        window.open(data.url, "_blank");
+        if (newTab) {
+          newTab.location.href = data.url;
+        } else {
+          window.open(data.url, "_blank");
+        }
+
         alert(`PR đã tạo thành công!\n${data.url}`);
       }
 
@@ -226,7 +224,6 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
   };
 
   const handleCreatePR = async () => {
-
     const errors = validateForm();
 
     if (Object.keys(errors).length > 0) {
@@ -242,17 +239,16 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
 
     const courseObj = getCourseObject();
 
+    const newTab = window.open("", "_blank");
+    newTab!.document.write("Đang tạo PR...");
+
     if (!session) {
       localStorage.setItem("pendingPR", JSON.stringify(courseObj));
-
-      signIn("github", {
-        callbackUrl: "/"
-      });
-
+      signIn("github", { callbackUrl: "/" });
       return;
     }
 
-    await createPR(courseObj);
+    await createPR(courseObj, newTab);
   };
 
   useEffect(() => {
