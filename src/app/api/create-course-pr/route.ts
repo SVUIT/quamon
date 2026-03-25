@@ -105,8 +105,6 @@ export async function POST(req: NextRequest) {
 
         Người đóng góp: ${user?.name || "Unknown"}
         GitHub: [@${user?.username}](https://github.com/${user?.username})
-        Email: ${user?.email || "Unknown"}
-
         ---
 
         ### Thông tin môn học

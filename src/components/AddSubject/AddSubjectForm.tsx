@@ -3,9 +3,11 @@
 import React, { useState, useEffect } from "react"; 
 import { Subject, Course } from "../../types";
 import { useSession, signIn } from "next-auth/react";
+import coursesData from "../../assets/courses_weighted.json";
 
 interface AddSubjectFormProps {
   onAdd: (subject: Subject) => void;
+  existingSubjects?: Subject[];
 }
 
 const regex = {
@@ -17,7 +19,10 @@ const regex = {
   description: /^[a-zA-ZÀ-ỹ0-9\s.,\-()]{0,255}$/,
 };
 
-const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
+const normalize = (str: string) =>
+  str.trim().toLowerCase().replace(/\s+/g, " ");
+
+const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd, existingSubjects = []}) => {
   const { data: session } = useSession();
   
   const [hasProcessed, setHasProcessed] = useState(false);
@@ -47,23 +52,37 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
     );
   };
 
+  const isDupCode = (code: string) =>
+    existingSubjects.some((sub) => normalize(sub.courseCode) === normalize(code)) ||
+    coursesData.some((c) => normalize(c.courseCode) === normalize(code));
+
+  const isDupName = (nameVi: string) =>
+    existingSubjects.some((sub) => normalize(sub.courseName) === normalize(nameVi)) ||
+    coursesData.some((c) => normalize(c.courseNameVi) === normalize(nameVi));
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
     let newValue = value;
-
     if (typeof value === "string") {
-    newValue = value.replace(/[<>]/g, ""); 
-  }
+      newValue = value.replace(/[<>]/g, ""); 
+    }
 
-    setForm(prev => ({ ...prev, [name]: newValue }));
+    const newForm = { ...form, [name]: newValue };
+    setForm(newForm);
 
-    const errorMsg = validateField(name, newValue);
+    let errorMsg = validateField(name, newValue);
 
-    setErrors(prev => ({
-      ...prev,
-      [name]: errorMsg
-    }));
+    if (!errorMsg) {
+      if (name === "courseCode" && isDupCode(newValue)) {
+        errorMsg = "Mã học phần đã tồn tại trong hệ thống!";
+      }
+      if (name === "courseNameVi" && isDupName(newValue)) {
+        errorMsg = "Tên học phần đã tồn tại trong hệ thống!";
+      }
+    }
+
+    setErrors(prev => ({ ...prev, [name]: errorMsg }));
   };
 
   const validateField = (name: string, value: string) => {
@@ -73,25 +92,21 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
           return "Mã học phần phải dạng IT001, CS313...";
         }
         break;
-
       case "courseNameVi":
         if (!regex.courseNameVi.test(value)) {
           return "Tên tiếng Việt không hợp lệ";
         }
         break;
-
       case "courseNameEn":
         if (!regex.courseNameEn.test(value)) {
           return "Tên tiếng Anh không hợp lệ";
         }
         break;
-
       case "credits":
         if (!regex.credits.test(value)) {
           return "Tín chỉ phải từ 1–10";
         }
         break;
-
       case "progressWeight":
       case "midtermWeight":
       case "practiceWeight":
@@ -100,26 +115,30 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
           return "Phải từ 0–100";
         }
         break;
-      
       case "description":
         if (!regex.description.test(value)) {
           return "Ghi chú tối đa 255 ký tự, không chứa ký tự đặc biệt lạ";
         }
         break;
     }
-
     return "";
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
-    const errorMsg = validateField(name, value);
+    let errorMsg = validateField(name, value);
 
-    setErrors(prev => ({
-      ...prev,
-      [name]: errorMsg
-    }));
+    if (!errorMsg) {
+      if (name === "courseCode" && isDupCode(value)) {
+        errorMsg = "Mã học phần đã tồn tại trong hệ thống!";
+      }
+      if (name === "courseNameVi" && isDupName(value)) {
+        errorMsg = "Tên học phần đã tồn tại trong hệ thống!";
+      }
+    }
+
+    setErrors(prev => ({ ...prev, [name]: errorMsg }));
   };
 
   const getCourseObject = (): Course => {
@@ -143,48 +162,45 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
     const newErrors: Record<string, string> = {};
 
     Object.entries(form).forEach(([key, value]) => {
-      if (value === "" || value === null) {
+      if (key !== "description" && (value === "" || value === null)) {
         newErrors[key] = "Không được để trống";
       }
     });
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return newErrors;
-    }
-
-    if (!regex.courseCode.test(form.courseCode)) {
+    if (!newErrors.courseCode && !regex.courseCode.test(form.courseCode)) {
       newErrors.courseCode = "Mã học phần phải dạng IT001, CS313...";
     }
-
-    if (!regex.courseNameVi.test(form.courseNameVi)) {
+    if (!newErrors.courseNameVi && !regex.courseNameVi.test(form.courseNameVi)) {
       newErrors.courseNameVi = "Tên tiếng Việt không hợp lệ";
     }
-
-    if (!regex.courseNameEn.test(form.courseNameEn)) {
+    if (!newErrors.courseNameEn && !regex.courseNameEn.test(form.courseNameEn)) {
       newErrors.courseNameEn = "Tên tiếng Anh không hợp lệ";
     }
-
-    if (!regex.credits.test(form.credits)) {
+    if (!newErrors.credits && !regex.credits.test(form.credits)) {
       newErrors.credits = "Tín chỉ phải từ 1–10";
     }
 
     ["progressWeight", "midtermWeight", "practiceWeight", "finalTermWeight"].forEach((key) => {
-      if (!regex.weight.test(form[key as keyof typeof form])) {
+      if (!newErrors[key] && !regex.weight.test(form[key as keyof typeof form])) {
         newErrors[key] = "Phải là số từ 0–100";
       }
     });
 
-    const totalWeight = getTotalWeight();
-    if (totalWeight !== 100) {
-      newErrors.progressWeight = "Tổng trọng số phải = 100";
-      newErrors.midtermWeight = "Tổng trọng số phải = 100";
-      newErrors.practiceWeight = "Tổng trọng số phải = 100";
-      newErrors.finalTermWeight = "Tổng trọng số phải = 100";
+    const weightKeys = ["progressWeight", "midtermWeight", "practiceWeight", "finalTermWeight"];
+    const anyWeightError = weightKeys.some(k => newErrors[k]);
+    if (!anyWeightError && getTotalWeight() !== 100) {
+      weightKeys.forEach(k => { newErrors[k] = "Tổng trọng số phải = 100"; });
     }
 
-    if (!regex.description.test(form.description)) {
+    if (form.description && !regex.description.test(form.description)) {
       newErrors.description = "Ghi chú không hợp lệ";
+    }
+
+    if (!newErrors.courseCode && isDupCode(form.courseCode)) {
+      newErrors.courseCode = "Mã học phần đã tồn tại trong hệ thống!";
+    }
+    if (!newErrors.courseNameVi && isDupName(form.courseNameVi)) {
+      newErrors.courseNameVi = "Tên học phần đã tồn tại trong hệ thống!";
     }
 
     setErrors(newErrors);
@@ -197,9 +213,7 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
 
       const res = await fetch("/api/create-course-pr", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...courseObj,
           user: {
@@ -213,6 +227,7 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
       const data = await res.json();
 
       if (!res.ok) {
+        newTab?.close();
         throw new Error(data.error || "Tạo PR thất bại");
       }
 
@@ -224,10 +239,8 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
         } else {
           window.open(data.url, "_blank");
         }
-
         alert(`PR đã tạo thành công!\n${data.url}`);
       }
-
     } catch (err: any) {
       console.error(err);
       alert(err.message || "Có lỗi xảy ra khi tạo PR");
@@ -241,19 +254,15 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
 
     if (Object.keys(errors).length > 0) {
       const hasEmpty = Object.values(form).some(v => v === "");
-
       if (hasEmpty) {
         alert("Vui lòng nhập đầy đủ thông tin");
       } else {
-        alert("Tổng trọng số phải bằng 100%");
+        alert("Vui lòng kiểm tra lại thông tin");
       }
       return;
     }
 
     const courseObj = getCourseObject();
-
-    const newTab = window.open("", "_blank");
-    newTab!.document.write("Đang tạo PR...");
 
     if (!session) {
       localStorage.setItem("pendingPR", JSON.stringify(courseObj));
@@ -261,19 +270,17 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
       return;
     }
 
+    const newTab = window.open("", "_blank");
     await createPR(courseObj, newTab);
   };
 
   useEffect(() => {
     if (session && !hasProcessed) {
       const pending = localStorage.getItem("pendingPR");
-
       if (pending) {
         localStorage.removeItem("pendingPR"); 
-
         const courseObj = JSON.parse(pending);
         createPR(courseObj);
-
         setHasProcessed(true);
       }
     }
@@ -290,16 +297,7 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
 
     const errors = validateForm();
 
-    if (Object.keys(errors).length > 0) {
-      const hasEmpty = Object.values(form).some(v => v === "");
-
-      if (hasEmpty) {
-        alert("Vui lòng nhập đầy đủ thông tin");
-      } else {
-        alert("Tổng trọng số phải bằng 100%");
-      }
-      return;
-    }
+    if (Object.keys(errors).length > 0) return;
 
     const isConfirmed = confirm(
       "⚠️ Dữ liệu này chỉ được lưu tạm thời trên trình duyệt.\n" +
@@ -346,21 +344,20 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
           <p className="form-description">Mã định danh duy nhất (ví dụ: IT001, CS313,...).</p>
           <input 
             type="text" name="courseCode" value={form.courseCode}
-            onChange={handleChange} onBlur={handleBlur} placeholder="Mã học phần..." className={`form-white-input ${errors.courseCode ? "input-error" : ""}`}
+            onChange={handleChange} onBlur={handleBlur} placeholder="Mã học phần..."
+            className={`form-white-input ${errors.courseCode ? "input-error" : ""}`}
           />
-          {errors.courseCode && (
-            <p className="error-text">{errors.courseCode}</p>
-          )}
+          {errors.courseCode && <p className="error-text">{errors.courseCode}</p>}
         </div>
 
-    
         <div className="form-section-card">
           <label className="form-label">Tên học phần (tiếng Việt)</label>
           <p className="form-description">Tên tiếng Việt chính thức của học phần.</p>
           <input 
-            type="text" name="courseNameVi" value={form.courseNameVi} onChange={handleChange} onBlur={handleBlur} placeholder="Nhập tên tiếng Việt..." className={`form-white-input ${errors.courseNameVi  ? "input-error" : ""}`}
+            type="text" name="courseNameVi" value={form.courseNameVi}
+            onChange={handleChange} onBlur={handleBlur} placeholder="Nhập tên tiếng Việt..."
+            className={`form-white-input ${errors.courseNameVi ? "input-error" : ""}`}
           />
-
           {errors.courseNameVi && <p className="error-text">{errors.courseNameVi}</p>}
         </div>
 
@@ -368,22 +365,22 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
           <label className="form-label">Tên học phần (tiếng Anh)</label>
           <p className="form-description">Tên tiếng Anh chính thức của học phần</p>
           <input 
-             type="text" name="courseNameEn" value={form.courseNameEn}
-            onChange={handleChange} onBlur={handleBlur} placeholder="Nhập tên tiếng Anh..." className={`form-white-input ${errors.courseNameEn  ? "input-error" : ""}`}
+            type="text" name="courseNameEn" value={form.courseNameEn}
+            onChange={handleChange} onBlur={handleBlur} placeholder="Nhập tên tiếng Anh..."
+            className={`form-white-input ${errors.courseNameEn ? "input-error" : ""}`}
           />
           {errors.courseNameEn && <p className="error-text">{errors.courseNameEn}</p>}
         </div>
-        
 
- 
         <div className="form-section-card">
           <label className="form-label">Loại học phần</label>
           <p className="form-description">Phân loại theo chương trình đào tạo.</p>
           <select 
             name="courseType" value={form.courseType} 
-            onChange={handleChange} className={`form-white-input ${errors.courseType ? "input-error" : ""}`}
+            onChange={handleChange}
+            className={`form-white-input ${errors.courseType ? "input-error" : ""}`}
             style={{ paddingRight: '30px' }}
-           >
+          >
             <option value="ĐC">Đại cương (ĐC)</option>
             <option value="CSNN">Cơ sở nhóm ngành (CSNN)</option>
             <option value="CSN">Cơ sở ngành (CSN)</option>
@@ -399,11 +396,11 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
           <p className="form-description">Số lượng tín chỉ của học phần.</p>
           <input 
             type="number" name="credits" value={form.credits}
-            onChange={handleChange} onBlur={handleBlur} placeholder="Ví dụ: 4" className={`form-white-input ${errors.credits ? "input-error" : ""}`}
+            onChange={handleChange} onBlur={handleBlur} placeholder="Ví dụ: 4"
+            className={`form-white-input ${errors.credits ? "input-error" : ""}`}
           />
           {errors.credits && <p className="error-text">{errors.credits}</p>}
         </div>
-
 
         <div className="form-section-card">
           <label className="form-label">Trọng số (%)</label>
@@ -434,53 +431,46 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd }) => {
 
         <div className="form-section-card">
           <label className="form-label">Ghi chú</label>
-          <p className="form-description">
-            Thêm mô tả hoặc thông tin bổ sung cho học phần.
-          </p>
-
+          <p className="form-description">Thêm mô tả hoặc thông tin bổ sung cho học phần.</p>
           <input
-            type="text"
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder="Nhập ghi chú..."
+            type="text" name="description" value={form.description}
+            onChange={handleChange} onBlur={handleBlur} placeholder="Nhập ghi chú..."
             className={`form-white-input ${errors.description ? "input-error" : ""}`}
           />
-
-          {errors.description && (
-            <p className="error-text">{errors.description}</p>
-          )}
+          {errors.description && <p className="error-text">{errors.description}</p>}
         </div>
 
         <div className="form-actions" style={{ gap: '15px' }}>
-
-           <button
-              type="submit"
-              onClick={handleCreatePR}
-              className="btn-submit-form"
-              disabled={isSubmittingPR}
-            >
-              {isSubmittingPR ? "Đang tạo PR..." : "Gửi đóng góp (Tạo PR)"}
-            </button>
-           <button 
-            type="submit" 
+          <button
+            type="button"
+            onClick={handleCreatePR}
             className="btn-submit-form"
+            disabled={isSubmittingPR}
             style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: '2px', 
+              gap: '2px'
             }}
           >
-              <span>Thêm vào bảng điểm</span>
-              <span style={{ fontSize: '12px', fontWeight: 'normal', textAlign: 'left'}}>
-                * Dữ liệu chỉ lưu tạm trên trình duyệt và có thể bị mất khi xoá cache hoặc cập nhật website
-              </span>
-  </button>
-           
+            <span>
+              {isSubmittingPR ? "Đang tạo PR..." : "Gửi đóng góp (Tạo PR)"}
+            </span>
+            <span style={{ fontSize: '12px', fontWeight: 'normal', textAlign: 'left' }}>
+              * Dữ liệu sẽ được tạo pull request trên GitHub để được duyệt trước khi thêm vào hệ thống chung
+            </span>
+          </button>
+          <button 
+            type="submit" 
+            className="btn-submit-form"
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}
+          >
+            <span>Thêm vào bảng điểm</span>
+            <span style={{ fontSize: '12px', fontWeight: 'normal', textAlign: 'left' }}>
+              * Dữ liệu chỉ lưu tạm trên trình duyệt và có thể bị mất khi xoá cache hoặc cập nhật website
+            </span>
+          </button>
         </div>
-        
       </form>
     </div>
   );
