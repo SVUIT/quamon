@@ -737,6 +737,7 @@ export default function Home() {
               setBackupSubject(null);
             }}
             backupSubject={backupSubject}
+            gpaScale={gpaScale}
           />
         )}
       </div>

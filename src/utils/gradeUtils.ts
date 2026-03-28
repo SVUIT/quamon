@@ -94,7 +94,7 @@ export const getScoreDisplayText = (subject: Subject, scoreField: string): strin
 };
 
 // ================== AUTO CALCULATE - ĐIỂM HP =================
-export const calcSubjectScore = (subj: Partial<Subject>): string => {
+export const calcSubjectScore = (subj: Partial<Subject>, scale: GpaScale = "10"): string => {
   // If this is a Mien subject, set score to 0
   if (isExemptCourse(subj as Subject)) {
     return "0";
@@ -139,14 +139,17 @@ export const calcSubjectScore = (subj: Partial<Subject>): string => {
     return "";
   }
 
-  // Use the decimal weights for calculation
+  // Use the decimal weights for calculation (always calculate in 10-point scale first)
   const total =
     scores[0] * decimalWeights[0] +
     scores[1] * decimalWeights[1] +
     scores[2] * decimalWeights[2] +
     scores[3] * decimalWeights[3];
 
-  return total.toFixed(2);
+  // Convert from 10-point scale to target scale if needed
+  const convertedTotal = convertGpaScale(total, "10", scale);
+  
+  return formatGpaDisplay(convertedTotal, scale);
 };
 
 
@@ -160,7 +163,7 @@ export const calcSemesterAverage = (subjects: Subject[]) => {
       return;
     }
 
-    const hp = Number(calcSubjectScore(sub));
+    const hp = Number(calcSubjectScore(sub, "10"));
     const tc = Number(sub.credits);
     if (!isNaN(hp) && !isNaN(tc)) {
       totalTC += tc;
@@ -201,6 +204,8 @@ export const calcRequiredScores = (subj: Subject, expected: number, scale: GpaSc
   const missingFields: string[] = [];
   const missingMinFields: string[] = [];
 
+  // Convert expected score to 10-point scale for calculation
+  const expectedIn10Scale = convertGpaScale(expected, scale, "10");
 
   fields.forEach((f, idx) => {
     const raw = subj[f] as string;
@@ -209,22 +214,25 @@ export const calcRequiredScores = (subj: Subject, expected: number, scale: GpaSc
     const w = weightVal / 100;
 
     if (raw.trim() !== "" && !isNaN(score)) {
-      currentSum += score * w; 
+      // Convert current score to 10-point scale for calculation
+      const scoreIn10Scale = convertGpaScale(score, scale, "10");
+      currentSum += scoreIn10Scale * w; 
     } else if (weightVal > 0) {
       missingWeight += w; 
       missingFields.push(f as string);
       missingMinFields.push(minFields[idx] as string);
-
     }
   });
 
   if (missingWeight <= 0) return {}; 
 
-  const need = (expected - currentSum) / missingWeight;
-
+  // Calculate needed score in 10-point scale
+  const needIn10Scale = (expectedIn10Scale - currentSum) / missingWeight;
   
+  // Convert back to target scale
   const maxScore = getMaxScoreForScale(scale);
-  const valid = Math.max(0, Math.min(maxScore, need));
+  const needInTargetScale = convertGpaScale(needIn10Scale, "10", scale);
+  const valid = Math.max(0, Math.min(maxScore, needInTargetScale));
 
   const result: Partial<Subject> = {};
   missingMinFields.forEach((f) => {

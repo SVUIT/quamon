@@ -207,6 +207,7 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
           updateSubjectExpectedScore={updateSubjectExpectedScore} 
           deleteSubject={deleteSubject}
           openAdvancedModal={openAdvancedModal}
+          gpaScale={gpaScale}
           openMenu={openMenu}
           setOpenMenu={setOpenMenu}
           editDropdownOpen={editDropdownOpen}

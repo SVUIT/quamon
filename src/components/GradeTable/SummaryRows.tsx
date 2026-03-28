@@ -71,7 +71,7 @@ const SummaryRows: React.FC<SummaryRowsProps> = ({
               totalScore = 0;
             semesters.forEach((sem) => {
               sem.subjects.forEach((sub) => {
-                const hp = Number(calcSubjectScore(sub));
+                const hp = Number(calcSubjectScore(sub, gpaScale));
                 const tc = Number(sub.credits);
                 if (!isNaN(hp) && !isNaN(tc)) {
                   totalTC += tc;
@@ -153,7 +153,7 @@ const SummaryRows: React.FC<SummaryRowsProps> = ({
                   if (hasAll) {
                     // Môn đã có đủ điểm
                     lockedCredits += credits;
-                    lockedPoints += Number(calcSubjectScore(sub)) * credits;
+                    lockedPoints += Number(calcSubjectScore(sub, gpaScale)) * credits;
                   } else if (sub.isExpectedManual && sub.expectedScore) {
                     // Môn có điểm kỳ vọng do người dùng nhập
                     lockedCredits += credits;
@@ -189,7 +189,7 @@ const SummaryRows: React.FC<SummaryRowsProps> = ({
                     
                     if (hasAll) {
                       semLockedCredits += credits;
-                      semLockedPoints += Number(calcSubjectScore(sub)) * credits;
+                      semLockedPoints += Number(calcSubjectScore(sub, gpaScale)) * credits;
                     } else if (sub.isExpectedManual && sub.expectedScore) {
                       semLockedCredits += credits;
                       semLockedPoints += Number(sub.expectedScore) * credits;

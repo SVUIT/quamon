@@ -6,6 +6,7 @@ import {
   hasAllScores,
   calcSubjectScore,
   calcRequiredScores,
+  getMaxScoreForScale,
 } from "../utils/gradeUtils";
 import { SUBJECTS_DATA } from "../constants";
 
@@ -176,7 +177,7 @@ export const useGradeApp = () => {
       if (idx === skipIdx) {
         lockedPoints += (Number(sub.expectedScore) || 0) * cred;
       } else if (hasAllScores(sub)) {
-        lockedPoints += Number(calcSubjectScore(sub)) * cred;
+        lockedPoints += Number(calcSubjectScore(sub, "10")) * cred;
       } else if (sub.isExpectedManual && sub.expectedScore) {
         lockedPoints += Number(sub.expectedScore) * cred;
       } else {
@@ -224,7 +225,7 @@ export const useGradeApp = () => {
       sem.subjects.forEach((sub) => {
         const cred = Number(sub.credits) || 0;
         if (hasAllScores(sub)) {
-          semLocked += Number(calcSubjectScore(sub)) * cred;
+          semLocked += Number(calcSubjectScore(sub, "10")) * cred;
         } else if (sub.isExpectedManual && sub.expectedScore) {
           semLocked += Number(sub.expectedScore) * cred;
         } else {
@@ -309,7 +310,8 @@ export const useGradeApp = () => {
       } else {
         // Người dùng nhập điểm kỳ vọng
         const expectedVal = Number(value);
-        if (!isNaN(expectedVal) && expectedVal >= 0 && expectedVal <= 10) {
+        const maxScore = getMaxScoreForScale(gpaScale);
+        if (!isNaN(expectedVal) && expectedVal >= 0 && expectedVal <= maxScore) {
           sub.expectedScore = value;
           sub.isExpectedManual = true;
           
@@ -340,7 +342,7 @@ export const useGradeApp = () => {
                 if (hasAll) {
                   // Môn đã có đủ điểm
                   lockedCredits += credits;
-                  lockedPoints += Number(calcSubjectScore(s)) * credits;
+                  lockedPoints += Number(calcSubjectScore(s, "10")) * credits;
                 } else if (s.isExpectedManual && s.expectedScore) {
                   // Môn có điểm kỳ vọng do người dùng nhập (bao gồm môn vừa nhập)
                   lockedCredits += credits;
@@ -351,7 +353,8 @@ export const useGradeApp = () => {
               // Tính điểm cần thiết cho các môn còn lại
               const remainingCredits = totalCredits - lockedCredits;
               if (remainingCredits > 0) {
-                const requiredAvg = Math.max(0, Math.min(10, (targetAvg * totalCredits - lockedPoints) / remainingCredits));
+                const maxScore = getMaxScoreForScale(gpaScale);
+                const requiredAvg = Math.max(0, Math.min(maxScore, (targetAvg * totalCredits - lockedPoints) / remainingCredits));
                 
                 updated[sIdx].subjects.forEach((s: any) => {
                   const hasAll = ["progressScore", "midtermScore", "practiceScore", "finalScore"].every((f) => {
@@ -392,7 +395,8 @@ export const useGradeApp = () => {
         });
       } else {
         const targetAvg = Number(value);
-        if (!isNaN(targetAvg) && targetAvg >= 0 && targetAvg <= 10) {
+        const maxScore = getMaxScoreForScale(gpaScale);
+        if (!isNaN(targetAvg) && targetAvg >= 0 && targetAvg <= maxScore) {
           updated[sIdx].expectedAverage = value;
           updated[sIdx].isExpectedAverageManual = true;
           
@@ -411,7 +415,7 @@ export const useGradeApp = () => {
             
             if (hasAll) {
               lockedCredits += credits;
-              lockedPoints += Number(calcSubjectScore(sub)) * credits;
+              lockedPoints += Number(calcSubjectScore(sub, "10")) * credits;
             } else if (sub.isExpectedManual && sub.expectedScore) {
               lockedCredits += credits;
               lockedPoints += Number(sub.expectedScore) * credits;
@@ -419,8 +423,8 @@ export const useGradeApp = () => {
           });
           
           const remainingCredits = totalCredits - lockedCredits;
-          if (remainingCredits > 0) {
-            const requiredAvg = Math.max(0, Math.min(10, (targetAvg * totalCredits - lockedPoints) / remainingCredits));
+            if (remainingCredits > 0) {
+              const requiredAvg = Math.max(0, Math.min(maxScore, (targetAvg * totalCredits - lockedPoints) / remainingCredits));
             
             updated[sIdx].subjects.forEach((sub: any) => {
               const hasAll = ["progressScore", "midtermScore", "practiceScore", "finalScore"].every((f) => {
