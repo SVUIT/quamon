@@ -1,21 +1,55 @@
-import { useState } from "react";
+import { SUBJECTS_DATA } from "@/constants";
+import { useState, useMemo } from "react";
 
-export const GraduationCheck = () => {
+interface Subject {
+  courseCode: string;
+  credits: string | number;
+}
+interface Semester {
+  subjects: Subject[];
+}
+
+const courseToCategoryMap: Record<string, string> = {};
+Object.entries(SUBJECTS_DATA).forEach(([categoryName, courses]) => {
+  (courses as any[]).forEach((c: { courseCode: string }) => {
+    courseToCategoryMap[c.courseCode] = categoryName;
+  });
+});
+
+export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
+  const creditSummary = useMemo(() => {
+    const summary: Record<string, number> = {};
+    semesters?.forEach((sem) => {
+      sem.subjects.forEach((subj) => {
+        const category =
+          courseToCategoryMap[subj.courseCode] || "Khác (Tự chọn/CĐTN/TN)";
+        const creditValue = Number(subj.credits) || 0;
+        summary[category] = (summary[category] || 0) + creditValue;
+      });
+    });
+    return summary;
+  }, [semesters]);
+
+  const {
+    "Đại cương": autoDC = 0,
+    "Cơ sở ngành (CSN)": autoCSN = 0,
+    "Chuyên ngành (CN/CNTC)": autoCN = 0,
+    "Khác (Tự chọn/CĐTN/TN)": autoKHAC = 0,
+  } = creditSummary;
+
   const [form, setForm] = useState({
     creditsDC: "",
-    creditsCSN: "", // Major Foundation + Others (49 + 8 = 57)
-    creditsCN: "", // Major (12)
-    creditsTN: "", // Graduation (Thesis/Project) (14)
+    creditsCSN: "",
+    creditsCN: "",
+    creditsKHAC: "",
 
     englishType: "IELTS",
     englishScore: "",
     toeicLR: "",
     toeicSW: "",
 
-    hasFGrade: false,
     completedPhysicalEducation: false,
     completedMilitaryTraining: false,
-    isUnderDisciplinaryAction: false,
   });
 
   const [result, setResult] = useState<{
@@ -47,34 +81,31 @@ export const GraduationCheck = () => {
     let englishMsg = "";
     const generalIssues: string[] = [];
 
-    const numDC = Number(form.creditsDC) || 0;
-    const numCSN = Number(form.creditsCSN) || 0;
-    const numCN = Number(form.creditsCN) || 0;
-    const numTN = Number(form.creditsTN) || 0;
+    const numDC = Number(form.creditsDC || autoDC);
+    const numCSN = Number(form.creditsCSN || autoCSN);
+    const numCN = Number(form.creditsCN || autoCN);
+    const numKHAC = Number(form.creditsKHAC || autoKHAC);
 
-    const totalCredits = numDC + numCSN + numCN + numTN;
+    const totalCredits = numDC + numCSN + numCN + numKHAC;
 
-    // --- UPDATE LOGIC ACCORDING TO 130 CREDITS TABLE ---
-    // Total credits required: 130
+    // 1. Tổng tín chỉ
     if (totalCredits < 130) {
       missingCredits.push(
-        `Tổng số tín chỉ: ${totalCredits}/130 (Còn thiếu ${130 - totalCredits} TC)`,
+        `Tổng tích lũy: ${totalCredits}/130 TC (Thiếu ${130 - totalCredits} TC)`,
       );
     }
-    // General Education block: 47 Credits
+    // 2. Đại cương (47 TC)
     if (numDC < 47) missingCredits.push(`Đại cương: ${numDC}/47 TC`);
 
-    // Professional Education block (Major Foundation 49 + Major 12 + Others 8 = 69 Credits)
-    // Checking if total of Foundation + Major >= 69
-    if (numCSN + numCN < 69)
-      missingCredits.push(
-        `Chuyên nghiệp (CSN + CN + Khác): ${numCSN + numCN}/69 TC`,
-      );
+    // 3. Cơ sở ngành (49 TC)
+    if (numCSN < 49) missingCredits.push(`Cơ sở ngành: ${numCSN}/49 TC`);
 
-    // Graduation block (Thesis/Internship): 14 Credits
-    if (numTN < 14) missingCredits.push(`Tốt nghiệp: ${numTN}/14 TC`);
+    // 4. Chuyên ngành (12 TC)
+    if (numCN < 12) missingCredits.push(`Chuyên ngành: ${numCN}/12 TC`);
 
-    // --- UPDATE LOGIC ACCORDING TO ENGLISH PROFICIENCY TABLE (STANDARD PROGRAM) ---
+    // 5. Khác/Tự chọn/Tốt nghiệp (22 TC)
+    if (numKHAC < 22) missingCredits.push(`Khác/Tự chọn/TN: ${numKHAC}/22 TC`);
+
     const { englishType, englishScore, toeicLR, toeicSW } = form;
     if (englishType === "IELTS") {
       if (Number(englishScore) >= 4.5) {
@@ -86,7 +117,6 @@ export const GraduationCheck = () => {
     } else if (englishType === "TOEIC") {
       const lr = Number(toeicLR) || 0;
       const sw = Number(toeicSW) || 0;
-      // Standard Program requirements: L&R >= 450 and S&W >= 185
       if (lr >= 450 && sw >= 185) {
         englishPassed = true;
         englishMsg = "Đạt điều kiện (TOEIC L&R 450, S&W 185)";
@@ -94,7 +124,6 @@ export const GraduationCheck = () => {
         englishMsg = `Chưa đạt (Yêu cầu L&R: 450, S&W: 185)`;
       }
     } else if (englishType === "VSTEP") {
-      // VSTEP B1 standard is usually equivalent to 4.0/10 or Level 3/6
       if (Number(englishScore) >= 4.0) {
         englishPassed = true;
         englishMsg = "Đạt điều kiện (VSTEP >= B1)";
@@ -102,7 +131,6 @@ export const GraduationCheck = () => {
         englishMsg = `Chưa đạt (VSTEP yêu cầu B1)`;
       }
     } else if (englishType === "UIT") {
-      // VNU-EPT required score in table is 176
       if (Number(englishScore) >= 176) {
         englishPassed = true;
         englishMsg = "Đạt điều kiện (VNU-EPT >= 176)";
@@ -111,15 +139,10 @@ export const GraduationCheck = () => {
       }
     }
 
-    // --- CHECK GENERAL CONDITIONS (KEEP UNCHANGED) ---
-    if (form.hasFGrade) generalIssues.push("Còn nợ môn học (Điểm <5)");
     if (!form.completedPhysicalEducation)
       generalIssues.push("Chưa hoàn thành Giáo dục thể chất (GDTC)");
     if (!form.completedMilitaryTraining)
       generalIssues.push("Chưa hoàn thành Giáo dục Quốc phòng (GDQP)");
-
-    if (form.isUnderDisciplinaryAction)
-      generalIssues.push("Đang trong thời gian bị kỷ luật");
 
     const eligible =
       missingCredits.length === 0 &&
@@ -141,63 +164,59 @@ export const GraduationCheck = () => {
       <h1 className="form-title">Kiểm tra tốt nghiệp UIT</h1>
 
       <form onSubmit={checkEligibility} className="subject-form-layout">
-        {/* ACCUMULATED KNOWLEDGE BLOCKS */}
         <div className="form-section-card">
-          <label className="form-label">
-            1. Tín chỉ tích lũy (Chuẩn 130TC)
-          </label>
+          <label className="form-label">1. Tín chỉ tích lũy</label>
           <p className="form-description">
-            Nhập số tín chỉ hiện tại ở mỗi nhóm theo quy định mới.
+            Số tín chỉ tự động tính từ bảng điểm. Bạn có thể nhập đè nếu cần.
           </p>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="weight-item">
-              <span className="weight-label">Đại cương (Y/c: 47)</span>
+              <span className="weight-label">Đại cương (47)</span>
               <input
                 type="number"
                 name="creditsDC"
-                value={form.creditsDC}
+                value={form.creditsDC !== "" ? form.creditsDC : autoDC}
                 onChange={handleChange}
-                placeholder="VD: 47"
+                placeholder="0"
                 className="form-white-input weight-input"
               />
             </div>
             <div className="weight-item">
-              <span className="weight-label">Cơ sở & Khác (Y/c: 57)</span>
+              <span className="weight-label">Cơ sở ngành (49)</span>
               <input
                 type="number"
                 name="creditsCSN"
-                value={form.creditsCSN}
+                value={form.creditsCSN !== "" ? form.creditsCSN : autoCSN}
                 onChange={handleChange}
-                placeholder="VD: 57"
+                placeholder="0"
                 className="form-white-input weight-input"
               />
             </div>
             <div className="weight-item">
-              <span className="weight-label">Chuyên ngành (Y/c: 12)</span>
+              <span className="weight-label">Chuyên ngành (12)</span>
               <input
                 type="number"
                 name="creditsCN"
-                value={form.creditsCN}
+                value={form.creditsCN !== "" ? form.creditsCN : autoCN}
                 onChange={handleChange}
-                placeholder="VD: 12"
+                placeholder="0"
                 className="form-white-input weight-input"
               />
             </div>
             <div className="weight-item">
-              <span className="weight-label">Tốt nghiệp (Y/c: 14)</span>
+              <span className="weight-label">Khác/TN (22)</span>
               <input
                 type="number"
-                name="creditsTN"
-                value={form.creditsTN}
+                name="creditsKHAC"
+                value={form.creditsKHAC !== "" ? form.creditsKHAC : autoKHAC}
                 onChange={handleChange}
-                placeholder="VD: 14"
+                placeholder="0"
                 className="form-white-input weight-input"
               />
             </div>
           </div>
         </div>
 
-        {/* ENGLISH PROFICIENCY STANDARD */}
         <div className="form-section-card">
           <label className="form-label">
             2. Chuẩn đầu ra Ngoại ngữ (Hệ Đại trà)
@@ -224,27 +243,23 @@ export const GraduationCheck = () => {
             <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
               <div className="weight-item">
                 <span className="weight-label">
-                  Listening &amp; Reading (&gt;= 450)
+                  Listening & Reading (≥ 450)
                 </span>
                 <input
                   type="number"
                   name="toeicLR"
                   value={form.toeicLR}
                   onChange={handleChange}
-                  placeholder="Điểm L&R"
                   className="form-white-input weight-input"
                 />
               </div>
               <div className="weight-item">
-                <span className="weight-label">
-                  Speaking &amp; Writing (&gt;= 185)
-                </span>
+                <span className="weight-label">Speaking & Writing (≥ 185)</span>
                 <input
                   type="number"
                   name="toeicSW"
                   value={form.toeicSW}
                   onChange={handleChange}
-                  placeholder="Điểm S&W"
                   className="form-white-input weight-input"
                 />
               </div>
@@ -258,19 +273,15 @@ export const GraduationCheck = () => {
                 name="englishScore"
                 value={form.englishScore}
                 onChange={handleChange}
-                placeholder={form.englishType === "IELTS" ? "VD: 4.5" : "Điểm"}
                 className="form-white-input weight-input"
               />
             </div>
           )}
         </div>
 
-        {/* OTHER CONDITIONS */}
         <div className="form-section-card">
           <label className="form-label">3. Yêu cầu chung</label>
-          <p className="form-description">Đánh dấu các mục đã hoàn thành.</p>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm text-[var(--text-color)]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm text-(--text-color) mt-2">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -291,26 +302,6 @@ export const GraduationCheck = () => {
               />
               Chứng chỉ Quốc phòng (GDQP)
             </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                name="hasFGrade"
-                checked={form.hasFGrade}
-                onChange={handleChange}
-                className="w-5 h-5 cursor-pointer"
-              />
-              Có môn trung bình &lt; 5 (chưa học lại)
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer text-red-500">
-              <input
-                type="checkbox"
-                name="isUnderDisciplinaryAction"
-                checked={form.isUnderDisciplinaryAction}
-                onChange={handleChange}
-                className="w-5 h-5 cursor-pointer"
-              />
-              Đang bị kỷ luật
-            </label>
           </div>
         </div>
 
@@ -321,13 +312,16 @@ export const GraduationCheck = () => {
         </div>
       </form>
 
-      {/* EVALUATION RESULT DISPLAY */}
       {result && (
         <div
-          className={`form-section-card mt-7.5 ${result.eligible ? "border-success-green bg-success-green/5" : "border-red-500 bg-red-500/5"}`}
+          className={`form-section-card mt-7.5 border-2 ${
+            result.eligible
+              ? "border-green-500 bg-green-50"
+              : "border-red-500 bg-red-50"
+          }`}
         >
           <h2
-            className={`mt-0 ${result.eligible ? "text-(--success-green)" : "text-red-500"}`}
+            className={`mt-0 ${result.eligible ? "text-green-600" : "text-red-600"}`}
           >
             {result.eligible
               ? "🎉 ĐỦ ĐIỀU KIỆN TỐT NGHIỆP"
@@ -338,22 +332,20 @@ export const GraduationCheck = () => {
             <div>
               <strong
                 className={
-                  result.englishPassed
-                    ? "text-(--success-green)"
-                    : "text-red-500"
+                  result.englishPassed ? "text-green-600" : "text-red-500"
                 }
               >
                 Ngoại ngữ:
               </strong>
-              <span className="text-(--text-color)">{result.englishMsg}</span>
+              <span className="ml-2 text-(--text-color)">
+                {result.englishMsg}
+              </span>
             </div>
 
             {result.generalIssues.length > 0 && (
               <div>
-                <strong className="text-[#ff4d4f]">
-                  Yêu cầu chung còn thiếu:
-                </strong>
-                <ul className="text-[#ff4d4f]">
+                <strong className="text-red-500">Yêu cầu chung:</strong>
+                <ul className="list-disc ml-5 text-red-500">
                   {result.generalIssues.map((issue, idx) => (
                     <li key={idx}>{issue}</li>
                   ))}
@@ -361,27 +353,28 @@ export const GraduationCheck = () => {
               </div>
             )}
 
-            {result.missingCredits.length > 0 ? (
-              <div>
-                <strong className="text-[#ff4d4f]">
-                  Tín chỉ môn học còn thiếu:
-                </strong>
-                <ul className="text-[#ff4d4f]">
+            <div>
+              <strong
+                className={
+                  result.missingCredits.length === 0
+                    ? "text-green-600"
+                    : "text-red-500"
+                }
+              >
+                Tín chỉ môn học:
+              </strong>
+              {result.missingCredits.length > 0 ? (
+                <ul className="list-disc ml-5 text-red-500">
                   {result.missingCredits.map((issue, idx) => (
                     <li key={idx}>{issue}</li>
                   ))}
                 </ul>
-              </div>
-            ) : (
-              <div>
-                <strong className="text-(--success-green)">
-                  Tín chỉ môn học:
-                </strong>{" "}
-                <span className="text-(--text-color)">
+              ) : (
+                <span className="ml-2 text-green-600 font-bold">
                   Đã đủ điều kiện ({result.totalCredits}/130 TC)
                 </span>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}

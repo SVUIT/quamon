@@ -885,7 +885,9 @@ export default function Home() {
             />
           )}
 
-          {activeTab === "graduation_check" && <GraduationCheck />}
+          {activeTab === "graduation_check" && (
+            <GraduationCheck semesters={semesters} />
+          )}
 
           {modalOpen && editing && (
             <EditModal
