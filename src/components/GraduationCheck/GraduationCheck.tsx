@@ -1,6 +1,5 @@
 import { SUBJECTS_DATA } from "@/constants";
 import { useState, useMemo } from "react";
-
 interface Subject {
   courseCode: string;
   credits: string | number;
@@ -374,6 +373,58 @@ export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
                   Đã đủ điều kiện ({result.totalCredits}/130 TC)
                 </span>
               )}
+            </div>
+          </div>
+          <div className="mt-4 pt-4 border-t border-dashed border-gray-300">
+            <p className="text-xs text-gray-500 italic mb-3">
+              * Kết quả kiểm tra dựa trên quy chế đào tạo và chuẩn đầu ra ngành
+              <strong> Mạng máy tính và Truyền thông dữ liệu 2025</strong> UIT.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <a
+                href="https://student.uit.edu.vn/content/cu-nhan-nganh-mang-may-tinh-va-truyen-thong-du-lieu-ap-dung-tu-khoa-19-2024"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-blue-600 hover:underline font-medium"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                Chương trình đào tạo
+              </a>
+              <a
+                href="https://student.uit.edu.vn/content/huong-dan-sinh-vien-dai-hoc-he-chinh-quy-thuc-hien-cac-quy-dinh-ve-chuan-qua-trinh-va-chuan"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-blue-600 hover:underline font-medium"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                Quy định chuẩn Ngoại ngữ
+              </a>
             </div>
           </div>
         </div>
