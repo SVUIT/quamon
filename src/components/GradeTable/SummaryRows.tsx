@@ -1,6 +1,6 @@
 import React from "react";
-import type { Semester } from "../../types";
-import { calcSubjectScore, calcRequiredScores } from "../../utils/gradeUtils";
+import type { Semester, GpaScale } from "../../types";
+import { calcSubjectScore, calcRequiredScores, convertGpaScale, formatGpaDisplay } from "../../utils/gradeUtils";
 
 interface SummaryRowsProps {
   semesters: Semester[];
@@ -9,6 +9,7 @@ interface SummaryRowsProps {
   onSetCumulativeExpected: (value: string) => void;
   isCumulativeManual: boolean;
   setIsCumulativeManual: (value: boolean) => void;
+  gpaScale: GpaScale;
 }
 
 const SummaryRows: React.FC<SummaryRowsProps> = ({ 
@@ -17,7 +18,8 @@ const SummaryRows: React.FC<SummaryRowsProps> = ({
   onApplyExpectedOverall,
   onSetCumulativeExpected,
   isCumulativeManual,
-  setIsCumulativeManual
+  setIsCumulativeManual,
+  gpaScale
 }) => {
   return (
     <>
@@ -69,7 +71,7 @@ const SummaryRows: React.FC<SummaryRowsProps> = ({
               totalScore = 0;
             semesters.forEach((sem) => {
               sem.subjects.forEach((sub) => {
-                const hp = Number(calcSubjectScore(sub));
+                const hp = Number(calcSubjectScore(sub, gpaScale));
                 const tc = Number(sub.credits);
                 if (!isNaN(hp) && !isNaN(tc)) {
                   totalTC += tc;
@@ -77,7 +79,9 @@ const SummaryRows: React.FC<SummaryRowsProps> = ({
                 }
               });
             });
-            return totalTC === 0 ? "0.00" : (totalScore / totalTC).toFixed(2);
+            const avg10 = totalTC === 0 ? 0 : totalScore / totalTC;
+            const convertedGpa = convertGpaScale(avg10, "10", gpaScale);
+            return formatGpaDisplay(convertedGpa, gpaScale);
           })()}
         </td>
 
@@ -149,7 +153,7 @@ const SummaryRows: React.FC<SummaryRowsProps> = ({
                   if (hasAll) {
                     // Môn đã có đủ điểm
                     lockedCredits += credits;
-                    lockedPoints += Number(calcSubjectScore(sub)) * credits;
+                    lockedPoints += Number(calcSubjectScore(sub, gpaScale)) * credits;
                   } else if (sub.isExpectedManual && sub.expectedScore) {
                     // Môn có điểm kỳ vọng do người dùng nhập
                     lockedCredits += credits;
@@ -185,7 +189,7 @@ const SummaryRows: React.FC<SummaryRowsProps> = ({
                     
                     if (hasAll) {
                       semLockedCredits += credits;
-                      semLockedPoints += Number(calcSubjectScore(sub)) * credits;
+                      semLockedPoints += Number(calcSubjectScore(sub, gpaScale)) * credits;
                     } else if (sub.isExpectedManual && sub.expectedScore) {
                       semLockedCredits += credits;
                       semLockedPoints += Number(sub.expectedScore) * credits;

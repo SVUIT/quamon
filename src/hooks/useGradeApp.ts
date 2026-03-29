@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Semester, Subject } from "../types";
+import { Semester, Subject, GpaScale } from "../types";
 import {
   getSearchResults,
   normalizeScore,
   hasAllScores,
   calcSubjectScore,
   calcRequiredScores,
+  getMaxScoreForScale,
 } from "../utils/gradeUtils";
 import { SUBJECTS_DATA } from "../constants";
 
@@ -13,6 +14,7 @@ const LOCAL_STORAGE_KEY = "grade_app_semesters";
 const THEME_KEY = "grade_app_theme";
 const CUMULATIVE_KEY = "grade_app_cumulative";
 const CUMULATIVE_MANUAL_KEY = "grade_app_cumulative_manual";
+const GPA_SCALE_KEY = "grade_app_gpa_scale";
 
 const generateId = (prefix = "sem") =>
   `${prefix}-${crypto.randomUUID()}`; 
@@ -55,6 +57,20 @@ export const useGradeApp = () => {
 
   const toggleTheme = () =>
     setTheme((p) => (p === "dark" ? "light" : "dark"));
+
+  /* ================= GPA SCALE ================= */
+  const [gpaScale, setGpaScale] = useState<GpaScale>("10");
+
+  useEffect(() => {
+    const saved = localStorage.getItem(GPA_SCALE_KEY) as GpaScale | null;
+    if (saved && ["10", "4", "100"].includes(saved)) {
+      setGpaScale(saved);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(GPA_SCALE_KEY, gpaScale);
+  }, [gpaScale]);
 
   /* ================= CUMULATIVE GPA ================= */
   const [cumulativeExpected, setCumulativeExpected] = useState("");
@@ -161,7 +177,7 @@ export const useGradeApp = () => {
       if (idx === skipIdx) {
         lockedPoints += (Number(sub.expectedScore) || 0) * cred;
       } else if (hasAllScores(sub)) {
-        lockedPoints += Number(calcSubjectScore(sub)) * cred;
+        lockedPoints += Number(calcSubjectScore(sub, "10")) * cred;
       } else if (sub.isExpectedManual && sub.expectedScore) {
         lockedPoints += Number(sub.expectedScore) * cred;
       } else {
@@ -178,7 +194,7 @@ export const useGradeApp = () => {
       flexibleIndices.forEach((idx) => {
         subjects[idx].expectedScore = avg.toFixed(2);
         subjects[idx].isExpectedManual = false;
-        Object.assign(subjects[idx], calcRequiredScores(subjects[idx], avg));
+        Object.assign(subjects[idx], calcRequiredScores(subjects[idx], avg, gpaScale));
       });
     }
     return subjects;
@@ -209,7 +225,7 @@ export const useGradeApp = () => {
       sem.subjects.forEach((sub) => {
         const cred = Number(sub.credits) || 0;
         if (hasAllScores(sub)) {
-          semLocked += Number(calcSubjectScore(sub)) * cred;
+          semLocked += Number(calcSubjectScore(sub, "10")) * cred;
         } else if (sub.isExpectedManual && sub.expectedScore) {
           semLocked += Number(sub.expectedScore) * cred;
         } else {
@@ -260,7 +276,7 @@ export const useGradeApp = () => {
         ["progressScore", "midtermScore", "practiceScore", "finalScore"].includes(
           field
         )
-          ? normalizeScore(value)
+          ? normalizeScore(value, gpaScale)
           : value;
       return rebalanceGlobal(updated, sIdx);
     });
@@ -294,12 +310,13 @@ export const useGradeApp = () => {
       } else {
         // Người dùng nhập điểm kỳ vọng
         const expectedVal = Number(value);
-        if (!isNaN(expectedVal) && expectedVal >= 0 && expectedVal <= 10) {
+        const maxScore = getMaxScoreForScale(gpaScale);
+        if (!isNaN(expectedVal) && expectedVal >= 0 && expectedVal <= maxScore) {
           sub.expectedScore = value;
           sub.isExpectedManual = true;
           
           // Tính toán điểm yêu cầu cho môn này
-          const required = calcRequiredScores(sub, expectedVal);
+          const required = calcRequiredScores(sub, expectedVal, gpaScale);
           Object.entries(required).forEach(([field, val]) => {
             (sub as any)[field] = val;
           });
@@ -325,7 +342,7 @@ export const useGradeApp = () => {
                 if (hasAll) {
                   // Môn đã có đủ điểm
                   lockedCredits += credits;
-                  lockedPoints += Number(calcSubjectScore(s)) * credits;
+                  lockedPoints += Number(calcSubjectScore(s, "10")) * credits;
                 } else if (s.isExpectedManual && s.expectedScore) {
                   // Môn có điểm kỳ vọng do người dùng nhập (bao gồm môn vừa nhập)
                   lockedCredits += credits;
@@ -336,7 +353,8 @@ export const useGradeApp = () => {
               // Tính điểm cần thiết cho các môn còn lại
               const remainingCredits = totalCredits - lockedCredits;
               if (remainingCredits > 0) {
-                const requiredAvg = Math.max(0, Math.min(10, (targetAvg * totalCredits - lockedPoints) / remainingCredits));
+                const maxScore = getMaxScoreForScale(gpaScale);
+                const requiredAvg = Math.max(0, Math.min(maxScore, (targetAvg * totalCredits - lockedPoints) / remainingCredits));
                 
                 updated[sIdx].subjects.forEach((s: any) => {
                   const hasAll = ["progressScore", "midtermScore", "practiceScore", "finalScore"].every((f) => {
@@ -347,7 +365,7 @@ export const useGradeApp = () => {
                   // Chỉ cập nhật môn chưa có đủ điểm VÀ chưa được người dùng nhập
                   if (!hasAll && !s.isExpectedManual) {
                     s.expectedScore = requiredAvg.toFixed(2);
-                    const req = calcRequiredScores(s, requiredAvg);
+                    const req = calcRequiredScores(s, requiredAvg, gpaScale);
                     Object.entries(req).forEach(([field, val]) => {
                       (s as any)[field] = val;
                     });
@@ -377,7 +395,8 @@ export const useGradeApp = () => {
         });
       } else {
         const targetAvg = Number(value);
-        if (!isNaN(targetAvg) && targetAvg >= 0 && targetAvg <= 10) {
+        const maxScore = getMaxScoreForScale(gpaScale);
+        if (!isNaN(targetAvg) && targetAvg >= 0 && targetAvg <= maxScore) {
           updated[sIdx].expectedAverage = value;
           updated[sIdx].isExpectedAverageManual = true;
           
@@ -396,7 +415,7 @@ export const useGradeApp = () => {
             
             if (hasAll) {
               lockedCredits += credits;
-              lockedPoints += Number(calcSubjectScore(sub)) * credits;
+              lockedPoints += Number(calcSubjectScore(sub, "10")) * credits;
             } else if (sub.isExpectedManual && sub.expectedScore) {
               lockedCredits += credits;
               lockedPoints += Number(sub.expectedScore) * credits;
@@ -404,8 +423,8 @@ export const useGradeApp = () => {
           });
           
           const remainingCredits = totalCredits - lockedCredits;
-          if (remainingCredits > 0) {
-            const requiredAvg = Math.max(0, Math.min(10, (targetAvg * totalCredits - lockedPoints) / remainingCredits));
+            if (remainingCredits > 0) {
+              const requiredAvg = Math.max(0, Math.min(maxScore, (targetAvg * totalCredits - lockedPoints) / remainingCredits));
             
             updated[sIdx].subjects.forEach((sub: any) => {
               const hasAll = ["progressScore", "midtermScore", "practiceScore", "finalScore"].every((f) => {
@@ -415,7 +434,7 @@ export const useGradeApp = () => {
               
               if (!hasAll && !sub.isExpectedManual) {
                 sub.expectedScore = requiredAvg.toFixed(2);
-                const required = calcRequiredScores(sub, requiredAvg);
+                const required = calcRequiredScores(sub, requiredAvg, gpaScale);
                 Object.entries(required).forEach(([field, val]) => {
                   (sub as any)[field] = val;
                 });
@@ -452,6 +471,8 @@ export const useGradeApp = () => {
   return {
     theme,
     toggleTheme,
+    gpaScale,
+    setGpaScale,
     semesters,
     setSemesters,
     cumulativeExpected,

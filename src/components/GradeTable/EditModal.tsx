@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { Semester, Subject } from "../../types";
+import type { Semester, Subject, GpaScale } from "../../types";
 import {
   calcRequiredScores,
   calcSubjectScore,
@@ -14,6 +14,7 @@ interface EditModalProps {
   setSemesters: (semesters: Semester[]) => void;
   onClose: () => void;
   backupSubject: Subject | null;
+  gpaScale: GpaScale;
 }
 
 const EditModal: React.FC<EditModalProps> = ({
@@ -22,6 +23,7 @@ const EditModal: React.FC<EditModalProps> = ({
   setSemesters,
   onClose,
   backupSubject,
+  gpaScale,
 }) => {
   const [weightError, setWeightError] = useState(false);
   
@@ -372,7 +374,7 @@ const EditModal: React.FC<EditModalProps> = ({
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ fontWeight: "bold", fontSize: "14px" }}>Điểm học phần:</span>
               <span style={{ fontWeight: "800", fontSize: "18px", color: "var(--primary-purple)" }}>
-                {calcSubjectScore(currentSub)}
+                {calcSubjectScore(currentSub, gpaScale)}
               </span>
           </div>
 
