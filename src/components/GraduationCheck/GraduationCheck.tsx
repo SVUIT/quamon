@@ -1,222 +1,432 @@
-import { useState } from 'react';
-import { checkGraduationEligibility } from '../../config/appwrite';
+import { SUBJECTS_DATA } from "@/constants";
+import { useState, useMemo } from "react";
+interface Subject {
+  courseCode: string;
+  credits: string | number;
+}
+interface Semester {
+  subjects: Subject[];
+}
 
-export const GraduationCheck = () => {
-  const [showForm, setShowForm] = useState(false);
-  const [result, setResult] = useState<{ eligible: boolean; reasons: string[] } | null>(null);
-  const [formData, setFormData] = useState({
-    totalCredits: 0,
-    gpa: 0,
-    hasFGrade: false,
-    completedThesis: false,
-    thesisScore: 0,
-    englishType: 'IELTS',
-    englishScore: 0,
-    completedMilitaryTraining: false,
+const courseToCategoryMap: Record<string, string> = {};
+Object.entries(SUBJECTS_DATA).forEach(([categoryName, courses]) => {
+  (courses as any[]).forEach((c: { courseCode: string }) => {
+    courseToCategoryMap[c.courseCode] = categoryName;
+  });
+});
+
+export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
+  const creditSummary = useMemo(() => {
+    const summary: Record<string, number> = {};
+    semesters?.forEach((sem) => {
+      sem.subjects.forEach((subj) => {
+        const category =
+          courseToCategoryMap[subj.courseCode] || "Khác (Tự chọn/CĐTN/TN)";
+        const creditValue = Number(subj.credits) || 0;
+        summary[category] = (summary[category] || 0) + creditValue;
+      });
+    });
+    return summary;
+  }, [semesters]);
+
+  const {
+    "Đại cương": autoDC = 0,
+    "Cơ sở ngành (CSN)": autoCSN = 0,
+    "Chuyên ngành (CN/CNTC)": autoCN = 0,
+    "Khác (Tự chọn/CĐTN/TN)": autoKHAC = 0,
+  } = creditSummary;
+
+  const [form, setForm] = useState({
+    creditsDC: "",
+    creditsCSN: "",
+    creditsCN: "",
+    creditsKHAC: "",
+
+    englishType: "IELTS",
+    englishScore: "",
+    toeicLR: "",
+    toeicSW: "",
+
     completedPhysicalEducation: false,
-    completedSoftSkills: false,
-    isUnderDisciplinaryAction: false,
+    completedMilitaryTraining: false,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [result, setResult] = useState<{
+    eligible: boolean;
+    missingCredits: string[];
+    englishPassed: boolean;
+    englishMsg: string;
+    generalIssues: string[];
+    totalCredits: number;
+  } | null>(null);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value, type } = e.target;
+    if (type === "checkbox") {
+      const checked = (e.target as HTMLInputElement).checked;
+      setForm((prev) => ({ ...prev, [name]: checked }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const checkEligibility = (e: React.FormEvent) => {
     e.preventDefault();
-    const academicRecord = {
-      ...formData,
-      englishProficiency: {
-        type: formData.englishType as 'IELTS' | 'TOEFL' | 'TOEIC' | 'VSTEP' | 'UIT',
-        score: formData.englishScore,
-      },
-    };
-    setResult(checkGraduationEligibility(academicRecord));
+
+    const missingCredits: string[] = [];
+    let englishPassed = false;
+    let englishMsg = "";
+    const generalIssues: string[] = [];
+
+    const numDC = Number(form.creditsDC || autoDC);
+    const numCSN = Number(form.creditsCSN || autoCSN);
+    const numCN = Number(form.creditsCN || autoCN);
+    const numKHAC = Number(form.creditsKHAC || autoKHAC);
+
+    const totalCredits = numDC + numCSN + numCN + numKHAC;
+
+    // 1. Tổng tín chỉ
+    if (totalCredits < 130) {
+      missingCredits.push(
+        `Tổng tích lũy: ${totalCredits}/130 TC (Thiếu ${130 - totalCredits} TC)`,
+      );
+    }
+    // 2. Đại cương (47 TC)
+    if (numDC < 47) missingCredits.push(`Đại cương: ${numDC}/47 TC`);
+
+    // 3. Cơ sở ngành (49 TC)
+    if (numCSN < 49) missingCredits.push(`Cơ sở ngành: ${numCSN}/49 TC`);
+
+    // 4. Chuyên ngành (12 TC)
+    if (numCN < 12) missingCredits.push(`Chuyên ngành: ${numCN}/12 TC`);
+
+    // 5. Khác/Tự chọn/Tốt nghiệp (22 TC)
+    if (numKHAC < 22) missingCredits.push(`Khác/Tự chọn/TN: ${numKHAC}/22 TC`);
+
+    const { englishType, englishScore, toeicLR, toeicSW } = form;
+    if (englishType === "IELTS") {
+      if (Number(englishScore) >= 4.5) {
+        englishPassed = true;
+        englishMsg = "Đạt điều kiện (IELTS >= 4.5)";
+      } else {
+        englishMsg = `Chưa đạt (IELTS ${englishScore || 0}/4.5)`;
+      }
+    } else if (englishType === "TOEIC") {
+      const lr = Number(toeicLR) || 0;
+      const sw = Number(toeicSW) || 0;
+      if (lr >= 450 && sw >= 185) {
+        englishPassed = true;
+        englishMsg = "Đạt điều kiện (TOEIC L&R 450, S&W 185)";
+      } else {
+        englishMsg = `Chưa đạt (Yêu cầu L&R: 450, S&W: 185)`;
+      }
+    } else if (englishType === "VSTEP") {
+      if (Number(englishScore) >= 4.0) {
+        englishPassed = true;
+        englishMsg = "Đạt điều kiện (VSTEP >= B1)";
+      } else {
+        englishMsg = `Chưa đạt (VSTEP yêu cầu B1)`;
+      }
+    } else if (englishType === "UIT") {
+      if (Number(englishScore) >= 176) {
+        englishPassed = true;
+        englishMsg = "Đạt điều kiện (VNU-EPT >= 176)";
+      } else {
+        englishMsg = `Chưa đạt (VNU-EPT ${englishScore || 0}/176)`;
+      }
+    }
+
+    if (!form.completedPhysicalEducation)
+      generalIssues.push("Chưa hoàn thành Giáo dục thể chất (GDTC)");
+    if (!form.completedMilitaryTraining)
+      generalIssues.push("Chưa hoàn thành Giáo dục Quốc phòng (GDQP)");
+
+    const eligible =
+      missingCredits.length === 0 &&
+      englishPassed &&
+      generalIssues.length === 0;
+
+    setResult({
+      eligible,
+      missingCredits,
+      englishPassed,
+      englishMsg,
+      generalIssues,
+      totalCredits,
+    });
   };
 
   return (
-    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md mt-4">
-      <button
-        onClick={() => setShowForm(!showForm)}
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-      >
-        {showForm ? 'Hide Graduation Check' : 'Check Graduation Eligibility'}
-      </button>
+    <div className="add-subject-container">
+      <h1 className="form-title">Kiểm tra tốt nghiệp UIT</h1>
 
-      {showForm && (
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Total Credits
-              </label>
+      <form onSubmit={checkEligibility} className="subject-form-layout">
+        <div className="form-section-card">
+          <label className="form-label">1. Tín chỉ tích lũy</label>
+          <p className="form-description">
+            Số tín chỉ tự động tính từ bảng điểm. Bạn có thể nhập đè nếu cần.
+          </p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="weight-item">
+              <span className="weight-label">Đại cương (47)</span>
               <input
                 type="number"
-                value={formData.totalCredits}
-                onChange={(e) => setFormData({...formData, totalCredits: Number(e.target.value)})}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                name="creditsDC"
+                value={form.creditsDC !== "" ? form.creditsDC : autoDC}
+                onChange={handleChange}
+                placeholder="0"
+                className="form-white-input weight-input"
               />
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                GPA (out of 4.0)
-              </label>
+            <div className="weight-item">
+              <span className="weight-label">Cơ sở ngành (49)</span>
               <input
                 type="number"
-                step="0.01"
-                min="0"
-                max="4"
-                value={formData.gpa}
-                onChange={(e) => setFormData({...formData, gpa: Number(e.target.value)})}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                name="creditsCSN"
+                value={form.creditsCSN !== "" ? form.creditsCSN : autoCSN}
+                onChange={handleChange}
+                placeholder="0"
+                className="form-white-input weight-input"
               />
             </div>
-
-            <div className="flex items-center space-x-2">
+            <div className="weight-item">
+              <span className="weight-label">Chuyên ngành (12)</span>
               <input
-                type="checkbox"
-                id="hasFGrade"
-                checked={formData.hasFGrade}
-                onChange={(e) => setFormData({...formData, hasFGrade: e.target.checked})}
-                className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                type="number"
+                name="creditsCN"
+                value={form.creditsCN !== "" ? form.creditsCN : autoCN}
+                onChange={handleChange}
+                placeholder="0"
+                className="form-white-input weight-input"
               />
-              <label htmlFor="hasFGrade" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Has F grade in any course
-              </label>
             </div>
-
-            <div className="flex items-center space-x-2">
+            <div className="weight-item">
+              <span className="weight-label">Khác/TN (22)</span>
               <input
-                type="checkbox"
-                id="completedThesis"
-                checked={formData.completedThesis}
-                onChange={(e) => setFormData({...formData, completedThesis: e.target.checked})}
-                className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                type="number"
+                name="creditsKHAC"
+                value={form.creditsKHAC !== "" ? form.creditsKHAC : autoKHAC}
+                onChange={handleChange}
+                placeholder="0"
+                className="form-white-input weight-input"
               />
-              <label htmlFor="completedThesis" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Completed Thesis/Alternative
-              </label>
             </div>
+          </div>
+        </div>
 
-            {formData.completedThesis && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Thesis Score (out of 10)
-                </label>
+        <div className="form-section-card">
+          <label className="form-label">
+            2. Chuẩn đầu ra Ngoại ngữ (Hệ Đại trà)
+          </label>
+          <p className="form-description">
+            Chuẩn: IELTS 4.5, TOEIC 450/185, VNU-EPT 176.
+          </p>
+
+          <div className="flex mb-4 items-center gap-4">
+            <select
+              name="englishType"
+              value={form.englishType}
+              onChange={handleChange}
+              className="form-white-input w-50 pr-8"
+            >
+              <option value="IELTS">IELTS</option>
+              <option value="TOEIC">TOEIC (4 kỹ năng)</option>
+              <option value="VSTEP">VSTEP</option>
+              <option value="UIT">VNU-EPT</option>
+            </select>
+          </div>
+
+          {form.englishType === "TOEIC" ? (
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+              <div className="weight-item">
+                <span className="weight-label">
+                  Listening & Reading (≥ 450)
+                </span>
                 <input
                   type="number"
-                  step="0.1"
-                  min="0"
-                  max="10"
-                  value={formData.thesisScore}
-                  onChange={(e) => setFormData({...formData, thesisScore: Number(e.target.value)})}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  name="toeicLR"
+                  value={form.toeicLR}
+                  onChange={handleChange}
+                  className="form-white-input weight-input"
                 />
+              </div>
+              <div className="weight-item">
+                <span className="weight-label">Speaking & Writing (≥ 185)</span>
+                <input
+                  type="number"
+                  name="toeicSW"
+                  value={form.toeicSW}
+                  onChange={handleChange}
+                  className="form-white-input weight-input"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="weight-item max-w-50">
+              <span className="weight-label">Điểm số / Level</span>
+              <input
+                type="number"
+                step="0.5"
+                name="englishScore"
+                value={form.englishScore}
+                onChange={handleChange}
+                className="form-white-input weight-input"
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="form-section-card">
+          <label className="form-label">3. Yêu cầu chung</label>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm text-(--text-color) mt-2">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                name="completedPhysicalEducation"
+                checked={form.completedPhysicalEducation}
+                onChange={handleChange}
+                className="w-5 h-5 cursor-pointer"
+              />
+              Chứng chỉ Thể chất (GDTC)
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                name="completedMilitaryTraining"
+                checked={form.completedMilitaryTraining}
+                onChange={handleChange}
+                className="w-5 h-5 cursor-pointer"
+              />
+              Chứng chỉ Quốc phòng (GDQP)
+            </label>
+          </div>
+        </div>
+
+        <div className="form-actions">
+          <button type="submit" className="btn-submit-form">
+            Kiểm tra & Phân tích
+          </button>
+        </div>
+      </form>
+
+      {result && (
+        <div
+          className={`form-section-card mt-7.5 border-2 ${
+            result.eligible
+              ? "border-green-500 bg-green-50"
+              : "border-red-500 bg-red-50"
+          }`}
+        >
+          <h2
+            className={`mt-0 ${result.eligible ? "text-green-600" : "text-red-600"}`}
+          >
+            {result.eligible
+              ? "🎉 ĐỦ ĐIỀU KIỆN TỐT NGHIỆP"
+              : "⚠️ CHƯA ĐỦ ĐIỀU KIỆN"}
+          </h2>
+
+          <div className="mt-4 flex flex-col gap-3 text-sm">
+            <div>
+              <strong
+                className={
+                  result.englishPassed ? "text-green-600" : "text-red-500"
+                }
+              >
+                Ngoại ngữ:
+              </strong>
+              <span className="ml-2 text-(--text-color)">
+                {result.englishMsg}
+              </span>
+            </div>
+
+            {result.generalIssues.length > 0 && (
+              <div>
+                <strong className="text-red-500">Yêu cầu chung:</strong>
+                <ul className="list-disc ml-5 text-red-500">
+                  {result.generalIssues.map((issue, idx) => (
+                    <li key={idx}>{issue}</li>
+                  ))}
+                </ul>
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                English Proficiency Test
-              </label>
-              <select
-                value={formData.englishType}
-                onChange={(e) => setFormData({...formData, englishType: e.target.value})}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              <strong
+                className={
+                  result.missingCredits.length === 0
+                    ? "text-green-600"
+                    : "text-red-500"
+                }
               >
-                <option value="IELTS">IELTS</option>
-                <option value="TOEFL">TOEFL iBT</option>
-                <option value="TOEIC">TOEIC</option>
-                <option value="VSTEP">VSTEP</option>
-                <option value="UIT">UIT Test</option>
-              </select>
-              <input
-                type="number"
-                step="0.5"
-                value={formData.englishScore}
-                onChange={(e) => setFormData({...formData, englishScore: Number(e.target.value)})}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                placeholder="Score"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="militaryTraining"
-                  checked={formData.completedMilitaryTraining}
-                  onChange={(e) => setFormData({...formData, completedMilitaryTraining: e.target.checked})}
-                  className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-                <label htmlFor="militaryTraining" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Completed Military Training
-                </label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="physicalEducation"
-                  checked={formData.completedPhysicalEducation}
-                  onChange={(e) => setFormData({...formData, completedPhysicalEducation: e.target.checked})}
-                  className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-                <label htmlFor="physicalEducation" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Completed Physical Education
-                </label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="softSkills"
-                  checked={formData.completedSoftSkills}
-                  onChange={(e) => setFormData({...formData, completedSoftSkills: e.target.checked})}
-                  className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-                <label htmlFor="softSkills" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Completed Soft Skills
-                </label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="disciplinaryAction"
-                  checked={formData.isUnderDisciplinaryAction}
-                  onChange={(e) => setFormData({...formData, isUnderDisciplinaryAction: e.target.checked})}
-                  className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-                <label htmlFor="disciplinaryAction" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Under Disciplinary Action
-                </label>
-              </div>
+                Tín chỉ môn học:
+              </strong>
+              {result.missingCredits.length > 0 ? (
+                <ul className="list-disc ml-5 text-red-500">
+                  {result.missingCredits.map((issue, idx) => (
+                    <li key={idx}>{issue}</li>
+                  ))}
+                </ul>
+              ) : (
+                <span className="ml-2 text-green-600 font-bold">
+                  Đã đủ điều kiện ({result.totalCredits}/130 TC)
+                </span>
+              )}
             </div>
           </div>
-
-          <button
-            type="submit"
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
-          >
-            Check Eligibility
-          </button>
-        </form>
-      )}
-
-      {result && (
-        <div className={`mt-4 p-4 rounded-md ${
-          result.eligible ? 'bg-green-100 dark:bg-green-900' : 'bg-red-100 dark:bg-red-900'
-        }`}>
-          <h3 className="text-lg font-medium">
-            {result.eligible ? '✅ Eligible for Graduation' : '❌ Not Eligible for Graduation'}
-          </h3>
-          {result.reasons.length > 0 && (
-            <ul className="mt-2 list-disc pl-5">
-              {result.reasons.map((reason, index) => (
-                <li key={index} className="text-sm">
-                  {reason}
-                </li>
-              ))}
-            </ul>
-          )}
+          <div className="mt-4 pt-4 border-t border-dashed border-gray-300">
+            <p className="text-xs text-gray-500 italic mb-3">
+              * Kết quả kiểm tra dựa trên quy chế đào tạo và chuẩn đầu ra ngành
+              <strong> Mạng máy tính và Truyền thông dữ liệu 2025</strong> UIT.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <a
+                href="https://student.uit.edu.vn/content/cu-nhan-nganh-mang-may-tinh-va-truyen-thong-du-lieu-ap-dung-tu-khoa-19-2024"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-blue-600 hover:underline font-medium"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                Chương trình đào tạo
+              </a>
+              <a
+                href="https://student.uit.edu.vn/content/huong-dan-sinh-vien-dai-hoc-he-chinh-quy-thuc-hien-cac-quy-dinh-ve-chuan-qua-trinh-va-chuan"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-blue-600 hover:underline font-medium"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                Quy định chuẩn Ngoại ngữ
+              </a>
+            </div>
+          </div>
         </div>
       )}
     </div>
