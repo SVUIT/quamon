@@ -1,18 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { App } from "@octokit/app";
 import { Octokit } from "@octokit/rest";
-import fs from "fs";
-import path from "path";
 
 const owner = process.env.GITHUB_OWNER!;
 const repo = process.env.GITHUB_REPO!;
 const baseBranch = process.env.GITHUB_BASE_BRANCH || "main";
 const filePath = "src/assets/courses_weighted.json";
 
-const privateKey = fs.readFileSync(
-  path.join(process.cwd(), "private-key.pem"),
-  "utf8"
-);
+const privateKey = process.env.PRIVATE_KEY?.replace(/\\n/g, "\n");
+
+if (!privateKey) {
+  throw new Error("Missing PRIVATE_KEY");
+}
 
 const app = new App({
   appId: process.env.GITHUB_APP_ID!,
