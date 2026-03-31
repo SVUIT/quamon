@@ -93,34 +93,6 @@ export const getScoreDisplayText = (subject: Subject, scoreField: string): strin
   return (subject as any)[scoreField] || "";
 };
 
-// ================== CHECK EXEMPT COURSE =======================
-export const isExemptCourse = (subject: Subject): boolean => {
-  // Check if course name contains "Mien" (case insensitive)
-  const courseName = subject.courseName?.toLowerCase() || "";
-  const courseCode = subject.courseCode?.toLowerCase() || "";
-  
-  // Check for "mien" in name or code
-  if (courseName.includes("mien") || courseCode.includes("mien")) {
-    return true;
-  }
-  
-  // Check for specific exempt English courses
-  const exemptEnglishCourses = ["eng01", "eng02", "eng03", "eng04", "eng05"];
-  if (exemptEnglishCourses.includes(courseCode)) {
-    return true;
-  }
-  
-  return false;
-};
-
-// ================== DISPLAY TEXT FOR EXEMPT COURSES ============
-export const getScoreDisplayText = (subject: Subject, scoreField: string): string => {
-  if (isExemptCourse(subject)) {
-    return "Miễn";
-  }
-  return (subject as any)[scoreField] || "";
-};
-
 // ================== AUTO CALCULATE - ĐIỂM HP =================
 export const calcSubjectScore = (subj: Partial<Subject>, scale: GpaScale = "10"): string => {
   // If this is a Mien subject, set score to 0
