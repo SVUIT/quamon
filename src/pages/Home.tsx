@@ -18,6 +18,7 @@ import {
 } from "../types";
 import { SUBJECTS_DATA } from "../constants";
 import { isExemptCourse } from "../utils/gradeUtils";
+import GpaScaleSelector from "../components/GpaScaleSelector/GpaScaleSelector";
 import GraduationCheck from "../components/GraduationCheck/GraduationCheck";
 
 export type TabType =
@@ -37,6 +38,8 @@ export default function Home() {
   const {
     theme,
     toggleTheme,
+    gpaScale,
+    setGpaScale,
     semesters,
     setSemesters,
     cumulativeExpected,
@@ -507,6 +510,20 @@ export default function Home() {
                 <h1 style={{ textAlign: "center", marginBottom: "10px" }}>
                   Bảng điểm
                 </h1>
+                {/* GPA Scale Selector */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginBottom: "20px",
+                  }}
+                >
+                  <GpaScaleSelector
+                    currentScale={gpaScale}
+                    onScaleChange={setGpaScale}
+                  />
+                </div>
+
                 <div
                   className="button-group"
                   style={{
@@ -834,6 +851,7 @@ export default function Home() {
                   setCumulativeExpected={setCumulativeExpected}
                   isCumulativeManual={isCumulativeManual}
                   setIsCumulativeManual={setIsCumulativeManual}
+                  gpaScale={gpaScale}
                   updateSubjectField={updateSubjectField}
                   updateSubjectExpectedScore={updateSubjectExpectedScore}
                   deleteSemester={deleteSemester}
@@ -900,6 +918,7 @@ export default function Home() {
                 setBackupSubject(null);
               }}
               backupSubject={backupSubject}
+              gpaScale={gpaScale}
             />
           )}
         </div>

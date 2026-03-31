@@ -1,5 +1,5 @@
 import React from "react";
-import type { Semester, Subject, Course } from "../../types";
+import type { Semester, Subject, Course, GpaScale } from "../../types";
 import {
   calcRequiredScores,
   calcSubjectScore,
@@ -19,6 +19,7 @@ interface SubjectRowProps {
   updateSubjectExpectedScore: (s: number, i: number, v: string) => void;
   deleteSubject: (s: number, i: number) => void;
   openAdvancedModal: (s: number, i: number) => void;
+  gpaScale: GpaScale;
 
   // Dropdown / Menu State
   openMenu: { s: number; i: number } | null;
@@ -47,6 +48,7 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
   updateSubjectExpectedScore,
   deleteSubject,
   openAdvancedModal,
+  gpaScale,
   openMenu,
   setOpenMenu,
   editDropdownOpen,
@@ -60,7 +62,7 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
 
   const handleScoreBlur = (f: string, text: string, target: HTMLElement) => {
     updateSubjectField(si, i, f, text);
-    const normalized = normalizeScore(text);
+    const normalized = normalizeScore(text, gpaScale);
     if (target) target.innerText = normalized;
 
     const updated = [...semesters];
@@ -300,7 +302,7 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
           fontWeight: "bold",
           fontStyle: getScoreDisplayText(sub, "score") === "Miễn" ? "italic" : "normal"
         }}>
-          {getScoreDisplayText(sub, "score") === "Miễn" ? "Miễn" : calcSubjectScore(sub)}
+          {getScoreDisplayText(sub, "score") === "Miễn" ? "Miễn" : calcSubjectScore(sub, gpaScale)}
         </div>      
       </td>
 
