@@ -13,6 +13,7 @@ import { uploadPdf } from "../config/appwrite";
 import { Subject, ProcessedPdfData, findCourseByCode, Semester } from "../types";
 import { SUBJECTS_DATA } from "../constants";
 import { isExemptCourse } from "../utils/gradeUtils";
+import GpaScaleSelector from "../components/GpaScaleSelector/GpaScaleSelector";
 
 export type TabType = "grades" | "instructions" | "add_subject";
 
@@ -27,6 +28,8 @@ export default function Home() {
   const {
     theme,
     toggleTheme,
+    gpaScale,
+    setGpaScale,
     semesters,
     setSemesters,
     cumulativeExpected,
@@ -644,6 +647,7 @@ export default function Home() {
                 setCumulativeExpected={setCumulativeExpected}
                 isCumulativeManual={isCumulativeManual}
                 setIsCumulativeManual={setIsCumulativeManual}
+                gpaScale={gpaScale}
                 updateSubjectField={updateSubjectField}
                 updateSubjectExpectedScore={updateSubjectExpectedScore} 
                 deleteSemester={deleteSemester}
@@ -702,6 +706,7 @@ export default function Home() {
               setBackupSubject(null);
             }}
             backupSubject={backupSubject}
+            gpaScale={gpaScale}
           />
         )}
       </div>

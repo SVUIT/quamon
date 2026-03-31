@@ -1,5 +1,5 @@
 import React from "react";
-import type { Semester, Course } from "../../types";
+import type { Semester, Course, GpaScale } from "../../types";
 import SemesterBlock from "./SemesterBlock";
 import AddSemesterRow from "./AddSemesterRow";
 import SummaryRows from "./SummaryRows";
@@ -11,6 +11,7 @@ interface GradeTableProps {
   setCumulativeExpected: (value: string) => void;
   isCumulativeManual: boolean;
   setIsCumulativeManual: (value: boolean) => void;
+  gpaScale: GpaScale;
   updateSubjectField: (s: number, i: number, f: string, v: string) => void;
   updateSubjectExpectedScore: (s: number, i: number, v: string) => void; 
   deleteSemester: (id: string) => void;
@@ -49,6 +50,7 @@ const GradeTable: React.FC<GradeTableProps> = ({
   setCumulativeExpected,
   isCumulativeManual,
   setIsCumulativeManual,
+  gpaScale,
   updateSubjectField,
   updateSubjectExpectedScore, 
   deleteSemester,
@@ -116,6 +118,7 @@ const GradeTable: React.FC<GradeTableProps> = ({
             semesterIndex={si}
             semesters={semesters}
             setSemesters={setSemesters}
+            gpaScale={gpaScale}
             updateSubjectField={updateSubjectField}
             updateSubjectExpectedScore={updateSubjectExpectedScore} 
             deleteSemester={deleteSemester}
@@ -150,6 +153,7 @@ const GradeTable: React.FC<GradeTableProps> = ({
           onSetCumulativeExpected={setCumulativeExpected}
           isCumulativeManual={isCumulativeManual}
           setIsCumulativeManual={setIsCumulativeManual}
+          gpaScale={gpaScale}
         />
       </tbody>
     </table>

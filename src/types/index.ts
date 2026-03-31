@@ -66,6 +66,14 @@ export function findCourseByCode(courseCode: string, coursesData: any[]): any | 
   return coursesData.find(course => course.courseCode === courseCode);
 }
 
+export type GpaScale = "10" | "4" | "100";
+
+export interface GpaConversion {
+  scale: GpaScale;
+  displayValue: string;
+  originalValue: number;
+}
+
 export interface Semester {
   id?: string;
   name: string;

@@ -248,7 +248,69 @@ const Instructions: React.FC = () => {
       </section>
 
       <section>
-        <h2>6. Xuất dữ liệu ra file Excel</h2>
+        <h2>6. Hướng dẫn nhập điểm từ file Excel</h2>
+        <div className="instruction-item">
+          <h3>Cách nhập điểm từ file Excel</h3>
+          <ol>
+            <li>Chuẩn bị file Excel theo đúng định dạng:
+              <ol type="a">
+                <li>Các cột bắt buộc: Mã HP, Tên HP, Số tín chỉ</li>
+                <li>Các cột điểm tùy chọn: QT, GK, TH, CK</li>
+                <li>Các cột trọng số tùy chọn: Trọng số QT, Trọng số GK, Trọng số TH, Trọng số CK</li>
+                <li>Dòng đầu tiên nên là tiêu đề cột</li>
+              </ol>
+            </li>
+            <li>Trong ứng dụng này, nhấn vào nút <strong>"Nhập từ Excel"</strong></li>
+            <li>Chọn file Excel đã chuẩn bị</li>
+            <li>Chờ hệ thống xử lý và trích xuất dữ liệu</li>
+            <li>Kiểm tra và xác nhận dữ liệu đã được nhập tự động</li>
+          </ol>
+
+          <h3>Định dạng file Excel mẫu</h3>
+          <p>File Excel của bạn nên có cấu trúc tương tự như sau:</p>
+          <code>
+            | Mã HP | Tên HP | Số TC | QT | GK | TH | CK | Trọng số QT | Trọng số GK | Trọng số TH | Trọng số CK |
+          </code>
+
+          <p>
+            <strong>Nếu bạn không chắc chắn về định dạng, hãy tải file mẫu tại đây:</strong><br/>
+            <a 
+              href="https://github.com/SVUIT/quamon/blob/feat/main/bang-diem-test.xlsx" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ 
+                color: "var(--primary-purple)", 
+                textDecoration: "underline",
+                fontWeight: "bold"
+              }}
+            >
+              Tải file Excel mẫu
+            </a>
+          </p>
+
+          <h3>Lưu ý khi sử dụng tính năng nhập từ Excel</h3>
+          <ul>
+            <li>Hỗ trợ các định dạng: .xlsx, .xls</li>
+            <li>Đảm bảo file không bị khóa hoặc bảo vệ bằng mật khẩu</li>
+            <li>Hệ thống sẽ tự động nhận diện và điền các thông tin:
+              <ul>
+                <li>Mã học phần và tên học phần</li>
+                <li>Số tín chỉ</li>
+                <li>Điểm các thành phần (nếu có trong file)</li>
+                <li>Trọng số tùy chỉnh (nếu có, nếu không sẽ dùng mặc định)</li>
+              </ul>
+            </li>
+            <li>Nếu không có trọng số trong file, hệ thống sẽ dùng trọng số mặc định theo Mã HP</li>
+            <li>Sau khi nhập, bạn có thể chỉnh sửa lại thông tin nếu cần thiết</li>
+          </ul>
+          <p className="note">
+            <strong>Lưu ý quan trọng:</strong> Vui lòng kiểm tra kỹ dữ liệu sau khi nhập từ file Excel để đảm bảo tính chính xác, đặc biệt là các trọng số đã được tùy chỉnh.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>7. Xuất dữ liệu ra file Excel</h2>
         <div className="instruction-item">
           <h3>Cách xuất dữ liệu ra Excel</h3>
           <ol>
@@ -268,6 +330,7 @@ const Instructions: React.FC = () => {
           </ul>
         </div>
       </section>
+
     </div>
   );
 };
