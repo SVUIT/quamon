@@ -1,19 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import XlsxPopulate from "xlsx-populate/browser/xlsx-populate";
+import dynamic from "next/dynamic";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
-import EditModal from "../components/GradeTable/EditModal";
-import GradeTable from "../components/GradeTable/GradeTable";
-import Instructions from "../components/Instructions/Instructions";
-import AddSubjectForm from "../components/AddSubject/AddSubjectForm";
 import { useGradeApp } from "../hooks/useGradeApp";
 import { uploadPdf } from "../config/appwrite";
-import { Subject, ProcessedPdfData, findCourseByCode, Semester } from "../types";
-import { SUBJECTS_DATA } from "../constants";
+import { Subject, ProcessedPdfData, findCourseByCode } from "../types";
+import { useCoursesData } from "../hooks/useCoursesData";
 import { isExemptCourse } from "../utils/gradeUtils";
 import GpaScaleSelector from "../components/GpaScaleSelector/GpaScaleSelector";
+import { LazyGradeTable, LazyAddSubjectForm, LazyInstructions, LazyEditModal } from "../components/LazyComponents";
+
+// Lazy load Excel components
+const ExcelExport = dynamic(
+  () => import("../components/ExcelExport/ExcelExport").then(mod => ({ default: mod.ExcelExport })),
+  { ssr: false, loading: () => <div>Đang tải...</div> }
+);
+
+const ExcelUpload = dynamic(
+  () => import("../components/ExcelUpload/ExcelUpload").then(mod => ({ default: mod.ExcelUpload })),
+  { ssr: false, loading: () => <div>Đang tải...</div> }
+);
 
 export type TabType = "grades" | "instructions" | "add_subject";
 
@@ -25,6 +33,8 @@ export default function Home() {
   const [loadingExcel, setLoadingExcel] = useState(false);
   const [excelError, setExcelError] = useState<string | null>(null);
 
+  const { SUBJECTS_DATA } = useCoursesData();
+  
   const {
     theme,
     toggleTheme,
@@ -65,89 +75,7 @@ export default function Home() {
     setEditExpandedCategories,
     addSearchResults,
     editSearchResults,
-  } = useGradeApp();
-
-  const exportToExcel = async (semesters: Semester[]) => {
-    try {
-      const workbook = await XlsxPopulate.fromBlankAsync();
-      const sheet = workbook.sheet(0).name("Tất cả học kỳ");
-
-      const headers = [
-        "Học kỳ",
-        "STT",
-        "Mã HP",
-        "Tên HP",
-        "TC",
-        "QT",
-        "GK",
-        "TH",
-        "CK",
-        "Điểm HP",
-        "Điểm kỳ vọng",
-      ];
-
-      // Write headers in row 1
-      headers.forEach((header, colIndex) => {
-        sheet.cell(1, colIndex + 1).value(header);
-      });
-
-      let currentRow = 2;
-
-      semesters.forEach((semester) => {
-        if (semester.subjects.length === 0) return;
-
-        semester.subjects.forEach((subject: Subject, idx: number) => {
-          sheet.cell(`A${currentRow}`).value(semester.name);
-          sheet.cell(`B${currentRow}`).value(idx + 1);
-          sheet.cell(`C${currentRow}`).value(subject.courseCode);
-          sheet.cell(`D${currentRow}`).value(subject.courseName);
-          sheet.cell(`E${currentRow}`).value(subject.credits);
-          sheet.cell(`F${currentRow}`).value(subject.progressScore || "");
-          sheet.cell(`G${currentRow}`).value(subject.midtermScore || "");
-          sheet.cell(`H${currentRow}`).value(subject.practiceScore || "");
-          sheet.cell(`I${currentRow}`).value(subject.finalScore || "");
-          sheet.cell(`J${currentRow}`).value(subject.score || "");
-          sheet.cell(`K${currentRow}`).value(subject.expectedScore || "");
-          currentRow++;
-        });
-
-        // Add empty row between semesters for better readability
-        currentRow++;
-      });
-
-      // Style the header row
-      sheet.row(1).style({ bold: true, fill: "bfbfbf" });
-      
-      // Set column widths
-      sheet.column("A").width(15); // Học kỳ
-      sheet.column("B").width(5);  // STT
-      sheet.column("C").width(15); // Mã HP
-      sheet.column("D").width(40); // Tên HP
-      sheet.column("E").width(5);  // TC
-      sheet.column("F").width(8);  // QT
-      sheet.column("G").width(8);  // GK
-      sheet.column("H").width(8);  // TH
-      sheet.column("I").width(8);  // CK
-      sheet.column("J").width(12); // Điểm HP
-      sheet.column("K").width(15); // Điểm kỳ vọng
-
-      const blob = await workbook.outputAsync();
-      const fileName = `bang-diem-${new Date()
-        .toISOString()
-        .split("T")[0]}.xlsx`;
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      a.click();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Lỗi khi xuất file Excel:", error);
-      alert("Đã xảy ra lỗi khi xuất file Excel. Vui lòng thử lại.");
-    }
-  };
-  /* ================== PDF UPLOAD ================== */
-  // Flatten all courses for lookup
+  } = useGradeApp(SUBJECTS_DATA);
   const getAllCourses = () => {
     return Object.values(SUBJECTS_DATA).flat();
   };
@@ -230,163 +158,6 @@ export default function Home() {
       setPdfError(err.message || "Lỗi khi đọc file PDF");
     } finally {
       setLoadingPdf(false);
-      e.target.value = "";
-    }
-  };
-  /* ================== EXCEL UPLOAD ================== */
-  const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setLoadingExcel(true);
-    setExcelError(null);
-
-    try {
-      const workbook = await XlsxPopulate.fromDataAsync(file);
-      const sheet = workbook.sheet(0);
-      
-      // Find the used range by iterating through rows and columns
-      let maxRow = 0;
-      let maxCol = 0;
-      
-      // Check first 100 rows and 50 columns to find the used range
-      for (let row = 1; row <= 100; row++) {
-        for (let col = 1; col <= 50; col++) {
-          const cellValue = sheet.cell(row, col).value();
-          if (cellValue !== undefined && cellValue !== null && cellValue !== "") {
-            maxRow = Math.max(maxRow, row);
-            maxCol = Math.max(maxCol, col);
-          }
-        }
-      }
-      
-      if (maxRow === 0) {
-        throw new Error("File Excel trống hoặc không có dữ liệu");
-      }
-
-      const startRow = 1;
-      const endRow = maxRow;
-      const startCol = 1;
-      const endCol = maxCol;
-
-      // Read headers to determine column positions
-      const headers: string[] = [];
-      for (let col = startCol; col <= endCol; col++) {
-        const headerValue = sheet.cell(startRow, col).value();
-        headers.push(headerValue?.toString().toLowerCase().trim() || "");
-      }
-
-      // Find column indices
-      const findColumnIndex = (headerName: string) => {
-        return headers.findIndex(h => h.includes(headerName.toLowerCase()));
-      };
-
-      const semesterCol = findColumnIndex("học kỳ");
-      const codeCol = findColumnIndex("mã hp");
-      const nameCol = findColumnIndex("tên hp");
-      const creditsCol = findColumnIndex("tc");
-      const progressCol = findColumnIndex("qt");
-      const midtermCol = findColumnIndex("gk");
-      const practiceCol = findColumnIndex("th");
-      const finalCol = findColumnIndex("ck");
-      const scoreCol = findColumnIndex("điểm hp");
-      const expectedCol = findColumnIndex("điểm kỳ vọng");
-
-      if (codeCol === -1 || nameCol === -1) {
-        throw new Error("Không tìm thấy cột 'Mã HP' hoặc 'Tên HP' trong file Excel");
-      }
-
-      const allCourses = getAllCourses();
-      const semesterMap = new Map<string, Subject[]>();
-
-      // Read data rows
-      for (let row = startRow + 1; row <= endRow; row++) {
-        const semesterName = semesterCol !== -1 ? (sheet.cell(row, semesterCol + 1).value()?.toString() || "") : "Học kỳ 1";
-        const courseCode = sheet.cell(row, codeCol + 1).value()?.toString() || "";
-        const courseName = nameCol !== -1 ? (sheet.cell(row, nameCol + 1).value()?.toString() || "") : "";
-        const credits = creditsCol !== -1 ? (sheet.cell(row, creditsCol + 1).value()?.toString() || "") : "0";
-        const progressScore = progressCol !== -1 ? (sheet.cell(row, progressCol + 1).value()?.toString() || "") : "";
-        const midtermScore = midtermCol !== -1 ? (sheet.cell(row, midtermCol + 1).value()?.toString() || "") : "";
-        const practiceScore = practiceCol !== -1 ? (sheet.cell(row, practiceCol + 1).value()?.toString() || "") : "";
-        const finalScore = finalCol !== -1 ? (sheet.cell(row, finalCol + 1).value()?.toString() || "") : "";
-        const totalScore = scoreCol !== -1 ? (sheet.cell(row, scoreCol + 1).value()?.toString() || "") : "";
-        const expectedScore = expectedCol !== -1 ? (sheet.cell(row, expectedCol + 1).value()?.toString() || "") : "";
-
-        if (!courseCode.trim()) continue; // Skip empty rows
-
-        // Find course in our database to get default weights
-        const courseData = findCourseByCode(courseCode, allCourses);
-
-        // Create temporary subject object for exempt course check
-        const tempSubject: Subject = {
-          courseCode,
-          courseName: courseName || courseData?.courseNameVi || "",
-          credits: credits || courseData?.credits?.toString() || "0",
-          progressScore: "",
-          practiceScore: "",
-          midtermScore: "",
-          finalScore: "",
-          progressWeight: "",
-          practiceWeight: "",
-          midtermWeight: "",
-          finalWeight: "",
-          score: "",
-          expectedScore: ""
-        };
-
-        const isExempt = isExemptCourse(tempSubject);
-
-        const defaultWeights = courseData?.defaultWeights || {
-          progressWeight: 0.2,
-          practiceWeight: 0.2,
-          midtermWeight: 0.2,
-          finalTermWeight: 0.4
-        };
-
-        const subject: Subject = {
-          id: `excel-sub-${Date.now()}-${Math.random()}`,
-          courseCode,
-          courseName: courseName || courseData?.courseNameVi || "",
-          credits: credits || courseData?.credits?.toString() || "0",
-          // Set all scores to 0 for exempt courses, otherwise use imported values
-          progressScore: isExempt ? "0" : progressScore,
-          practiceScore: isExempt ? "0" : practiceScore,
-          midtermScore: isExempt ? "0" : midtermScore,
-          finalScore: isExempt ? "0" : finalScore,
-          score: isExempt ? "0" : totalScore,
-          expectedScore: isExempt ? "" : expectedScore, // Clear expected score for exempt courses
-          isExpectedManual: false,
-          // Set weights from course data or use defaults
-          progressWeight: (defaultWeights.progressWeight * 100).toString(),
-          practiceWeight: (defaultWeights.practiceWeight * 100).toString(),
-          midtermWeight: (defaultWeights.midtermWeight * 100).toString(),
-          finalWeight: (defaultWeights.finalTermWeight * 100).toString(),
-        };
-
-        if (!semesterMap.has(semesterName)) {
-          semesterMap.set(semesterName, []);
-        }
-        semesterMap.get(semesterName)!.push(subject);
-      }
-
-      // Convert to semesters format
-      const formattedSemesters = Array.from(semesterMap.entries()).map(([semesterName, subjects], index) => ({
-        id: `excel-sem-${Date.now()}-${index}`,
-        name: semesterName,
-        subjects,
-        expectedAverage: "",
-        isExpectedAverageManual: false,
-      }));
-
-      if (formattedSemesters.length === 0) {
-        throw new Error("Không tìm thấy dữ liệu hợp lệ trong file Excel");
-      }
-
-      setSemesters(formattedSemesters);
-    } catch (err: any) {
-      setExcelError(err.message || "Lỗi khi đọc file Excel");
-    } finally {
-      setLoadingExcel(false);
       e.target.value = "";
     }
   };
@@ -603,64 +374,18 @@ export default function Home() {
                         )}
                       </label>
 
-                      <input
-                        id="excel-upload"
-                        type="file"
-                        accept=".xlsx,.xls"
-                        hidden
-                        disabled={loadingExcel}
-                        onChange={handleExcelUpload}
+                      <ExcelUpload
+                        onSemestersImport={(importedSemesters) => {
+                          setSemesters([...semesters, ...importedSemesters]);
+                        }}
+                        setLoading={setLoadingExcel}
+                        setError={setExcelError}
                       />
                     </>
                   )}
                 </div>
                 
-                <button 
-                  onClick={() => exportToExcel(semesters)}
-                  className="action-btn export-excel-btn"
-                  style={{
-                    height: '40px',
-                    width: '220px',
-                    background: 'linear-gradient(145deg, #f59e0b, #d97706)',
-                    color: 'white',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    whiteSpace: 'nowrap',
-                    boxSizing: 'border-box',
-                    borderRadius: '10px',
-                    cursor: 'pointer',
-                    fontSize: '13px',
-                    fontWeight: '500',
-                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '0 16px',
-                    lineHeight: '1',
-                    boxShadow: '0 8px 32px rgba(245, 158, 11, 0.25)',
-                    backdropFilter: 'blur(20px)',
-                    position: 'relative',
-                    overflow: 'hidden',
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(145deg, #d97706, #b45309)';
-                    e.currentTarget.style.transform = 'scale(1.02)';
-                    e.currentTarget.style.boxShadow = '0 12px 40px rgba(245, 158, 11, 0.35)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(145deg, #f59e0b, #d97706)';
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(245, 158, 11, 0.25)';
-                  }}
-                >
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                      <polyline points="7,10 12,15 17,10"/>
-                      <line x1="12" y1="15" x2="12" y2="3"/>
-                    </svg>
-                    Xuất Excel
-                  </span>
-                </button>
+                <ExcelExport semesters={semesters} />
               </div>
             </div>
 
@@ -671,7 +396,7 @@ export default function Home() {
             )}
 
             <div className="table-wrapper">
-              <GradeTable
+              <LazyGradeTable
                 semesters={semesters}
                 setSemesters={setSemesters}
                 cumulativeExpected={cumulativeExpected}
@@ -707,10 +432,10 @@ export default function Home() {
           </>
         )}
 
-        {activeTab === 'instructions' && <Instructions />}
+        {activeTab === 'instructions' && <LazyInstructions />}
         
         {activeTab === 'add_subject' && (
-          <AddSubjectForm 
+          <LazyAddSubjectForm 
             onAdd={(newSubject) => {
               setSemesters(prev => {
                 const next = [...prev];
@@ -727,7 +452,7 @@ export default function Home() {
         )}
 
         {modalOpen && editing && (
-          <EditModal
+        <LazyEditModal
             editing={editing}
             semesters={semesters}
             setSemesters={setSemesters}
@@ -738,6 +463,7 @@ export default function Home() {
             }}
             backupSubject={backupSubject}
             gpaScale={gpaScale}
+            subjectsData={SUBJECTS_DATA}
           />
         )}
       </div>

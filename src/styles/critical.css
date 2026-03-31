@@ -1,0 +1,76 @@
+/* Critical CSS - Loaded immediately for above-the-fold content */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+#root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* CSS Variables & Theming - Critical for initial render */
+:root {
+  /* Default Dark Mode */
+  --bg-body: #27262B;
+  --bg-container: #27262B;
+  --text-color: #ffffff;
+  --border-color: #515058;
+  --primary-purple: #2C84FA;
+  --header-text: #ffffff;
+  --dropdown-bg: #2B2D31;
+  --dropdown-item-hover: #3F3F46;
+  --input-bg: #302D36;
+  --modal-bg: #1e1e1e;
+  --text-muted: #999;
+  --dropdown-border: #454545;
+  --tab-inactive: #3F3F46;
+  --form-card-bg: #27262B; 
+  --form-input-white: #3f3f46;
+  --success-green: #22C55E;
+}
+
+.light-mode {
+  /* Light Mode Overrides */
+  --bg-body: #ffffff;
+  --bg-container: #ffffff;
+  --text-color: #000000;
+  --border-color: #C1C1C1;
+  --primary-purple: #7253ED;
+  --header-text: #ffffff;
+  --dropdown-bg: #f5f5f5;
+  --dropdown-item-hover: #e0e0e0;
+  --input-bg: #F5F6FA;
+  --modal-bg: #ffffff;
+  --text-muted: #555;
+  --dropdown-border: #e0e0e0;
+  --tab-inactive: #f0f0f0;
+  --form-card-bg: #ffffff;
+  --form-input-white: #ffffff;
+  --success-green: #16a34a;
+}
+
+/* Basic layout styles */
+body {
+  background-color: var(--bg-body);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
