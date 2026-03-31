@@ -6,6 +6,8 @@ import {
   hasAllScores,
   normalizeScore,
   getScoreDisplayText,
+  formatGpaDisplay,
+  convertGpaScale,
 } from "../../utils/gradeUtils";
 import SearchDropdown from "./SearchDropdown";
 
@@ -241,7 +243,12 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
         const isZeroWeight = weight === 0;
         
         // Don't show "Miễn" in individual score columns, only in total score column
-        const displayText = hasMinScore ? minScore : score;
+        // Convert individual scores to selected GPA scale for display
+        const convertedScore = score && !isNaN(Number(score)) 
+          ? formatGpaDisplay(convertGpaScale(Number(score), "10", gpaScale), gpaScale)
+          : score;
+        
+        const displayText = hasMinScore ? minScore : convertedScore;
 
         return (
           <td

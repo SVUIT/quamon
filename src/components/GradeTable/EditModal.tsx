@@ -6,7 +6,6 @@ import {
   hasAllScores,
   normalizeScore,
 } from "../../utils/gradeUtils";
-import { SUBJECTS_DATA } from "../../constants";
 
 interface EditModalProps {
   editing: { semesterIdx: number; subjectIdx: number };
@@ -15,6 +14,7 @@ interface EditModalProps {
   onClose: () => void;
   backupSubject: Subject | null;
   gpaScale: GpaScale;
+  subjectsData: Record<string, any[]>;
 }
 
 const EditModal: React.FC<EditModalProps> = ({
@@ -24,6 +24,7 @@ const EditModal: React.FC<EditModalProps> = ({
   onClose,
   backupSubject,
   gpaScale,
+  subjectsData,
 }) => {
   const [weightError, setWeightError] = useState(false);
   
@@ -114,8 +115,8 @@ const EditModal: React.FC<EditModalProps> = ({
     let defaultWeights = null;
 
     // Tìm kiếm trong dữ liệu gốc
-    for (const cat in SUBJECTS_DATA) {
-      const found = SUBJECTS_DATA[cat].find(c => c.courseCode === currentSub.courseCode);
+    for (const cat in subjectsData) {
+      const found = subjectsData[cat].find(c => c.courseCode === currentSub.courseCode);
       if (found) {
         defaultWeights = found.defaultWeights;
         break;

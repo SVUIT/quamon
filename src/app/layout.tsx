@@ -21,7 +21,9 @@ function ClientLayout({ children }: { children: React.ReactNode }) {
       attributeFilter: ['crxlauncher']
     });
     
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   return <>{children}</>;

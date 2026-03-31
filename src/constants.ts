@@ -1,7 +1,7 @@
-import courses from "./assets/courses_weighted.json";
-import type { Course } from "./types";
+// This file now only exports the category map
+// The courses data is loaded dynamically via useCoursesData hook
 
-const CATEGORY_MAP: Record<string, string> = {
+export const CATEGORY_MAP: Record<string, string> = {
   "ĐC": "Đại cương",
   "CSNN": "Cơ sở ngành (CSN)",
   "CSN": "Cơ sở ngành (CSN)",
@@ -10,10 +10,3 @@ const CATEGORY_MAP: Record<string, string> = {
   "TN": "Khác (Tự chọn/CĐTN/TN)",
   "CĐTN": "Khác (Tự chọn/CĐTN/TN)",
 };
-
-export const SUBJECTS_DATA = (courses as Course[]).reduce((acc, course) => {
-  const cat = CATEGORY_MAP[course.courseType] || "Khác (Tự chọn/CĐTN/TN)";
-  if (!acc[cat]) acc[cat] = [];
-  acc[cat].push(course);
-  return acc;
-}, {} as Record<string, Course[]>);

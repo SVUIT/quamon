@@ -8,7 +8,6 @@ import {
   calcRequiredScores,
   getMaxScoreForScale,
 } from "../utils/gradeUtils";
-import { SUBJECTS_DATA } from "../constants";
 
 const LOCAL_STORAGE_KEY = "grade_app_semesters";
 const THEME_KEY = "grade_app_theme";
@@ -41,7 +40,7 @@ const createEmptySubject = (): Subject => ({
   isExpectedManual: false,
 });
 
-export const useGradeApp = () => {
+export const useGradeApp = (subjectsData: Record<string, any[]> = {}) => {
   /* ================= THEME ================= */
   const [theme, setTheme] = useState<"light" | "dark">("dark");
 
@@ -508,7 +507,7 @@ export const useGradeApp = () => {
     setEditSearchTerm,
     editExpandedCategories,
     setEditExpandedCategories,
-    addSearchResults: getSearchResults(addSearchTerm, SUBJECTS_DATA),
-    editSearchResults: getSearchResults(editSearchTerm, SUBJECTS_DATA),
+    addSearchResults: getSearchResults(addSearchTerm, subjectsData),
+    editSearchResults: getSearchResults(editSearchTerm, subjectsData),
   };
 };
