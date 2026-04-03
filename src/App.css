@@ -1160,6 +1160,12 @@ body.light-mode {
   height: 14px;
 }
 
+.error-text {
+  color: red;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
 @media (min-width: 768px) {
   .footer-icon-fb {
     width: 17px;

@@ -13,7 +13,6 @@ import { uploadPdf } from "../config/appwrite";
 import { Subject, ProcessedPdfData, findCourseByCode, Semester } from "../types";
 import { SUBJECTS_DATA } from "../constants";
 import { isExemptCourse } from "../utils/gradeUtils";
-import GpaScaleSelector from "../components/GpaScaleSelector/GpaScaleSelector";
 
 export type TabType = "grades" | "instructions" | "add_subject";
 
@@ -29,7 +28,6 @@ export default function Home() {
     theme,
     toggleTheme,
     gpaScale,
-    setGpaScale,
     semesters,
     setSemesters,
     cumulativeExpected,
@@ -86,7 +84,6 @@ export default function Home() {
         "Điểm kỳ vọng",
       ];
 
-      // Write headers in row 1
       headers.forEach((header, colIndex) => {
         sheet.cell(1, colIndex + 1).value(header);
       });
@@ -111,14 +108,11 @@ export default function Home() {
           currentRow++;
         });
 
-        // Add empty row between semesters for better readability
         currentRow++;
       });
 
-      // Style the header row
       sheet.row(1).style({ bold: true, fill: "bfbfbf" });
       
-      // Set column widths
       sheet.column("A").width(15); // Học kỳ
       sheet.column("B").width(5);  // STT
       sheet.column("C").width(15); // Mã HP
@@ -147,7 +141,6 @@ export default function Home() {
     }
   };
   /* ================== PDF UPLOAD ================== */
-  // Flatten all courses for lookup
   const getAllCourses = () => {
     return Object.values(SUBJECTS_DATA).flat();
   };
@@ -168,7 +161,6 @@ export default function Home() {
           id: `pdf-sem-${Date.now()}-${semIndex}`,
           name: sem.semesterName,
           subjects: sem.courses.map((c, i): Subject => {
-            // Find course in our database to get default weights
             const courseData = findCourseByCode(c.courseCode, allCourses);
             const defaultWeights = courseData?.defaultWeights || {
               progressWeight: 0.2,
@@ -177,7 +169,6 @@ export default function Home() {
               finalTermWeight: 0.4
             };
 
-            // Create temporary subject object for exempt course check
             const tempSubject: Subject = {
               courseCode: c.courseCode || "",
               courseName: c.courseNameVi || courseData?.courseNameVi || "",
@@ -202,21 +193,18 @@ export default function Home() {
               courseName: c.courseNameVi || courseData?.courseNameVi || "",
               credits: (c.credits || courseData?.credits || 0).toString(),
 
-              // Set scores from PDF, but set to 0 for exempt courses
               progressScore: isExempt ? "0" : (c.scores?.progressScore?.toString() || ""),
               practiceScore: isExempt ? "0" : (c.scores?.practiceScore?.toString() || ""),
               midtermScore: isExempt ? "0" : (c.scores?.midtermScore?.toString() || ""),
               finalScore: isExempt ? "0" : (c.scores?.finaltermScore?.toString() || ""),
 
-              // Set weights from course data or use defaults
               progressWeight: (defaultWeights.progressWeight * 100).toString(),
               practiceWeight: (defaultWeights.practiceWeight * 100).toString(),
               midtermWeight: (defaultWeights.midtermWeight * 100).toString(),
               finalWeight: (defaultWeights.finalTermWeight * 100).toString(),
 
-              // Set total score to 0 for exempt courses
               score: isExempt ? "0" : (c.scores?.totalScore?.toString() || ""),
-              expectedScore: "", // Always empty for PDF import
+              expectedScore: "", 
               isExpectedManual: false,
             };
           }),
@@ -233,7 +221,6 @@ export default function Home() {
       e.target.value = "";
     }
   };
-  /* ================== EXCEL UPLOAD ================== */
   const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -245,11 +232,9 @@ export default function Home() {
       const workbook = await XlsxPopulate.fromDataAsync(file);
       const sheet = workbook.sheet(0);
       
-      // Find the used range by iterating through rows and columns
       let maxRow = 0;
       let maxCol = 0;
       
-      // Check first 100 rows and 50 columns to find the used range
       for (let row = 1; row <= 100; row++) {
         for (let col = 1; col <= 50; col++) {
           const cellValue = sheet.cell(row, col).value();
@@ -269,14 +254,12 @@ export default function Home() {
       const startCol = 1;
       const endCol = maxCol;
 
-      // Read headers to determine column positions
       const headers: string[] = [];
       for (let col = startCol; col <= endCol; col++) {
         const headerValue = sheet.cell(startRow, col).value();
         headers.push(headerValue?.toString().toLowerCase().trim() || "");
       }
 
-      // Find column indices
       const findColumnIndex = (headerName: string) => {
         return headers.findIndex(h => h.includes(headerName.toLowerCase()));
       };
@@ -299,7 +282,6 @@ export default function Home() {
       const allCourses = getAllCourses();
       const semesterMap = new Map<string, Subject[]>();
 
-      // Read data rows
       for (let row = startRow + 1; row <= endRow; row++) {
         const semesterName = semesterCol !== -1 ? (sheet.cell(row, semesterCol + 1).value()?.toString() || "") : "Học kỳ 1";
         const courseCode = sheet.cell(row, codeCol + 1).value()?.toString() || "";
@@ -312,12 +294,10 @@ export default function Home() {
         const totalScore = scoreCol !== -1 ? (sheet.cell(row, scoreCol + 1).value()?.toString() || "") : "";
         const expectedScore = expectedCol !== -1 ? (sheet.cell(row, expectedCol + 1).value()?.toString() || "") : "";
 
-        if (!courseCode.trim()) continue; // Skip empty rows
+        if (!courseCode.trim()) continue; 
 
-        // Find course in our database to get default weights
         const courseData = findCourseByCode(courseCode, allCourses);
 
-        // Create temporary subject object for exempt course check
         const tempSubject: Subject = {
           courseCode,
           courseName: courseName || courseData?.courseNameVi || "",
@@ -348,7 +328,6 @@ export default function Home() {
           courseCode,
           courseName: courseName || courseData?.courseNameVi || "",
           credits: credits || courseData?.credits?.toString() || "0",
-          // Set all scores to 0 for exempt courses, otherwise use imported values
           progressScore: isExempt ? "0" : progressScore,
           practiceScore: isExempt ? "0" : practiceScore,
           midtermScore: isExempt ? "0" : midtermScore,
@@ -356,7 +335,6 @@ export default function Home() {
           score: isExempt ? "0" : totalScore,
           expectedScore: isExempt ? "" : expectedScore, // Clear expected score for exempt courses
           isExpectedManual: false,
-          // Set weights from course data or use defaults
           progressWeight: (defaultWeights.progressWeight * 100).toString(),
           practiceWeight: (defaultWeights.practiceWeight * 100).toString(),
           midtermWeight: (defaultWeights.midtermWeight * 100).toString(),
@@ -369,7 +347,6 @@ export default function Home() {
         semesterMap.get(semesterName)!.push(subject);
       }
 
-      // Convert to semesters format
       const formattedSemesters = Array.from(semesterMap.entries()).map(([semesterName, subjects], index) => ({
         id: `excel-sem-${Date.now()}-${index}`,
         name: semesterName,
@@ -390,7 +367,6 @@ export default function Home() {
       e.target.value = "";
     }
   };
-  /* ================================================ */
 
   return (
     <>
@@ -423,15 +399,6 @@ export default function Home() {
               <h1 style={{ textAlign: "center", marginBottom: "10px" }}>
                 Bảng điểm
               </h1>
-              
-              {/* GPA Scale Selector */}
-              <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-                <GpaScaleSelector
-                  currentScale={gpaScale}
-                  onScaleChange={setGpaScale}
-                />
-              </div>
-              
               <div className="button-group" style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px', marginBottom: '10px', alignItems: 'stretch' }}>
                 <div style={{ position: 'relative', display: 'inline-block' }}>
                   <select

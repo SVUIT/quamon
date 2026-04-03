@@ -1,127 +1,129 @@
 import { NextRequest, NextResponse } from "next/server";
+import { App } from "@octokit/app";
+import { Octokit } from "@octokit/rest";
+
 const owner = process.env.GITHUB_OWNER!;
 const repo = process.env.GITHUB_REPO!;
-const token = process.env.GITHUB_TOKEN!;
 const baseBranch = process.env.GITHUB_BASE_BRANCH || "main";
-
 const filePath = "src/assets/courses_weighted.json";
+
+const privateKey = process.env.PRIVATE_KEY?.replace(/\\n/g, "\n");
+
+if (!privateKey) {
+  throw new Error("Missing PRIVATE_KEY");
+}
+
+const app = new App({
+  appId: process.env.GITHUB_APP_ID!,
+  privateKey,
+  Octokit,
+});
 
 export async function POST(req: NextRequest) {
   try {
-    const newCourse = await req.json();
+    const { user, ...newCourse } = await req.json();
 
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
-    };
+    const installationId = Number(process.env.GITHUB_INSTALLATION_ID);
+    if (!installationId) {
+      throw new Error("Missing INSTALLATION_ID");
+    }
 
-    const fileRes = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${baseBranch}`,
-      { headers }
+    const installationOctokit = await app.getInstallationOctokit(
+      installationId
     );
 
-    if (!fileRes.ok) {
-      const err = await fileRes.text();
-      throw new Error("Cannot read file: " + err);
+    const { data: fileData } =
+      await installationOctokit.repos.getContent({
+        owner,
+        repo,
+        path: filePath,
+        ref: baseBranch,
+      });
+
+    if (!("content" in fileData)) {
+      throw new Error("File không hợp lệ");
     }
 
-    const fileData = await fileRes.json();
     const sha = fileData.sha;
-
     const content = Buffer.from(fileData.content, "base64").toString("utf-8");
 
-    try {
-      const parsed = JSON.parse(content);
-      if (
-        Array.isArray(parsed) &&
-        parsed.some((c: any) => c.courseCode === newCourse.courseCode)
-      ) {
-        return NextResponse.json(
-          { error: "Course đã tồn tại" },
-          { status: 400 }
-        );
-      }
-    } catch {
-      throw new Error("File JSON không hợp lệ");
+    if (content.includes(`"courseCode": "${newCourse.courseCode}"`)) {
+      return NextResponse.json(
+        { error: "Course đã tồn tại" },
+        { status: 400 }
+      );
     }
 
-    let updatedText = content.trim();
+    let newContentString = content.trim();
 
-    const newItemText = JSON.stringify(newCourse, null, 2);
+    newContentString = newContentString.slice(0, -1);
 
-    if (updatedText.endsWith("]")) {
-      updatedText =
-        updatedText.slice(0, -1).trimEnd() +
-        (updatedText.length > 2 ? ",\n" : "\n") +
-        newItemText +
-        "\n]";
-    } else {
-      throw new Error("File không phải JSON array");
+    if (!newContentString.endsWith("[")) {
+      newContentString += ",";
     }
 
-    const updatedContent = Buffer.from(updatedText).toString("base64");
+    newContentString += `\n  ${JSON.stringify(newCourse, null, 2)}\n]`;
+
+    const updatedContent = Buffer.from(newContentString).toString("base64");
 
     const branchName = `add-course-${Date.now()}`;
 
-    const refRes = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/git/ref/heads/${baseBranch}`,
-      { headers }
-    );
+    const { data: refData } =
+      await installationOctokit.git.getRef({
+        owner,
+        repo,
+        ref: `heads/${baseBranch}`,
+      });
 
-    const refData = await refRes.json();
+    await installationOctokit.git.createRef({
+      owner,
+      repo,
+      ref: `refs/heads/${branchName}`,
+      sha: refData.object.sha,
+    });
 
-    await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/git/refs`,
-      {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          ref: `refs/heads/${branchName}`,
-          sha: refData.object.sha,
-        }),
-      }
-    );
+    await installationOctokit.repos.createOrUpdateFileContents({
+      owner,
+      repo,
+      path: filePath,
+      message: `Add course ${newCourse.courseCode}`,
+      content: updatedContent,
+      sha,
+      branch: branchName,
+    });
 
-    const updateRes = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`,
-      {
-        method: "PUT",
-        headers,
-        body: JSON.stringify({
-          message: `Add course ${newCourse.courseCode}`,
-          content: updatedContent,
-          sha,
-          branch: branchName,
-        }),
-      }
-    );
+    const { data: pr } =
+      await installationOctokit.pulls.create({
+        owner,
+        repo,
+        title: `[${newCourse.courseCode}] ${newCourse.courseNameVi} - by ${user?.name || "Unknown"}`,
+        head: branchName,
+        base: baseBranch,
+        body: `
+        ### Thêm môn học mới
 
-    if (!updateRes.ok) {
-      const err = await updateRes.text();
-      throw new Error("Commit failed: " + err);
-    }
+        Người đóng góp: ${user?.name || "Unknown"}
+        GitHub: [@${user?.username}](https://github.com/${user?.username})
+        ---
 
-    const prRes = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/pulls`,
-      {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          title: `Add course ${newCourse.courseCode}`,
-          head: branchName,
-          base: baseBranch,
-          body: "Added via web form",
-        }),
-      }
-    );
+        ### Thông tin môn học
+        - Mã: ${newCourse.courseCode}
+        - Tên: ${newCourse.courseNameVi}
+        - Tín chỉ: ${newCourse.credits}
 
-    const prData = await prRes.json();
+        ---
+
+        Gửi từ web form
+        `,
+      });
 
     return NextResponse.json({
-      url: prData.html_url,
+      url: pr.html_url,
     });
+
   } catch (err: any) {
-    console.error(err);
+    console.error("ERROR:", err);
+
     return NextResponse.json(
       { error: err.message || "Failed to create PR" },
       { status: 500 }
