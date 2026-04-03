@@ -1,5 +1,9 @@
 #!/bin/bash
+<<<<<<< HEAD
 set -euo pipefail
+=======
+set -e
+>>>>>>> 82e3546 (ci: appwrite preview workflow)
 
 # Arguments
 ENDPOINT=$1
@@ -7,7 +11,11 @@ SITE_ID=$2
 PROJECT_ID=$3
 API_KEY=$4
 DEPLOYMENT_ID=$5
+<<<<<<< HEAD
 MAX_ATTEMPTS=${6:-90}
+=======
+MAX_ATTEMPTS=${6:-90}  # Default 90 attempts (15 mins with 10s sleep)
+>>>>>>> 82e3546 (ci: appwrite preview workflow)
 
 # Validate inputs
 if [ -z "$ENDPOINT" ] || [ -z "$SITE_ID" ] || [ -z "$PROJECT_ID" ] || [ -z "$API_KEY" ] || [ -z "$DEPLOYMENT_ID" ]; then

@@ -1,0 +1,63 @@
+name: Appwrite Preview Deployment
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create Appwrite Deployment
+        id: deploy
+        run: |
+          OUTPUT=$(bash scripts/create-deployment.sh \
+            "${{ secrets.APPWRITE_ENDPOINT }}" \
+            "${{ secrets.APPWRITE_SITE_ID }}" \
+            "${{ secrets.APPWRITE_PROJECT_ID }}" \
+            "${{ secrets.APPWRITE_API_KEY }}" \
+            "${{ github.sha }}")
+          
+          DEPLOYMENT_ID=$(echo "$OUTPUT" | grep "deployment_id=" | cut -d'=' -f2)
+          echo "deployment_id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
+
+      - name: Wait for deployment (max 15 minutes)
+        id: wait
+        run: |
+          bash scripts/wait-deployment.sh \
+            "${{ secrets.APPWRITE_ENDPOINT }}" \
+            "${{ secrets.APPWRITE_SITE_ID }}" \
+            "${{ secrets.APPWRITE_PROJECT_ID }}" \
+            "${{ secrets.APPWRITE_API_KEY }}" \
+            "${{ steps.deploy.outputs.deployment_id }}"
+
+      - name: Comment PR with deployment link
+        if: success()
+        run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          DEPLOYMENT_ID=${{ steps.deploy.outputs.deployment_id }}
+
+          URL="https://cloud.appwrite.io/console/project-syd-${{ secrets.APPWRITE_PROJECT_ID }}/sites/site-${{ secrets.APPWRITE_SITE_ID }}/deployments/deployment-${DEPLOYMENT_ID}"
+
+          BODY=$(cat <<EOF
+          Preview Deployment Ready
+
+          Branch: ${{ github.head_ref }}
+          Commit: $SHORT_SHA
+          Deployment ID: $DEPLOYMENT_ID
+
+          Open Deployment:
+          $URL
+          EOF
+          )
+
+          gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
+            -f body="$BODY"
+        env:
+          GH_TOKEN: ${{ github.token }}
