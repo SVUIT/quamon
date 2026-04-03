@@ -57,7 +57,19 @@ jobs:
           EOF
           )
 
-          gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
-            -f body="$BODY"
+          # Find existing preview comment
+          COMMENT_ID=$(gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
+            --jq '.[] | select(.body | contains("Preview Deployment Ready")) | .id' | head -1)
+
+          if [ -n "$COMMENT_ID" ]; then
+            # Update existing comment
+            gh api repos/${{ github.repository }}/issues/comments/$COMMENT_ID \
+              -X PATCH \
+              -f body="$BODY"
+          else
+            # Create new comment
+            gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
+              -f body="$BODY"
+          fi
         env:
           GH_TOKEN: ${{ github.token }}
