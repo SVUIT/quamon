@@ -1220,6 +1220,18 @@
       "midtermWeight": 0,
       "finalTermWeight": 0.5
     }
+  },
+{
+  "courseCode": "IT008",
+  "courseNameEn": "something",
+  "courseNameVi": "môn gì đó",
+  "courseType": "CN",
+  "credits": 100,
+  "defaultWeights": {
+    "progressWeight": 0.2,
+    "practiceWeight": 0.2,
+    "midtermWeight": 0.2,
+    "finalTermWeight": 0.4
   }
+}
 ]
-
