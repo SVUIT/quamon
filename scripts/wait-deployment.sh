@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 # Arguments
 ENDPOINT=$1
@@ -7,7 +7,7 @@ SITE_ID=$2
 PROJECT_ID=$3
 API_KEY=$4
 DEPLOYMENT_ID=$5
-MAX_ATTEMPTS=${6:-90}  # Default 90 attempts (15 mins with 10s sleep)
+MAX_ATTEMPTS=${6:-90}
 
 # Validate inputs
 if [ -z "$ENDPOINT" ] || [ -z "$SITE_ID" ] || [ -z "$PROJECT_ID" ] || [ -z "$API_KEY" ] || [ -z "$DEPLOYMENT_ID" ]; then
