@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { SessionProvider } from 'next-auth/react';
 import '../index.css'
 import '../App.css'
 // Create a client component that wraps the children
@@ -26,7 +27,7 @@ function ClientLayout({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  return <>{children}</>;
+  return <SessionProvider>{children}</SessionProvider>;
 }
 
 export default function RootLayout({ 

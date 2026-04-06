@@ -75,7 +75,6 @@ const GradeTable: React.FC<GradeTableProps> = ({
   editExpandedCategories,
   setEditExpandedCategories,
 }) => {
-  // Handler để cập nhật semesters khi SummaryRows thay đổi điểm kỳ vọng
   const handleApplyExpectedOverall = (updatedSemesters: Semester[]) => {
     setSemesters(updatedSemesters);
   };

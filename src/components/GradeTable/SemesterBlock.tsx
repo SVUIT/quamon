@@ -11,18 +11,15 @@ interface SemesterBlockProps {
   setSemesters: (semesters: Semester[] | ((prev: Semester[]) => Semester[])) => void;
   gpaScale: GpaScale;
 
-  // Handlers for subjects
   updateSubjectField: (s: number, i: number, f: string, v: string) => void;
   updateSubjectExpectedScore: (s: number, i: number, v: string) => void; 
   deleteSemester: (id: string) => void;
   deleteSubject: (s: number, i: number) => void;
   openAdvancedModal: (s: number, i: number) => void;
 
-  // Menu States
   semesterMenuOpen?: number | null;
   setSemesterMenuOpen?: (val: number | null) => void;
 
-  // Add Dropdown State
   addDropdownOpen: number | null;
   setAddDropdownOpen: (val: number | null) => void;
   addSearchTerm: string;
@@ -31,7 +28,6 @@ interface SemesterBlockProps {
   addExpandedCategories: Set<string>;
   setAddExpandedCategories: (cats: Set<string>) => void;
 
-  // Passthrough for SubjectRow
   openMenu: { s: number; i: number } | null;
   setOpenMenu: (val: { s: number; i: number } | null) => void;
   editDropdownOpen: { s: number; i: number; field: string } | null;
@@ -256,11 +252,9 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
                 if (!target) return prev;
                 
                 if (text === "") {
-                  // Xóa điểm kỳ vọng học kỳ
                   target.expectedAverage = "";
                   target.isExpectedAverageManual = false;
                   
-                  // Xóa các điểm kỳ vọng môn được tính tự động
                   target.subjects.forEach((sub: any) => {
                     if (!sub.isExpectedManual) {
                       sub.expectedScore = "";
@@ -272,11 +266,9 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
                 const xp = Number(text);
                 if (isNaN(xp) || xp < 0 || xp > 10) return prev;
 
-                // Đánh dấu là người dùng nhập
                 target.expectedAverage = text;
                 target.isExpectedAverageManual = true;
 
-                // Tính toán điểm cần thiết cho các môn chưa có điểm
                 let totalCredits = 0;
                 let lockedCredits = 0;
                 let lockedPoints = 0;
@@ -291,7 +283,6 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
                   });
                   
                   if (hasAll) {
-                    // Môn đã có đủ điểm
                     lockedCredits += credits;
                     const score = (
                       Number(sub.progressScore || 0) * Number(sub.progressWeight || 0) / 100 +
@@ -301,13 +292,11 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
                     );
                     lockedPoints += score * credits;
                   } else if (sub.isExpectedManual && sub.expectedScore) {
-                    // Môn có điểm kỳ vọng do người dùng nhập
                     lockedCredits += credits;
                     lockedPoints += Number(sub.expectedScore) * credits;
                   }
                 });
                 
-                // Tính điểm cần thiết cho các môn còn lại
                 const remainingCredits = totalCredits - lockedCredits;
                 if (remainingCredits > 0) {
                   const requiredAvg = Math.max(0, Math.min(10, (xp * totalCredits - lockedPoints) / remainingCredits));
@@ -318,7 +307,6 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
                       return v !== undefined && v.toString().trim() !== "";
                     });
                     
-                    // Chỉ cập nhật môn chưa có đủ điểm VÀ chưa được người dùng nhập
                     if (!hasAll && !sub.isExpectedManual) {
                       sub.expectedScore = requiredAvg.toFixed(2);
                       const required = calcRequiredScores(sub, requiredAvg);
