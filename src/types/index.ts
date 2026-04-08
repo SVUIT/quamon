@@ -10,6 +10,7 @@ export interface Course {
     midtermWeight: number;
     finalTermWeight: number;
   };
+  description: string;
 }
 
 /* ================== PDF PROCESSING TYPES ================== */

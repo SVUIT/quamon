@@ -1,11 +1,13 @@
 import { SUBJECTS_DATA } from "@/constants";
 import { useState, useMemo } from "react";
-interface Subject {
+import { GraduationResultData } from "./types";
+import { GraduationResult } from "./GraduationResult";
+interface SortedSubject {
   courseCode: string;
   credits: string | number;
 }
 interface Semester {
-  subjects: Subject[];
+  subjects: SortedSubject[];
 }
 
 const courseToCategoryMap: Record<string, string> = {};
@@ -14,6 +16,8 @@ Object.entries(SUBJECTS_DATA).forEach(([categoryName, courses]) => {
     courseToCategoryMap[c.courseCode] = categoryName;
   });
 });
+
+console.log(courseToCategoryMap)
 
 export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
   const creditSummary = useMemo(() => {
@@ -51,14 +55,8 @@ export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
     completedMilitaryTraining: false,
   });
 
-  const [result, setResult] = useState<{
-    eligible: boolean;
-    missingCredits: string[];
-    englishPassed: boolean;
-    englishMsg: string;
-    generalIssues: string[];
-    totalCredits: number;
-  } | null>(null);
+  const [result, setResult] = useState<GraduationResultData | null>(null);
+
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -143,6 +141,18 @@ export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
     if (!form.completedMilitaryTraining)
       generalIssues.push("Chưa hoàn thành Giáo dục Quốc phòng (GDQP)");
 
+    const codes = semesters?.flatMap(sem => sem.subjects.map(subj => subj.courseCode.trim().toUpperCase())) || [];
+    const hasNT505 = codes.some(c => c.startsWith("NT505"));
+    const hasNT506 = codes.some(c => c.startsWith("NT506"));
+    const hasNT508 = codes.some(c => c.startsWith("NT508"));
+    const hasRequiredElective = codes.some(c => c.startsWith("NT332") || c.startsWith("NT539") || c.startsWith("NT541") || c.startsWith("NT544") || c.startsWith("NT548"));
+
+    const meetsGraduationPath = hasNT505 || hasNT506 || (hasNT508 && hasRequiredElective);
+
+    if (!meetsGraduationPath) {
+      generalIssues.push(`Cần hoàn thành 1 trong các hình thức tốt nghiệp sau: Khóa luận tốt nghiệp, Đồ án thực tập tại doanh nghiệp và Đồ án tốt nghiệp + chuyên đề tốt nghiệp tự chọn`);
+    }
+
     const eligible =
       missingCredits.length === 0 &&
       englishPassed &&
@@ -170,7 +180,7 @@ export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
           </p>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="weight-item">
-              <span className="weight-label">Đại cương (47)</span>
+              <span className="weight-label">Đại cương </span>
               <input
                 type="number"
                 name="creditsDC"
@@ -181,7 +191,7 @@ export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
               />
             </div>
             <div className="weight-item">
-              <span className="weight-label">Cơ sở ngành (49)</span>
+              <span className="weight-label">Cơ sở ngành</span>
               <input
                 type="number"
                 name="creditsCSN"
@@ -192,7 +202,7 @@ export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
               />
             </div>
             <div className="weight-item">
-              <span className="weight-label">Chuyên ngành (12)</span>
+              <span className="weight-label">Chuyên ngành</span>
               <input
                 type="number"
                 name="creditsCN"
@@ -203,7 +213,7 @@ export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
               />
             </div>
             <div className="weight-item">
-              <span className="weight-label">Khác/TN (22)</span>
+              <span className="weight-label">Khác/TN </span>
               <input
                 type="number"
                 name="creditsKHAC"
@@ -220,10 +230,6 @@ export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
           <label className="form-label">
             2. Chuẩn đầu ra Ngoại ngữ (Hệ Đại trà)
           </label>
-          <p className="form-description">
-            Chuẩn: IELTS 4.5, TOEIC 450/185, VNU-EPT 176.
-          </p>
-
           <div className="flex mb-4 items-center gap-4">
             <select
               name="englishType"
@@ -241,9 +247,7 @@ export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
           {form.englishType === "TOEIC" ? (
             <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
               <div className="weight-item">
-                <span className="weight-label">
-                  Listening & Reading (≥ 450)
-                </span>
+                <span className="weight-label">Listening & Reading</span>
                 <input
                   type="number"
                   name="toeicLR"
@@ -253,7 +257,7 @@ export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
                 />
               </div>
               <div className="weight-item">
-                <span className="weight-label">Speaking & Writing (≥ 185)</span>
+                <span className="weight-label">Speaking & Writing </span>
                 <input
                   type="number"
                   name="toeicSW"
@@ -311,124 +315,7 @@ export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
         </div>
       </form>
 
-      {result && (
-        <div
-          className={`form-section-card mt-7.5 border-2 ${
-            result.eligible
-              ? "border-green-500 bg-green-50"
-              : "border-red-500 bg-red-50"
-          }`}
-        >
-          <h2
-            className={`mt-0 ${result.eligible ? "text-green-600" : "text-red-600"}`}
-          >
-            {result.eligible
-              ? "🎉 ĐỦ ĐIỀU KIỆN TỐT NGHIỆP"
-              : "⚠️ CHƯA ĐỦ ĐIỀU KIỆN"}
-          </h2>
-
-          <div className="mt-4 flex flex-col gap-3 text-sm">
-            <div>
-              <strong
-                className={
-                  result.englishPassed ? "text-green-600" : "text-red-500"
-                }
-              >
-                Ngoại ngữ:
-              </strong>
-              <span className="ml-2 text-(--text-color)">
-                {result.englishMsg}
-              </span>
-            </div>
-
-            {result.generalIssues.length > 0 && (
-              <div>
-                <strong className="text-red-500">Yêu cầu chung:</strong>
-                <ul className="list-disc ml-5 text-red-500">
-                  {result.generalIssues.map((issue, idx) => (
-                    <li key={idx}>{issue}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <div>
-              <strong
-                className={
-                  result.missingCredits.length === 0
-                    ? "text-green-600"
-                    : "text-red-500"
-                }
-              >
-                Tín chỉ môn học:
-              </strong>
-              {result.missingCredits.length > 0 ? (
-                <ul className="list-disc ml-5 text-red-500">
-                  {result.missingCredits.map((issue, idx) => (
-                    <li key={idx}>{issue}</li>
-                  ))}
-                </ul>
-              ) : (
-                <span className="ml-2 text-green-600 font-bold">
-                  Đã đủ điều kiện ({result.totalCredits}/130 TC)
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="mt-4 pt-4 border-t border-dashed border-gray-300">
-            <p className="text-xs text-gray-500 italic mb-3">
-              * Kết quả kiểm tra dựa trên quy chế đào tạo và chuẩn đầu ra ngành
-              <strong> Mạng máy tính và Truyền thông dữ liệu 2025</strong> UIT.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <a
-                href="https://student.uit.edu.vn/content/cu-nhan-nganh-mang-may-tinh-va-truyen-thong-du-lieu-ap-dung-tu-khoa-19-2024"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-blue-600 hover:underline font-medium"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                </svg>
-                Chương trình đào tạo
-              </a>
-              <a
-                href="https://student.uit.edu.vn/content/huong-dan-sinh-vien-dai-hoc-he-chinh-quy-thuc-hien-cac-quy-dinh-ve-chuan-qua-trinh-va-chuan"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-blue-600 hover:underline font-medium"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                </svg>
-                Quy định chuẩn Ngoại ngữ
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
+      {result && <GraduationResult result={result} />}
     </div>
   );
 };
