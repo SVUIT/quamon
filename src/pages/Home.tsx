@@ -6,9 +6,36 @@ import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import { useGradeApp } from "../hooks/useGradeApp";
 import { uploadPdf } from "../config/appwrite";
-import { Subject, ProcessedPdfData, findCourseByCode } from "../types";
+import { Subject, ProcessedPdfData, findCourseByCode, Semester } from "../types";
 import { useCoursesData } from "../hooks/useCoursesData";
 import { isExemptCourse } from "../utils/gradeUtils";
+import { ExcelExport } from "../components/ExcelExport/ExcelExport";
+
+// Dynamic imports for better performance
+const LazyGradeTable = dynamic(() => import("../components/GradeTable/GradeTable"), {
+  loading: () => <div>Loading grade table...</div>,
+  ssr: false
+});
+
+const LazyInstructions = dynamic(() => import("../components/Instructions/Instructions"), {
+  loading: () => <div>Loading instructions...</div>,
+  ssr: false
+});
+
+const LazyAddSubjectForm = dynamic(() => import("../components/AddSubject/AddSubjectForm"), {
+  loading: () => <div>Loading form...</div>,
+  ssr: false
+});
+
+const LazyEditModal = dynamic(() => import("../components/GradeTable/EditModal"), {
+  loading: () => <div>Loading modal...</div>,
+  ssr: false
+});
+
+const ExcelUpload = dynamic(() => import("../components/ExcelUpload/ExcelUpload"), {
+  loading: () => <div>Loading Excel upload...</div>,
+  ssr: false
+});
 
 export type TabType = "grades" | "instructions" | "add_subject";
 
@@ -63,81 +90,81 @@ export default function Home() {
     editSearchResults,
   } = useGradeApp();
 
-  const exportToExcel = async (semesters: Semester[]) => {
-    try {
-      const workbook = await XlsxPopulate.fromBlankAsync();
-      const sheet = workbook.sheet(0).name("Tất cả học kỳ");
-
-      const headers = [
-        "Học kỳ",
-        "STT",
-        "Mã HP",
-        "Tên HP",
-        "TC",
-        "QT",
-        "GK",
-        "TH",
-        "CK",
-        "Điểm HP",
-        "Điểm kỳ vọng",
-      ];
-
-      headers.forEach((header, colIndex) => {
-        sheet.cell(1, colIndex + 1).value(header);
-      });
-
-      let currentRow = 2;
-
-      semesters.forEach((semester) => {
-        if (semester.subjects.length === 0) return;
-
-        semester.subjects.forEach((subject: Subject, idx: number) => {
-          sheet.cell(`A${currentRow}`).value(semester.name);
-          sheet.cell(`B${currentRow}`).value(idx + 1);
-          sheet.cell(`C${currentRow}`).value(subject.courseCode);
-          sheet.cell(`D${currentRow}`).value(subject.courseName);
-          sheet.cell(`E${currentRow}`).value(subject.credits);
-          sheet.cell(`F${currentRow}`).value(subject.progressScore || "");
-          sheet.cell(`G${currentRow}`).value(subject.midtermScore || "");
-          sheet.cell(`H${currentRow}`).value(subject.practiceScore || "");
-          sheet.cell(`I${currentRow}`).value(subject.finalScore || "");
-          sheet.cell(`J${currentRow}`).value(subject.score || "");
-          sheet.cell(`K${currentRow}`).value(subject.expectedScore || "");
-          currentRow++;
-        });
-
-        currentRow++;
-      });
-
-      sheet.row(1).style({ bold: true, fill: "bfbfbf" });
-      
-      sheet.column("A").width(15); // Học kỳ
-      sheet.column("B").width(5);  // STT
-      sheet.column("C").width(15); // Mã HP
-      sheet.column("D").width(40); // Tên HP
-      sheet.column("E").width(5);  // TC
-      sheet.column("F").width(8);  // QT
-      sheet.column("G").width(8);  // GK
-      sheet.column("H").width(8);  // TH
-      sheet.column("I").width(8);  // CK
-      sheet.column("J").width(12); // Điểm HP
-      sheet.column("K").width(15); // Điểm kỳ vọng
-
-      const blob = await workbook.outputAsync();
-      const fileName = `bang-diem-${new Date()
-        .toISOString()
-        .split("T")[0]}.xlsx`;
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      a.click();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Lỗi khi xuất file Excel:", error);
-      alert("Đã xảy ra lỗi khi xuất file Excel. Vui lòng thử lại.");
-    }
-  };
+  // 
+  // const exportToExcel = async (semesters: Semester[]) => {
+  //   try {
+  //     const workbook = await XlsxPopulate.fromBlankAsync();
+  //     const sheet = workbook.sheet(0).name("T\u1ea5t c\u1ea3 h\u1ecdc k\u1ef3");
+  //
+  //     const headers = [
+  //       "H\u1ecdc k\u1ef3",
+  //       "STT",
+  //       "M\u00e3 HP",
+  //       "T\u00ean HP",
+  //       "TC",
+  //       "QT",
+  //       "GK",
+  //       "TH",
+  //       "CK",
+  //       "\u0110i\u1ec3m HP",
+  //       "\u0110i\u1ec3m k\u1ef3 v\u1ecdng",
+  //     ];
+  //     sheet.cell("A1").value(headers);
+  //
+  //     let currentRow = 2;
+  //     semesters.forEach((semester) => {
+  //       if (semester.subjects.length === 0) return;
+  //
+  //       // Add semester header
+  //       sheet.cell(`A${currentRow}`).value([semester.name]);
+  //       sheet.range(`A${currentRow}:K${currentRow}`).merged(true);
+  //       currentRow++;
+  //
+  //       // Add subjects
+  //       semester.subjects.forEach((subject, index) => {
+  //         sheet.cell(`A${currentRow}`).value(index + 1);
+  //         sheet.cell(`B${currentRow}`).value(subject.courseCode);
+  //         sheet.cell(`C${currentRow}`).value(subject.courseNameVi);
+  //         sheet.cell(`D${currentRow}`).value(subject.credits);
+  //         sheet.cell(`E${currentRow}`).value(subject.progressScore);
+  //         sheet.cell(`F${currentRow}`).value(subject.midtermScore);
+  //         sheet.cell(`G${currentRow}`).value(subject.practiceScore);
+  //         sheet.cell(`H${currentRow}`).value(subject.finalScore);
+  //         sheet.cell(`I${currentRow}`).value(subject.subjectScore);
+  //         sheet.cell(`J${currentRow}`).value(subject.expectedScore);
+  //         currentRow++;
+  //       });
+  //       currentRow++; // Add space between semesters
+  //     });
+  //
+  //     // Auto-fit columns
+  //     sheet.column("A").width(8);
+  //     sheet.column("B").width(15);
+  //     sheet.column("C").width(40);
+  //     sheet.column("D").width(8);
+  //     sheet.column("E").width(8);
+  //     sheet.column("F").width(8);
+  //     sheet.column("G").width(8);
+  //     sheet.column("H").width(8);
+  //     sheet.column("I").width(12);
+  //     sheet.column("J").width(12); // \u0110i\u1ec3m HP
+  //     sheet.column("K").width(15); // \u0110i\u1ec3m k\u1ef3 v\u1ecdng
+  //
+  //     const blob = await workbook.outputAsync();
+  //     const fileName = `bang-diem-${new Date()
+  //       .toISOString()
+  //       .split("T")[0]}.xlsx`;
+  //     const url = window.URL.createObjectURL(blob);
+  //     const a = document.createElement("a");
+  //     a.href = url;
+  //     a.download = fileName;
+  //     a.click();
+  //     window.URL.revokeObjectURL(url);
+  //   } catch (error) {
+  //     console.error("L\u1ed7i khi xu\u1ea5t file Excel:", error);
+  //     alert("\u0110\u00e3 x\u1ea3y ra l\u1ed7i khi xu\u1ea5t file Excel. Vui l\u00f2ng th\u1eed l\u1ea1i.");
+  //   }
+  // };
   /* ================== PDF UPLOAD ================== */
   const getAllCourses = () => {
     return Object.values(SUBJECTS_DATA).flat();
@@ -402,6 +429,7 @@ export default function Home() {
                   <select
                     value={importType}
                     onChange={(e) => setImportType(e.target.value as "pdf" | "excel")}
+                    aria-label="Select import type: PDF or Excel"
                     style={{
                       position: 'absolute',
                       left: '1px',

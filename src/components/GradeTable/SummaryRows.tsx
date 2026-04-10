@@ -94,6 +94,7 @@ const SummaryRows: React.FC<SummaryRowsProps> = ({
             style={{ color: isCumulativeManual ? "white" : undefined }}
             role="textbox"
             tabIndex={0}
+            aria-label="Enter cumulative expected score"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();

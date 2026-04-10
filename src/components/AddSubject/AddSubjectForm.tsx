@@ -373,9 +373,10 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd, existingSubjects
         </div>
 
         <div className="form-section-card">
-          <label className="form-label">Loại học phần</label>
+          <label htmlFor="course-type" className="form-label">Loại học phần</label>
           <p className="form-description">Phân loại theo chương trình đào tạo.</p>
           <select 
+            id="course-type"
             name="courseType" value={form.courseType} 
             onChange={handleChange}
             className={`form-white-input ${errors.courseType ? "input-error" : ""}`}

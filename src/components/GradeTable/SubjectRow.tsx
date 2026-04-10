@@ -140,6 +140,7 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
                 data-placeholder={field.placeholder}
                 role="textbox"
                 tabIndex={0}
+                aria-label={`Enter ${field.placeholder.toLowerCase()}`}
                 style={
                   field.key === "courseCode" ? { whiteSpace: "pre-wrap", lineHeight: "1.2", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", } : {}
                 }
@@ -205,6 +206,7 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
               data-placeholder="Nhập tín chỉ"
               role="textbox"
               tabIndex={0}
+              aria-label="Enter credits"
               style={{
                 textAlign: "center",
                 display: "flex",
@@ -317,7 +319,7 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
         <div
           contentEditable
           suppressContentEditableWarning
-          data-placeholder={hasAllScores(sub) ? "" : "Nhập điểm\nkỳ vọng"}
+          data-placeholder={hasAllScores(sub) ? "" : "Nh\u1eadp \u0111i\u1ec3m\nk\u1ef3 v\u1ecdng"}
           className={`editable-cell expected-score-cell ${
             hasAllScores(sub) ? "text-gray cursor-not-allowed" : ""
           }`}
@@ -325,6 +327,7 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
             color: sub.isExpectedManual ? "white" : undefined
           }}
           role="textbox"
+          aria-label="Enter expected score"
           tabIndex={hasAllScores(sub) ? -1 : 0}
           onBlur={handleExpectedScoreBlur}
           onKeyDown={(e) => {

@@ -112,7 +112,7 @@ const Navbar: React.FC<NavbarProps> = ({
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <img src={logoSrc} alt="Quamon Logo" style={{ height: 32, marginRight: 8 }} />
+              <img src={logoSrc} alt="Quamon Logo" style={{ height: 32, width: 32, marginRight: 8 }} />
               <span style={{ fontWeight: 800, fontSize: '18px', color: 'var(--text-color)' }}>Quamon</span>
             </div>
             {ActionGroup}
@@ -125,7 +125,7 @@ const Navbar: React.FC<NavbarProps> = ({
         <>
           {/* Left: Logo */}
           <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
-            <img src={logoSrc} alt="Quamon Logo" style={{ height: 42, marginRight: 12 }} />
+            <img src={logoSrc} alt="Quamon Logo" style={{ height: 42, width: 42, marginRight: 12 }} />
             <span style={{ fontWeight: 800, fontSize: '24px', color: 'var(--text-color)' }}>Quamon</span>
           </div>
 

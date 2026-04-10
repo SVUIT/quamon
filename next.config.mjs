@@ -10,7 +10,7 @@ const nextConfig = {
   },
   experimental: {
     // Helps with some hydration issues in development
-    optimizeCss: true,
+    // optimizeCss: true, // Disabled to prevent lightningcss native binary issues in production builds
   },
   async headers() {
     return [

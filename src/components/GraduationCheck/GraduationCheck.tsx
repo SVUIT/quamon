@@ -113,10 +113,11 @@ export const GraduationCheck = () => {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label htmlFor="english-test" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 English Proficiency Test
               </label>
               <select
+                id="english-test"
                 value={formData.englishType}
                 onChange={(e) => setFormData({...formData, englishType: e.target.value})}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"

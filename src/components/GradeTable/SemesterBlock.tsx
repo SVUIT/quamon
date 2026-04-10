@@ -232,11 +232,12 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
           <div
             contentEditable
             suppressContentEditableWarning
-            data-placeholder={"Nhập điểm kỳ vọng học kỳ"}
+            data-placeholder={"Nh\u1eadp \u0111i\u1ec3m k\u1ef3 v\u1ecdng h\u1ecdc k\u1ef3"}
             className="editable-cell expected-score-cell"
             style={{ color: sem.isExpectedAverageManual ? "white" : undefined }}
             role="textbox"
             tabIndex={0}
+            aria-label="Enter semester expected score"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();

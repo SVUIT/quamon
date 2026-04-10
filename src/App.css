@@ -27,7 +27,7 @@ html {
   --dropdown-item-hover: #3F3F46;
   --input-bg: #302D36;
   --modal-bg: #1e1e1e;
-  --text-muted: #999;
+  --text-muted: #AAA; /* Improved contrast from #999 to #AAA for better accessibility */
   --dropdown-border: #454545;
   --tab-inactive: #3F3F46;
   --form-card-bg: #27262B; 
@@ -272,7 +272,7 @@ body.light-mode {
 .text-normal { color: var(--text-color); }
 .score-over-10 { color: #FF4D4F; font-weight: bold; }
 .light-mode .score-over-10 { color: #CF1322; }
-.text-gray { color: #888; }
+.text-gray { color: #999; } /* Improved contrast from #888 to #999 for better accessibility */
 .cursor-not-allowed { cursor: not-allowed; }
 .text-exempt { color: var(--success-green) !important; }
 
@@ -700,7 +700,7 @@ body.light-mode {
 .light-mode .score-over-10 { color: #CF1322; } /* Light Mode Red (High Contrast on White) */
 .text-yellow { color: yellow; }
 .light-mode .text-yellow { color: #3915c9; }
-.text-gray { color: #888; }
+.text-gray { color: #999; } /* Improved contrast from #888 to #999 for better accessibility */
 .cursor-not-allowed { cursor: not-allowed; }
 
 [data-placeholder]:empty:before {

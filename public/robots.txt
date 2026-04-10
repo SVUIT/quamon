@@ -1,0 +1,17 @@
+# robots.txt for Quamon Grade Calculator
+# Allow all web crawlers to access the site
+
+User-agent: *
+Allow: /
+
+# Sitemap location (if available)
+# Sitemap: https://your-domain.com/sitemap.xml
+
+# Block common non-content paths
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+
+# Allow specific content paths
+Allow: /api/auth/
+Allow: /static/
