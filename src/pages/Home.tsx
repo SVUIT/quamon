@@ -32,7 +32,7 @@ const LazyEditModal = dynamic(() => import("../components/GradeTable/EditModal")
   ssr: false
 });
 
-const ExcelUpload = dynamic(() => import("../components/ExcelUpload/ExcelUpload"), {
+const ExcelUpload = dynamic(() => import("../components/ExcelUpload/ExcelUpload").then(mod => ({ default: mod.ExcelUpload })), {
   loading: () => <div>Loading Excel upload...</div>,
   ssr: false
 });
