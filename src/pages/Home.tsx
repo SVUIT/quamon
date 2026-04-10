@@ -6,7 +6,7 @@ import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import { useGradeApp } from "../hooks/useGradeApp";
 import { uploadPdf } from "../config/appwrite";
-import { Subject, ProcessedPdfData, findCourseByCode, Semester } from "../types";
+import { Subject, ProcessedPdfData, findCourseByCode } from "../types";
 import { useCoursesData } from "../hooks/useCoursesData";
 import { isExemptCourse } from "../utils/gradeUtils";
 import { ExcelExport } from "../components/ExcelExport/ExcelExport";
