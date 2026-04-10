@@ -238,166 +238,20 @@ export default function Home() {
         };
       });
 
-      setSemesters(formattedSemesters);
-    } catch (err: any) {
-      setPdfError(err.message || "Lỗi khi đọc file PDF");
-    } finally {
-      setLoadingPdf(false);
-      e.target.value = "";
-    }
-  };
-  const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    setSemesters(formattedSemesters);
+  } catch (err: any) {
+    setPdfError(err.message || "Lỗi khi đọc file PDF");
+  } finally {
+    setLoadingPdf(false);
+    e.target.value = "";
+  }
+};
 
-    setLoadingExcel(true);
-    setExcelError(null);
-
-    try {
-      const workbook = await XlsxPopulate.fromDataAsync(file);
-      const sheet = workbook.sheet(0);
-      
-      let maxRow = 0;
-      let maxCol = 0;
-      
-      for (let row = 1; row <= 100; row++) {
-        for (let col = 1; col <= 50; col++) {
-          const cellValue = sheet.cell(row, col).value();
-          if (cellValue !== undefined && cellValue !== null && cellValue !== "") {
-            maxRow = Math.max(maxRow, row);
-            maxCol = Math.max(maxCol, col);
-          }
-        }
-      }
-      
-      if (maxRow === 0) {
-        throw new Error("File Excel trống hoặc không có dữ liệu");
-      }
-
-      const startRow = 1;
-      const endRow = maxRow;
-      const startCol = 1;
-      const endCol = maxCol;
-
-      const headers: string[] = [];
-      for (let col = startCol; col <= endCol; col++) {
-        const headerValue = sheet.cell(startRow, col).value();
-        headers.push(headerValue?.toString().toLowerCase().trim() || "");
-      }
-
-      const findColumnIndex = (headerName: string) => {
-        return headers.findIndex(h => h.includes(headerName.toLowerCase()));
-      };
-
-      const semesterCol = findColumnIndex("học kỳ");
-      const codeCol = findColumnIndex("mã hp");
-      const nameCol = findColumnIndex("tên hp");
-      const creditsCol = findColumnIndex("tc");
-      const progressCol = findColumnIndex("qt");
-      const midtermCol = findColumnIndex("gk");
-      const practiceCol = findColumnIndex("th");
-      const finalCol = findColumnIndex("ck");
-      const scoreCol = findColumnIndex("điểm hp");
-      const expectedCol = findColumnIndex("điểm kỳ vọng");
-
-      if (codeCol === -1 || nameCol === -1) {
-        throw new Error("Không tìm thấy cột 'Mã HP' hoặc 'Tên HP' trong file Excel");
-      }
-
-      const allCourses = getAllCourses();
-      const semesterMap = new Map<string, Subject[]>();
-
-      for (let row = startRow + 1; row <= endRow; row++) {
-        const semesterName = semesterCol !== -1 ? (sheet.cell(row, semesterCol + 1).value()?.toString() || "") : "Học kỳ 1";
-        const courseCode = sheet.cell(row, codeCol + 1).value()?.toString() || "";
-        const courseName = nameCol !== -1 ? (sheet.cell(row, nameCol + 1).value()?.toString() || "") : "";
-        const credits = creditsCol !== -1 ? (sheet.cell(row, creditsCol + 1).value()?.toString() || "") : "0";
-        const progressScore = progressCol !== -1 ? (sheet.cell(row, progressCol + 1).value()?.toString() || "") : "";
-        const midtermScore = midtermCol !== -1 ? (sheet.cell(row, midtermCol + 1).value()?.toString() || "") : "";
-        const practiceScore = practiceCol !== -1 ? (sheet.cell(row, practiceCol + 1).value()?.toString() || "") : "";
-        const finalScore = finalCol !== -1 ? (sheet.cell(row, finalCol + 1).value()?.toString() || "") : "";
-        const totalScore = scoreCol !== -1 ? (sheet.cell(row, scoreCol + 1).value()?.toString() || "") : "";
-        const expectedScore = expectedCol !== -1 ? (sheet.cell(row, expectedCol + 1).value()?.toString() || "") : "";
-
-        if (!courseCode.trim()) continue; 
-
-        const courseData = findCourseByCode(courseCode, allCourses);
-
-        const tempSubject: Subject = {
-          courseCode,
-          courseName: courseName || courseData?.courseNameVi || "",
-          credits: credits || courseData?.credits?.toString() || "0",
-          progressScore: "",
-          practiceScore: "",
-          midtermScore: "",
-          finalScore: "",
-          progressWeight: "",
-          practiceWeight: "",
-          midtermWeight: "",
-          finalWeight: "",
-          score: "",
-          expectedScore: ""
-        };
-
-        const isExempt = isExemptCourse(tempSubject);
-
-        const defaultWeights = courseData?.defaultWeights || {
-          progressWeight: 0.2,
-          practiceWeight: 0.2,
-          midtermWeight: 0.2,
-          finalTermWeight: 0.4
-        };
-
-        const subject: Subject = {
-          id: `excel-sub-${Date.now()}-${Math.random()}`,
-          courseCode,
-          courseName: courseName || courseData?.courseNameVi || "",
-          credits: credits || courseData?.credits?.toString() || "0",
-          progressScore: isExempt ? "0" : progressScore,
-          practiceScore: isExempt ? "0" : practiceScore,
-          midtermScore: isExempt ? "0" : midtermScore,
-          finalScore: isExempt ? "0" : finalScore,
-          score: isExempt ? "0" : totalScore,
-          expectedScore: isExempt ? "" : expectedScore, // Clear expected score for exempt courses
-          isExpectedManual: false,
-          progressWeight: (defaultWeights.progressWeight * 100).toString(),
-          practiceWeight: (defaultWeights.practiceWeight * 100).toString(),
-          midtermWeight: (defaultWeights.midtermWeight * 100).toString(),
-          finalWeight: (defaultWeights.finalTermWeight * 100).toString(),
-        };
-
-        if (!semesterMap.has(semesterName)) {
-          semesterMap.set(semesterName, []);
-        }
-        semesterMap.get(semesterName)!.push(subject);
-      }
-
-      const formattedSemesters = Array.from(semesterMap.entries()).map(([semesterName, subjects], index) => ({
-        id: `excel-sem-${Date.now()}-${index}`,
-        name: semesterName,
-        subjects,
-        expectedAverage: "",
-        isExpectedAverageManual: false,
-      }));
-
-      if (formattedSemesters.length === 0) {
-        throw new Error("Không tìm thấy dữ liệu hợp lệ trong file Excel");
-      }
-
-      setSemesters(formattedSemesters);
-    } catch (err: any) {
-      setExcelError(err.message || "Lỗi khi đọc file Excel");
-    } finally {
-      setLoadingExcel(false);
-      e.target.value = "";
-    }
-  };
-
-  return (
-    <>
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
+return (
+  <>
+    <style>{`
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
       `}</style>
