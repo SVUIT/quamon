@@ -1,6 +1,6 @@
 import React from "react";
 import type { Semester, Course, GpaScale } from "../../types";
-import { calcSemesterAverage, calcRequiredScores, convertGpaScale, formatGpaDisplay } from "../../utils/gradeUtils";
+import { calcSemesterAverage, calcRequiredScores, convertGpaScale, formatGpaDisplay, getMaxScoreForScale } from "../../utils/gradeUtils";
 import SearchDropdown from "./SearchDropdown";
 import SubjectRow from "./SubjectRow";
 
@@ -264,7 +264,7 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
                 }
 
                 const xp = Number(text);
-                if (isNaN(xp) || xp < 0 || xp > 10) return prev;
+                if (isNaN(xp) || xp < 0 || xp > getMaxScoreForScale(gpaScale)) return prev;
 
                 target.expectedAverage = text;
                 target.isExpectedAverageManual = true;

@@ -6,6 +6,8 @@ import {
   hasAllScores,
   normalizeScore,
   getScoreDisplayText,
+  convertGpaScale,
+  formatGpaDisplay,
 } from "../../utils/gradeUtils";
 import SearchDropdown from "./SearchDropdown";
 
@@ -63,10 +65,31 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
   const handleScoreBlur = (f: string, text: string, target: HTMLElement) => {
     updateSubjectField(si, i, f, text);
     const normalized = normalizeScore(text, gpaScale);
-    if (target) target.innerText = normalized;
+    
+    // Display the normalized value in current GPA scale
+    let displayValue = normalized;
+    if (normalized && normalized.trim() !== "") {
+      const numValue = Number(normalized);
+      if (!isNaN(numValue)) {
+        displayValue = formatGpaDisplay(numValue, gpaScale);
+      }
+    }
+    
+    if (target) target.innerText = displayValue;
 
     const updated = [...semesters];
-    (updated[si].subjects[i] as any)[f] = normalized;
+    
+    // Convert from current GPA scale back to 10-point scale for storage
+    let storageValue = normalized;
+    if (normalized && normalized.trim() !== "") {
+      const numValue = Number(normalized);
+      if (!isNaN(numValue)) {
+        const convertedValue = convertGpaScale(numValue, gpaScale, "10");
+        storageValue = convertedValue.toFixed(2);
+      }
+    }
+    
+    (updated[si].subjects[i] as any)[f] = storageValue;
 
     // Reset min scores
     const minMap: Record<string, string> = {
@@ -240,8 +263,19 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
         const weight = Number((sub as any)[f.weightKey]) || 0;
         const isZeroWeight = weight === 0;
         
+        // Convert scores to the selected GPA scale for display
+        const convertScoreToScale = (scoreValue: string): string => {
+          if (!scoreValue || scoreValue.trim() === "") return "";
+          const numScore = Number(scoreValue);
+          if (isNaN(numScore)) return "";
+          
+          // Convert from 10-point scale to target scale
+          const convertedScore = convertGpaScale(numScore, "10", gpaScale);
+          return formatGpaDisplay(convertedScore, gpaScale);
+        };
+        
         // Don't show "Miễn" in individual score columns, only in total score column
-        const displayText = hasMinScore ? minScore : score;
+        const displayText = hasMinScore ? convertScoreToScale(minScore) : convertScoreToScale(score);
 
         return (
           <td

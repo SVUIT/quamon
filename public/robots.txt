@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://quamon.vercel.app/sitemap.xml
+
+# Block common bot paths
+Disallow: /api/
+Disallow: /_next/
+Disallow: /tmp/

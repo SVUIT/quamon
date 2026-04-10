@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ThemeToggle from '../ThemeToggle/ThemeToggle';
+import GpaScaleSelector from '../GpaScaleSelector/GpaScaleSelector';
 import type { TabType } from '../../pages/Home';
 import GitHubStats from './GitHubStats';
 
@@ -8,6 +9,8 @@ interface NavbarProps {
   toggleTheme: () => void;
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
+  gpaScale?: "10" | "4" | "100";
+  setGpaScale?: (scale: "10" | "4" | "100") => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({
@@ -15,6 +18,8 @@ const Navbar: React.FC<NavbarProps> = ({
   toggleTheme,
   activeTab,
   setActiveTab,
+  gpaScale = "10",
+  setGpaScale,
 }) => {
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -39,6 +44,11 @@ const Navbar: React.FC<NavbarProps> = ({
       transform: isMobile ? 'scale(0.75)' : 'none',
       transformOrigin: isMobile ? 'right center' : 'center'
     }}>
+      <GpaScaleSelector 
+        currentScale={gpaScale} 
+        onScaleChange={setGpaScale || (() => {})}
+        style={{ marginRight: isMobile ? '8px' : '15px' }}
+      />
       <GitHubStats />
       <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
     </div>
@@ -112,7 +122,7 @@ const Navbar: React.FC<NavbarProps> = ({
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <img src={logoSrc} alt="Quamon Logo" style={{ height: 32, marginRight: 8 }} />
+              <img src={logoSrc} alt="Quamon Logo" style={{ width: 32, height: 32, marginRight: 8 }} />
               <span style={{ fontWeight: 800, fontSize: '18px', color: 'var(--text-color)' }}>Quamon</span>
             </div>
             {ActionGroup}
@@ -125,7 +135,7 @@ const Navbar: React.FC<NavbarProps> = ({
         <>
           {/* Left: Logo */}
           <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
-            <img src={logoSrc} alt="Quamon Logo" style={{ height: 42, marginRight: 12 }} />
+            <img src={logoSrc} alt="Quamon Logo" style={{ width: 42, height: 42, marginRight: 12 }} />
             <span style={{ fontWeight: 800, fontSize: '24px', color: 'var(--text-color)' }}>Quamon</span>
           </div>
 
