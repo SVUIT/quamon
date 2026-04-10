@@ -1,10 +1,6 @@
-// next.config.mjs
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   distDir: './.next',
-  turbopack: {
-    root: process.cwd(),
-  },
   reactStrictMode: false, // Disabled to prevent double-rendering in development
   compiler: {
     reactRemoveProperties: {
@@ -18,7 +14,7 @@ const nextConfig = {
   },
   compress: true,
   webpack: (config, { isServer, dev }) => {
-    // Optimize chunks for better code splitting
+    // Optimize chunks for better code splitting in production
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
         chunks: 'all',
@@ -41,23 +37,8 @@ const nextConfig = {
             chunks: 'all',
             reuseExistingChunk: true,
           },
-          styles: {
-            name: 'styles',
-            test: /\.css$/,
-            chunks: 'all',
-            enforce: true,
-          },
         },
       };
-      
-      // Optimize CSS extraction
-      const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-      config.plugins.push(
-        new MiniCssExtractPlugin({
-          filename: 'static/css/[contenthash].css',
-          chunkFilename: 'static/css/[contenthash].css',
-        })
-      );
     }
     return config;
   },
