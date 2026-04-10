@@ -1,29 +1,28 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   distDir: './.next',
-  reactStrictMode: false, // Disabled to prevent double-rendering in development
+  reactStrictMode: false,
+
+  turbopack: {},
+
   compiler: {
     reactRemoveProperties: {
       properties: ['^crxlauncher$'],
     },
   },
+
   experimental: {
-    // Helps with some hydration issues in development
     optimizeCss: true,
     optimizePackageImports: ['react', 'react-dom'],
   },
+
   compress: true,
+
   webpack: (config, { isServer, dev }) => {
-    // Optimize chunks for better code splitting in production
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
         chunks: 'all',
         cacheGroups: {
-          default: {
-            minChunks: 2,
-            priority: -20,
-            reuseExistingChunk: true,
-          },
           vendor: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
@@ -34,14 +33,15 @@ const nextConfig = {
             name: 'common',
             minChunks: 2,
             priority: -20,
-            chunks: 'all',
             reuseExistingChunk: true,
+            chunks: 'all',
           },
         },
       };
     }
     return config;
   },
+
   async headers() {
     return [
       {
