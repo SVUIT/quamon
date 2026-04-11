@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import ThemeToggle from '../ThemeToggle/ThemeToggle';
-import GpaScaleSelector from '../GpaScaleSelector/GpaScaleSelector';
 import type { TabType } from '../../pages/Home';
 import GitHubStats from './GitHubStats';
 
@@ -9,8 +8,6 @@ interface NavbarProps {
   toggleTheme: () => void;
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
-  gpaScale?: "10" | "4" | "100";
-  setGpaScale?: (scale: "10" | "4" | "100") => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({
@@ -18,8 +15,6 @@ const Navbar: React.FC<NavbarProps> = ({
   toggleTheme,
   activeTab,
   setActiveTab,
-  gpaScale = "10",
-  setGpaScale,
 }) => {
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -44,11 +39,6 @@ const Navbar: React.FC<NavbarProps> = ({
       transform: isMobile ? 'scale(0.75)' : 'none',
       transformOrigin: isMobile ? 'right center' : 'center'
     }}>
-      <GpaScaleSelector 
-        currentScale={gpaScale} 
-        onScaleChange={setGpaScale || (() => {})}
-        style={{ marginRight: isMobile ? '8px' : '15px' }}
-      />
       <GitHubStats />
       <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
     </div>
