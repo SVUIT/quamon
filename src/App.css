@@ -1,3 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
 html,
 body {
   height: 100%;
@@ -17,22 +30,22 @@ html {
 /* ================== CSS VARIABLES & THEMING ================== */
 :root {
   /* Default Dark Mode */
-  --bg-body: #27262B;
-  --bg-container: #27262B;
+  --bg-body: #27262b;
+  --bg-container: #27262b;
   --text-color: #ffffff;
   --border-color: #515058;
-  --primary-purple: #2C84FA;
+  --primary-purple: #2c84fa;
   --header-text: #ffffff;
-  --dropdown-bg: #2B2D31;
-  --dropdown-item-hover: #3F3F46;
-  --input-bg: #302D36;
+  --dropdown-bg: #2b2d31;
+  --dropdown-item-hover: #3f3f46;
+  --input-bg: #302d36;
   --modal-bg: #1e1e1e;
   --text-muted: #999;
   --dropdown-border: #454545;
-  --tab-inactive: #3F3F46;
-  --form-card-bg: #27262B; 
+  --tab-inactive: #3f3f46;
+  --form-card-bg: #27262b;
   --form-input-white: #3f3f46;
-  --success-green: #22C55E;
+  --success-green: #22c55e;
 }
 
 .light-mode {
@@ -40,25 +53,27 @@ html {
   --bg-body: #ffffff;
   --bg-container: #ffffff;
   --text-color: #000000;
-  --border-color: #C1C1C1;
-  --primary-purple: #7253ED;
+  --border-color: #c1c1c1;
+  --primary-purple: #7253ed;
   --header-text: #ffffff;
   --dropdown-bg: #f5f5f5;
   --dropdown-item-hover: #e0e0e0;
-  --input-bg: #F5F6FA;
+  --input-bg: #f5f6fa;
   --modal-bg: #ffffff;
   --text-muted: #555;
   --dropdown-border: #ccc;
   --tab-inactive: #e0e0e0;
   --form-card-bg: #fff;
   --form-input-white: #e0e0e0;
-  --success-green: #16A34A;
+  --success-green: #16a34a;
 }
 
 body {
   background-color: var(--bg-body) !important;
   color: var(--text-color);
-  transition: background-color 0.3s, color 0.3s;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
   overflow-x: hidden;
   height: 100%;
   margin: 0;
@@ -87,17 +102,17 @@ body {
 
 .form-section-card {
   background: var(--form-card-bg);
-  border: 1px solid var(--border-color); 
+  border: 1px solid var(--border-color);
   padding: 24px;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  color: #fff; 
+  color: #fff;
   box-sizing: border-box;
 }
 
 .light-mode .form-section-card {
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .form-label {
@@ -133,7 +148,6 @@ body {
   box-shadow: 0 0 0 2px var(--primary-purple);
 }
 
-
 .input-error {
   border: 2px solid #ff4d4f;
 }
@@ -141,7 +155,6 @@ body {
 .input-error:focus {
   box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.3);
 }
-
 
 .weights-grid {
   display: grid;
@@ -181,7 +194,9 @@ body {
   font-weight: 800;
   font-size: 1.1rem;
   cursor: pointer;
-  transition: transform 0.1s, opacity 0.2s;
+  transition:
+    transform 0.1s,
+    opacity 0.2s;
 }
 
 .btn-submit-form:hover {
@@ -198,7 +213,6 @@ body.light-mode {
   background-color: #ffffff !important;
 }
 
-
 .app-root {
   min-height: 100%;
   display: flex;
@@ -211,11 +225,11 @@ body.light-mode {
 }
 
 .footer-icon {
-  fill: #2C84FA;
+  fill: #2c84fa;
 }
 
 .light-mode .footer-icon {
-  fill: #7253ED; /* Light mode color */
+  fill: #7253ed; /* Light mode color */
 }
 
 .navbar-logo {
@@ -242,7 +256,7 @@ body.light-mode {
   width: 100%;
   margin: 0 auto;
   /* Responsive Padding: Increased significantly for "breathing room" */
-  padding: 40px 15% 40px 15%; 
+  padding: 40px 15% 40px 15%;
   flex: 1;
   box-sizing: border-box;
   position: relative;
@@ -268,13 +282,28 @@ body.light-mode {
 }
 
 /* Utilities */
-.text-white { color: #ffffff !important; }
-.text-normal { color: var(--text-color); }
-.score-over-10 { color: #FF4D4F; font-weight: bold; }
-.light-mode .score-over-10 { color: #CF1322; }
-.text-gray { color: #888; }
-.cursor-not-allowed { cursor: not-allowed; }
-.text-exempt { color: var(--success-green) !important; }
+.text-white {
+  color: #ffffff !important;
+}
+.text-normal {
+  color: var(--text-color);
+}
+.score-over-10 {
+  color: #ff4d4f;
+  font-weight: bold;
+}
+.light-mode .score-over-10 {
+  color: #cf1322;
+}
+.text-gray {
+  color: #888;
+}
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+.text-exempt {
+  color: var(--success-green) !important;
+}
 
 /* ... (giữ nguyên phần còn lại) */
 
@@ -317,8 +346,8 @@ body.light-mode {
   align-items: center;
   justify-content: center;
 
-  padding: 0 12px;        /* ❗ bỏ padding top/bottom */
-  line-height: 1;         /* ❗ RẤT QUAN TRỌNG */
+  padding: 0 12px; /* ❗ bỏ padding top/bottom */
+  line-height: 1; /* ❗ RẤT QUAN TRỌNG */
   font-size: 14px;
   font-weight: bold;
 
@@ -326,7 +355,6 @@ body.light-mode {
   box-sizing: border-box;
   white-space: nowrap;
 }
-
 
 .light-mode .tab-button:hover:not(.active) {
   background: rgba(0, 0, 0, 0.05);
@@ -375,7 +403,7 @@ body.light-mode {
   padding: 15px;
   border-radius: 8px;
   margin: 15px 0;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: "Courier New", Courier, monospace;
   font-weight: bold;
   text-align: center;
   color: var(--primary-purple);
@@ -400,14 +428,20 @@ body.light-mode {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Table Wrapper */
 .table-wrapper {
   width: 100%;
-  overflow-x: visible; 
+  overflow-x: visible;
   padding-bottom: 10px;
   border-radius: 6px;
 }
@@ -415,7 +449,7 @@ body.light-mode {
 /* Navbar & Footer */
 .navbar {
   background: var(--bg-container);
-  padding: 12px 15%; 
+  padding: 12px 15%;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-color);
   position: sticky;
@@ -426,7 +460,7 @@ body.light-mode {
 }
 
 .light-mode .navbar {
-    background: rgb(255, 255, 255);
+  background: rgb(255, 255, 255);
 }
 
 .footer {
@@ -434,13 +468,13 @@ body.light-mode {
   border-top: 1px solid #4f4f4f;
   margin-top: auto; /* Push to bottom */
   padding: 40px 20px;
-  
+
   /* Flex settings for Centered Column Layout */
   display: flex;
   flex-direction: column; /* Stack items vertically */
-  align-items: center;    /* Center items horizontally */
+  align-items: center; /* Center items horizontally */
   justify-content: center;
-  gap: 24px;              /* Consistent spacing between Title, Links, Icons, etc. */
+  gap: 24px; /* Consistent spacing between Title, Links, Icons, etc. */
 }
 
 /* New specific classes for footer elements to ensure layout robustness */
@@ -458,15 +492,15 @@ body.light-mode {
 }
 
 .light-mode .footer {
-    background: #fff;
-    border-top: 1px solid #ccc;
+  background: #fff;
+  border-top: 1px solid #ccc;
 }
 .light-mode .footer h2,
 .light-mode .footer a {
-    color: #333 !important;
+  color: #333 !important;
 }
 .light-mode .footer a:hover {
-    color: var(--primary-purple) !important;
+  color: var(--primary-purple) !important;
 }
 
 /* Header centering */
@@ -491,17 +525,32 @@ body.light-mode {
   table-layout: fixed; /* Keep fixed to respect col widths */
   font-size: 14px;
   /* Removed min-width: 800px to prevent overflow on smaller laptops/tablets */
-  min-width: auto; 
+  min-width: auto;
 }
 
 /* Column Widths */
-.col-stt { width: 40px; }
-.col-mahp { width: 80px; }
-.col-tenhp { width: 25%; min-width: 150px; } /* Slightly reduced min-width */
-.col-tc { width: 50px; }
-.col-score { width: 60px; }
-.col-diemhp { width: 80px; }
-.col-expected { width: 90px; }
+.col-stt {
+  width: 40px;
+}
+.col-mahp {
+  width: 80px;
+}
+.col-tenhp {
+  width: 25%;
+  min-width: 150px;
+} /* Slightly reduced min-width */
+.col-tc {
+  width: 50px;
+}
+.col-score {
+  width: 60px;
+}
+.col-diemhp {
+  width: 80px;
+}
+.col-expected {
+  width: 90px;
+}
 
 .grade-table th {
   border-right: 1px solid var(--border-color);
@@ -514,8 +563,13 @@ body.light-mode {
   font-weight: 600;
 }
 
-.grade-table th:first-child { border-top-left-radius: 5px; }
-.grade-table th:last-child { border-top-right-radius: 5px; border-right: none; }
+.grade-table th:first-child {
+  border-top-left-radius: 5px;
+}
+.grade-table th:last-child {
+  border-top-right-radius: 5px;
+  border-right: none;
+}
 
 .grade-table td {
   border-right: 1px solid var(--border-color);
@@ -525,9 +579,12 @@ body.light-mode {
   color: var(--text-color);
 }
 
-
-.grade-table td:last-child { border-right: none; }
-.grade-table tr:last-child td { border-bottom: none; }
+.grade-table td:last-child {
+  border-right: none;
+}
+.grade-table tr:last-child td {
+  border-bottom: none;
+}
 
 /* Semester Rows */
 .semester-bg {
@@ -558,7 +615,7 @@ body.light-mode {
 }
 
 .btn-add {
-  color: #8C8C8C;
+  color: #8c8c8c;
   margin-left: 10px;
 }
 
@@ -578,8 +635,8 @@ body.light-mode {
   outline: none;
   background: transparent;
   color: var(--text-color);
-  white-space: normal; 
-  overflow-wrap: break-word; 
+  white-space: normal;
+  overflow-wrap: break-word;
   cursor: pointer;
   min-height: 24px;
   line-height: 1.2;
@@ -587,15 +644,13 @@ body.light-mode {
   align-items: center;
 }
 
-
 .editable-cell-multiline {
   white-space: normal;
   overflow-wrap: break-word;
   display: flex;
-  align-items: center; 
+  align-items: center;
   min-height: 24px;
 }
-
 
 /* Special styling for Expected Score */
 .expected-score-cell {
@@ -671,8 +726,12 @@ body.light-mode {
 .toggle-icon-placeholder {
   font-size: 14px;
 }
-.theme-toggle-container.dark .toggle-icon-placeholder.left { opacity: 0.5; }
-.theme-toggle-container.light .toggle-icon-placeholder.right { opacity: 0.5; }
+.theme-toggle-container.dark .toggle-icon-placeholder.left {
+  opacity: 0.5;
+}
+.theme-toggle-container.light .toggle-icon-placeholder.right {
+  opacity: 0.5;
+}
 
 .theme-toggle-circle {
   position: absolute;
@@ -686,7 +745,7 @@ body.light-mode {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .theme-toggle-container.dark .theme-toggle-circle {
@@ -694,14 +753,31 @@ body.light-mode {
 }
 
 /* Utilities */
-.text-white { color: #ffffff !important; }
-.text-normal { color: var(--text-color); }
-.score-over-10 { color: #FF4D4F; font-weight: bold; } /* Default/Dark Mode Red (High Contrast on Dark) */
-.light-mode .score-over-10 { color: #CF1322; } /* Light Mode Red (High Contrast on White) */
-.text-yellow { color: yellow; }
-.light-mode .text-yellow { color: #3915c9; }
-.text-gray { color: #888; }
-.cursor-not-allowed { cursor: not-allowed; }
+.text-white {
+  color: #ffffff !important;
+}
+.text-normal {
+  color: var(--text-color);
+}
+.score-over-10 {
+  color: #ff4d4f;
+  font-weight: bold;
+} /* Default/Dark Mode Red (High Contrast on Dark) */
+.light-mode .score-over-10 {
+  color: #cf1322;
+} /* Light Mode Red (High Contrast on White) */
+.text-yellow {
+  color: yellow;
+}
+.light-mode .text-yellow {
+  color: #3915c9;
+}
+.text-gray {
+  color: #888;
+}
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
 
 [data-placeholder]:empty:before {
   content: attr(data-placeholder);
@@ -735,15 +811,19 @@ body.light-mode {
 }
 
 .search-input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: var(--input-bg);
-    border-radius: 6px;
-    padding: 0 8px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--input-bg);
+  border-radius: 6px;
+  padding: 0 8px;
 }
 
-.search-icon { color: #A1A1AA; min-width: 14px; margin-right: 6px; }
+.search-icon {
+  color: #a1a1aa;
+  min-width: 14px;
+  margin-right: 6px;
+}
 
 .dropdown-input {
   width: 100%;
@@ -754,9 +834,14 @@ body.light-mode {
   outline: none;
   font-size: 13px;
 }
-.dropdown-input::placeholder { color: #A1A1AA; }
+.dropdown-input::placeholder {
+  color: #a1a1aa;
+}
 
-.dropdown-content { overflow-y: auto; max-height: 350px; }
+.dropdown-content {
+  overflow-y: auto;
+  max-height: 350px;
+}
 
 .category-header {
   padding: 8px 12px;
@@ -770,11 +855,19 @@ body.light-mode {
   align-items: center;
   user-select: none;
 }
-.category-header:hover { background: rgba(255, 255, 255, 0.05); }
-.light-mode .category-header:hover { background: rgba(0, 0, 0, 0.05); }
+.category-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+.light-mode .category-header:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
 
-.subject-list { background: rgba(0, 0, 0, 0.2); }
-.light-mode .subject-list { background: rgba(0, 0, 0, 0.03); }
+.subject-list {
+  background: rgba(0, 0, 0, 0.2);
+}
+.light-mode .subject-list {
+  background: rgba(0, 0, 0, 0.03);
+}
 
 .subject-item {
   padding: 8px 12px 8px 20px;
@@ -790,8 +883,15 @@ body.light-mode {
   background: var(--dropdown-item-hover);
   border-left: 2px solid var(--primary-purple);
 }
-.subject-code { font-weight: 700; min-width: 45px; color: var(--text-color); }
-.subject-name { color: var(--text-color); opacity: 0.9; }
+.subject-code {
+  font-weight: 700;
+  min-width: 45px;
+  color: var(--text-color);
+}
+.subject-name {
+  color: var(--text-color);
+  opacity: 0.9;
+}
 
 .pdf-import-btn {
   background-color: var(--primary-purple);
@@ -809,37 +909,53 @@ body.light-mode {
 
 /* ================= RESPONSIVE ================= */
 @media (min-width: 1280px) {
-  .app-container { padding: 40px 8% 40px 8%; }
-  .navbar { padding: 12px 8%; }
-
+  .app-container {
+    padding: 40px 8% 40px 8%;
+  }
+  .navbar {
+    padding: 12px 8%;
+  }
 }
 
 @media (max-width: 1024px) {
   /* Tablet/Small Desktop: Reduce padding significantly to fit the table */
   /* Reduced bottom padding to 0 to bring footer closer */
-  .app-container { padding: 30px 40px 80px 40px; } /* Tăng padding-bottom lên 80px */
-  .navbar { padding: 15px 40px; }
-  .footer { 
+  .app-container {
+    padding: 30px 40px 80px 40px;
+  } /* Tăng padding-bottom lên 80px */
+  .navbar {
+    padding: 15px 40px;
+  }
+  .footer {
     padding: 30px 15px;
     /* text-align center inherited from main .footer */
   }
 
-
-  
   /* Remove table wrapper padding to reduce gap further */
-  .table-wrapper { padding-bottom: 0; }
+  .table-wrapper {
+    padding-bottom: 0;
+  }
 
   /* COMPACT COLUMNS FOR TABLET: Shrink widths to prevent overflow */
-  .col-mahp { width: 70px; }
-  .col-score { width: 45px; } /* 4 cols * 45 = 180px */
-  .col-diemhp { width: 65px; }
-  .col-expected { width: 75px; }
+  .col-mahp {
+    width: 70px;
+  }
+  .col-score {
+    width: 45px;
+  } /* 4 cols * 45 = 180px */
+  .col-diemhp {
+    width: 65px;
+  }
+  .col-expected {
+    width: 75px;
+  }
   /* Allow TenHP to shrink a bit more but keep it readable */
-  .col-tenhp { min-width: 120px; }
+  .col-tenhp {
+    min-width: 120px;
+  }
 }
 
 @media (max-width: 768px) {
-
   .navbar-logo img {
     width: 32px;
     height: 32px;
@@ -850,17 +966,17 @@ body.light-mode {
   }
 
   /* Tablet Portrait: Smaller padding */
-  .app-container { 
+  .app-container {
     /* Reduced padding to 10px on both sides to prevent 'short' look and maximize space */
-    padding: 20px 10px 50px 10px; 
+    padding: 20px 10px 50px 10px;
   }
-  .navbar { 
-    padding: 10px 15px; 
+  .navbar {
+    padding: 10px 15px;
     flex-wrap: wrap;
     gap: 10px;
   }
-  .navbar-logo { 
-    order: 1; 
+  .navbar-logo {
+    order: 1;
     font-size: 16px !important;
     flex-shrink: 0;
   }
@@ -870,8 +986,8 @@ body.light-mode {
     font-size: 11px;
   }
 
-  .theme-toggle-container { 
-    order: 3; 
+  .theme-toggle-container {
+    order: 3;
     flex-shrink: 0;
     width: 48px;
     height: 24px;
@@ -882,45 +998,65 @@ body.light-mode {
     height: 18px;
   }
   .theme-toggle-container.dark .theme-toggle-circle {
-    left: 27px; 
+    left: 27px;
   }
 
-  .tab-navigation { 
-    order: 2; 
+  .tab-navigation {
+    order: 2;
     width: auto !important;
     gap: 4px;
     padding: 2px;
   }
 
-  .footer { 
-    padding: 30px 10px; 
+  .footer {
+    padding: 30px 10px;
     text-align: center !important;
   }
-  .app-container h1 { font-size: 2rem; margin-bottom: 20px; }
+  .app-container h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+  }
 
   /* Allow table to scroll internally */
   .table-wrapper {
     overflow-x: visible !important;
     padding-right: 0;
   }
-  
 
   /* Compact Columns for 768px range to ensure fit without scroll */
-  .col-stt { width: 30px; }
-  .col-mahp { width: 55px; }
-  .col-tenhp { min-width: 100px; }
-  .col-tc { width: 35px; }
-  .col-score { width: 35px; } 
-  .col-diemhp { width: 50px; }
-  .col-expected { width: 60px; }
+  .col-stt {
+    width: 30px;
+  }
+  .col-mahp {
+    width: 55px;
+  }
+  .col-tenhp {
+    min-width: 100px;
+  }
+  .col-tc {
+    width: 35px;
+  }
+  .col-score {
+    width: 35px;
+  }
+  .col-diemhp {
+    width: 50px;
+  }
+  .col-expected {
+    width: 60px;
+  }
 
-  .grade-table th, .grade-table td {
+  .grade-table th,
+  .grade-table td {
     padding: 6px 4px; /* Reduced padding */
     font-size: 11px; /* Smaller font */
   }
-  
+
   /* Adjust inputs font size */
-  .editable-cell, .score-content, .expected-score-cell, input {
+  .editable-cell,
+  .score-content,
+  .expected-score-cell,
+  input {
     font-size: 11px;
   }
 
@@ -928,7 +1064,6 @@ body.light-mode {
     font-size: 14px;
     padding: 8px 14px;
   }
-
 }
 
 /* MOBILE FIT SCREEN - AGGRESSIVE RESIZING */
@@ -954,29 +1089,31 @@ body.light-mode {
     font-size: 13px;
   }
 
-  .app-container { 
+  .app-container {
     /* Balanced Padding for Mobile - Symmetric and enough for dots */
-    padding: 10px 12px 10px 12px !important; 
+    padding: 10px 12px 10px 12px !important;
     width: 100%;
     overflow-x: hidden;
   }
-  
+
   /* Remove wrapper padding */
-  .table-wrapper { 
+  .table-wrapper {
     padding-bottom: 0;
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch;
- }
-  
+  }
+
   /* Navbar Smaller */
-  .navbar { 
-    font-size: 12px !important; 
-    padding: 8px 12px !important; 
+  .navbar {
+    font-size: 12px !important;
+    padding: 8px 12px !important;
     min-height: 40px;
   }
-  
-  .navbar-logo { font-size: 16px !important; }
-  
+
+  .navbar-logo {
+    font-size: 16px !important;
+  }
+
   /* Make Toggle Button Smaller on Mobile */
   .theme-toggle-container {
     width: 42px;
@@ -996,8 +1133,11 @@ body.light-mode {
   .row-action-dots {
     right: -26px;
   }
-  
-  .app-container h1 { font-size: 1.2rem; margin-bottom: 10px; }
+
+  .app-container h1 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
 
   /* 
      On mobile, force table to be slightly narrower than container 
@@ -1010,9 +1150,10 @@ body.light-mode {
     font-size: 13px !important;
   }
 
-  .grade-table th, .grade-table td {
+  .grade-table th,
+  .grade-table td {
     font-size: 10px !important;
-    padding: 6px 6px !important;  
+    padding: 6px 6px !important;
   }
 
   /* Reduce font size for buttons and summary labels on mobile */
@@ -1020,58 +1161,83 @@ body.light-mode {
     font-size: 9px !important; /* Reduced from 9px */
     padding: 1px 3px !important;
   }
-  .btn-add { margin-left: 5px !important; }
-  .btn-delete { margin-left: 2px !important; }
+  .btn-add {
+    margin-left: 5px !important;
+  }
+  .btn-delete {
+    margin-left: 2px !important;
+  }
 
-  .semester-header-td { padding-left: 2px !important; }
-  
+  .semester-header-td {
+    padding-left: 2px !important;
+  }
+
   /* Semester Title - Smaller */
-  .semester-title span { 
+  .semester-title span {
     font-size: 10px !important; /* Reduced from 10px */
-    font-weight: 700; 
+    font-weight: 700;
   }
 
   /* Summary Labels - Prevent wrapping/Small size */
   .summary-label {
-  display: table-cell;    
-  vertical-align: middle; 
-  line-height: normal;        
-  font-size: 7px !important;  
-}
-  
-.label-content {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
+    display: table-cell;
+    vertical-align: middle;
+    line-height: normal;
+    font-size: 7px !important;
+  }
+
+  .label-content {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 
   /* Ultra-compact columns for Mobile */
-  .col-stt { width: 40px !important; }
-  .col-mahp { width: 80px !important; }
-  .col-tc { width: 50px !important; }
-  .col-score { width: 60px !important; }
-  .col-diemhp { width: 80px !important; }
-  .col-expected { width: 90px !important; }
-  .col-tenhp { min-width: 200px !important; }
-  
+  .col-stt {
+    width: 40px !important;
+  }
+  .col-mahp {
+    width: 80px !important;
+  }
+  .col-tc {
+    width: 50px !important;
+  }
+  .col-score {
+    width: 60px !important;
+  }
+  .col-diemhp {
+    width: 80px !important;
+  }
+  .col-expected {
+    width: 90px !important;
+  }
+  .col-tenhp {
+    min-width: 200px !important;
+  }
+
   /* Name column takes remaining space */
-  .col-tenhp { 
-    width: auto; 
-    min-width: 50px; 
+  .col-tenhp {
+    width: auto;
+    min-width: 50px;
   }
 
   /* Text Sizes */
-  .editable-cell, .score-content, .expected-score-cell, input {
+  .editable-cell,
+  .score-content,
+  .expected-score-cell,
+  input {
     font-size: 10px; /* Reduced from 9px */
     min-height: 14px;
   }
-  
+
   /* Placeholders smaller */
-  [data-placeholder]:empty:before { font-size: 8px; }
+  [data-placeholder]:empty:before {
+    font-size: 8px;
+  }
 
   /* Footer smaller */
-  .footer { 
-    padding: 10px 5px !important; 
+  .footer {
+    padding: 10px 5px !important;
     font-size: 10px !important;
     gap: 15px !important; /* Reduced from 24px */
   }
@@ -1085,11 +1251,16 @@ body.light-mode {
   }
 
   /* Override Tailwind Font Sizes in Footer */
-  .footer h2 { font-size: 12px !important; margin: 0; }
-  .footer a { font-size: 10px !important; }
+  .footer h2 {
+    font-size: 12px !important;
+    margin: 0;
+  }
+  .footer a {
+    font-size: 10px !important;
+  }
 
   .dropdown-menu {
-    min-width: 140px !important; 
+    min-width: 140px !important;
     max-width: 240px !important;
   }
 
@@ -1142,7 +1313,6 @@ body.light-mode {
     text-align: center;
     font-size: 9px;
   }
-  
 
   .pdf-import-wrapper {
     justify-content: center !important;
