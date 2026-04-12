@@ -1,29 +1,32 @@
 // next.config.mjs
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  distDir: './.next',
+  distDir: "./.next",
   reactStrictMode: false, // Disabled to prevent double-rendering in development
   compiler: {
     reactRemoveProperties: {
-      properties: ['^crxlauncher$'],
+      properties: ["^crxlauncher$"],
     },
   },
   experimental: {
     // Helps with some hydration issues in development
-    optimizeCss: true,
+    optimizeCss: false,
   },
   async headers() {
     return [
       {
-        source: '/api/:path*',
+        source: "/api/:path*",
         headers: [
-          { key: 'Access-Control-Allow-Credentials', value: 'true' },
-          { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT' },
+          { key: "Access-Control-Allow-Credentials", value: "true" },
+          { key: "Access-Control-Allow-Origin", value: "*" },
           {
-            key: 'Access-Control-Allow-Headers',
+            key: "Access-Control-Allow-Methods",
+            value: "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+          },
+          {
+            key: "Access-Control-Allow-Headers",
             value:
-              'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version',
+              "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
           },
         ],
       },
