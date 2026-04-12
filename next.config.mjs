@@ -11,7 +11,7 @@ const nextConfig = {
   },
   experimental: {
     // Helps with some hydration issues in development
-    optimizeCss: false,
+    optimizeCss: true,
     optimizePackageImports: ["react", "react-dom"],
   },
   compress: true,
