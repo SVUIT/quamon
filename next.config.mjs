@@ -2,6 +2,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   distDir: "./.next",
+  turbopack: {}, // Empty config to use Turbopack with default settings
   reactStrictMode: false, // Disabled to prevent double-rendering in development
   compiler: {
     reactRemoveProperties: {
@@ -10,7 +11,38 @@ const nextConfig = {
   },
   experimental: {
     // Helps with some hydration issues in development
-    optimizeCss: false,
+    optimizeCss: true,
+    optimizePackageImports: ["react", "react-dom"],
+  },
+  compress: true,
+  webpack: (config, { isServer, dev }) => {
+    // Optimize chunks for better code splitting in production
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        chunks: "all",
+        cacheGroups: {
+          default: {
+            minChunks: 2,
+            priority: -20,
+            reuseExistingChunk: true,
+          },
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: "vendors",
+            priority: -10,
+            chunks: "all",
+          },
+          common: {
+            name: "common",
+            minChunks: 2,
+            priority: -20,
+            chunks: "all",
+            reuseExistingChunk: true,
+          },
+        },
+      };
+    }
+    return config;
   },
   async headers() {
     return [

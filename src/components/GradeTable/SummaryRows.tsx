@@ -211,7 +211,7 @@ const SummaryRows: React.FC<SummaryRowsProps> = ({
                   // Chỉ cập nhật môn chưa có đủ điểm VÀ chưa được người dùng nhập
                   if (!hasAll && !sub.isExpectedManual) {
                     sub.expectedScore = requiredAvg.toFixed(2);
-                    const required = calcRequiredScores(sub, requiredAvg);
+                    const required = calcRequiredScores(sub, requiredAvg, gpaScale);
                     Object.entries(required).forEach(([field, value]) => {
                       (sub as any)[field] = value;
                     });

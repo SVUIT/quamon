@@ -3,6 +3,7 @@ import type { Semester, Course, GpaScale } from "../../types";
 import SemesterBlock from "./SemesterBlock";
 import AddSemesterRow from "./AddSemesterRow";
 import SummaryRows from "./SummaryRows";
+import GpaScaleSelector from "../GpaScaleSelector/GpaScaleSelector";
 
 interface GradeTableProps {
   semesters: Semester[];
@@ -12,6 +13,7 @@ interface GradeTableProps {
   isCumulativeManual: boolean;
   setIsCumulativeManual: (value: boolean) => void;
   gpaScale: GpaScale;
+  setGpaScale: (scale: GpaScale) => void;
   updateSubjectField: (s: number, i: number, f: string, v: string) => void;
   updateSubjectExpectedScore: (s: number, i: number, v: string) => void; 
   deleteSemester: (id: string) => void;
@@ -51,6 +53,7 @@ const GradeTable: React.FC<GradeTableProps> = ({
   isCumulativeManual,
   setIsCumulativeManual,
   gpaScale,
+  setGpaScale,
   updateSubjectField,
   updateSubjectExpectedScore, 
   deleteSemester,
@@ -80,7 +83,22 @@ const GradeTable: React.FC<GradeTableProps> = ({
   };
 
   return (
-    <table className="grade-table">
+    <>
+      {/* GPA Scale Selector */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'flex-end', 
+        alignItems: 'center',
+        marginBottom: '16px',
+        padding: '0 8px'
+      }}>
+        <GpaScaleSelector 
+          currentScale={gpaScale} 
+          onScaleChange={setGpaScale}
+        />
+      </div>
+      
+      <table className="grade-table">
       {/* Column definitions */}
       <colgroup>
         <col className="col-stt" />
@@ -157,6 +175,7 @@ const GradeTable: React.FC<GradeTableProps> = ({
         />
       </tbody>
     </table>
+    </>
   );
 };
 

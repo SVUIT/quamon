@@ -172,7 +172,7 @@ const Navbar: React.FC<NavbarProps> = ({
             <img
               src={logoSrc}
               alt="Quamon Logo"
-              style={{ height: 42, marginRight: 12 }}
+              style={{ width: 42, height: 42, marginRight: 12 }}
             />
             <span
               style={{

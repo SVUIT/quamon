@@ -153,7 +153,7 @@ export const calcSubjectScore = (subj: Partial<Subject>, scale: GpaScale = "10")
 };
 
 
-export const calcSemesterAverage = (subjects: Subject[]) => {
+export const calcSemesterAverage = (subjects: Subject[], scale: GpaScale = "10") => {
   let totalTC = 0;
   let totalScore = 0;
 
@@ -163,7 +163,7 @@ export const calcSemesterAverage = (subjects: Subject[]) => {
       return;
     }
 
-    const hp = Number(calcSubjectScore(sub, "10"));
+    const hp = Number(calcSubjectScore(sub, scale));
     const tc = Number(sub.credits);
     if (!isNaN(hp) && !isNaN(tc)) {
       totalTC += tc;
@@ -172,7 +172,7 @@ export const calcSemesterAverage = (subjects: Subject[]) => {
   });
 
   if (totalTC === 0) return { tc: 0, avg: 0 };
-  return { tc: totalTC, avg: (totalScore / totalTC).toFixed(2) };
+  return { tc: totalTC, avg: convertGpaScale(totalScore / totalTC, "10", scale).toFixed(2) };
 };
 
 // ================== VALIDATE SCORE INPUT ======================

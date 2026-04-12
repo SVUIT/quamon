@@ -177,7 +177,7 @@ export const useGradeApp = () => {
       if (idx === skipIdx) {
         lockedPoints += (Number(sub.expectedScore) || 0) * cred;
       } else if (hasAllScores(sub)) {
-        lockedPoints += Number(calcSubjectScore(sub, "10")) * cred;
+        lockedPoints += Number(calcSubjectScore(sub, gpaScale)) * cred;
       } else if (sub.isExpectedManual && sub.expectedScore) {
         lockedPoints += Number(sub.expectedScore) * cred;
       } else {
@@ -225,7 +225,7 @@ export const useGradeApp = () => {
       sem.subjects.forEach((sub) => {
         const cred = Number(sub.credits) || 0;
         if (hasAllScores(sub)) {
-          semLocked += Number(calcSubjectScore(sub, "10")) * cred;
+          semLocked += Number(calcSubjectScore(sub, gpaScale)) * cred;
         } else if (sub.isExpectedManual && sub.expectedScore) {
           semLocked += Number(sub.expectedScore) * cred;
         } else {
@@ -342,7 +342,7 @@ export const useGradeApp = () => {
                 if (hasAll) {
                   // Môn đã có đủ điểm
                   lockedCredits += credits;
-                  lockedPoints += Number(calcSubjectScore(s, "10")) * credits;
+                  lockedPoints += Number(calcSubjectScore(s, gpaScale)) * credits;
                 } else if (s.isExpectedManual && s.expectedScore) {
                   // Môn có điểm kỳ vọng do người dùng nhập (bao gồm môn vừa nhập)
                   lockedCredits += credits;
@@ -415,7 +415,7 @@ export const useGradeApp = () => {
             
             if (hasAll) {
               lockedCredits += credits;
-              lockedPoints += Number(calcSubjectScore(sub, "10")) * credits;
+              lockedPoints += Number(calcSubjectScore(sub, gpaScale)) * credits;
             } else if (sub.isExpectedManual && sub.expectedScore) {
               lockedCredits += credits;
               lockedPoints += Number(sub.expectedScore) * credits;
