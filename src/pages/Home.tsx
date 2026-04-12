@@ -23,7 +23,6 @@ import {
 } from "../types";
 import { SUBJECTS_DATA } from "../constants";
 import { isExemptCourse } from "../utils/gradeUtils";
-import GpaScaleSelector from "../components/GpaScaleSelector/GpaScaleSelector";
 import GraduationCheck from "../components/GraduationCheck/GraduationCheck";
 
 export type TabType =
