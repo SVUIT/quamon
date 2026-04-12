@@ -5,24 +5,37 @@ interface GraduationResultProps {
   result: GraduationResultData;
 }
 
-export const GraduationResult: React.FC<GraduationResultProps> = ({ result }) => {
+export const GraduationResult: React.FC<GraduationResultProps> = ({
+  result,
+}) => {
   if (!result) return null;
 
   return (
     <div
-      className={`form-section-card mt-7.5 border-2 ${result.eligible ? "border-green-500 bg-green-50" : "border-red-500 bg-red-50"
-        }`}
+      className={`form-section-card mt-7.5 border-2 ${
+        result.eligible
+          ? "border-green-500 bg-green-50"
+          : "border-red-500 bg-red-50"
+      }`}
     >
-      <h2 className={`mt-0 ${result.eligible ? "text-green-600" : "text-red-600"}`}>
-        {result.eligible ? "🎉 ĐỦ ĐIỀU KIỆN TỐT NGHIỆP" : "⚠️ CHƯA ĐỦ ĐIỀU KIỆN"}
+      <h2
+        className={`mt-0 ${result.eligible ? "text-green-600" : "text-red-600"}`}
+      >
+        {result.eligible
+          ? "🎉 ĐỦ ĐIỀU KIỆN TỐT NGHIỆP"
+          : "⚠️ CHƯA ĐỦ ĐIỀU KIỆN"}
       </h2>
 
       <div className="mt-4 flex flex-col gap-3 text-sm">
         <div>
-          <strong className={result.englishPassed ? "text-green-600" : "text-red-500"}>
+          <strong
+            className={result.englishPassed ? "text-green-600" : "text-red-500"}
+          >
             Ngoại ngữ:
           </strong>
-          <span className="ml-2 text-(--text-color)">{result.englishMsg}</span>
+          <span className="ml-2 text-[var(--text-color)]">
+            {result.englishMsg}
+          </span>
         </div>
 
         {result.generalIssues.length > 0 && (
@@ -38,7 +51,11 @@ export const GraduationResult: React.FC<GraduationResultProps> = ({ result }) =>
 
         <div>
           <strong
-            className={result.missingCredits.length === 0 ? "text-green-600" : "text-red-500"}
+            className={
+              result.missingCredits.length === 0
+                ? "text-green-600"
+                : "text-red-500"
+            }
           >
             Tín chỉ môn học:
           </strong>
@@ -68,12 +85,14 @@ export const GraduationResult: React.FC<GraduationResultProps> = ({ result }) =>
             - Đã hoàn thành nghĩa vụ học phí.
             <br />
             - Đạt điểm rèn luyện tích lũy tối thiểu là 50 điểm.
-            <br />
-            - Đã hoàn trả sách mượn cho Thư viện.
+            <br />- Đã hoàn trả sách mượn cho Thư viện.
           </p>
           <div className="bg-yellow-50 p-3 rounded-md border border-yellow-200 text-yellow-800 not-italic mt-2">
             <strong className="block mb-1">💡 Lưu ý:</strong>
-            Trường hợp sinh viên hoàn thành chương trình đào tạo sớm tiến độ vào HK1 và sẽ xét tốt nghiệp trong HK2, sinh viên vẫn sẽ cần phải đóng học phí của HK2 để được đăng ký xét tốt nghiệp và khoản tiền học phí này sẽ được hoàn trả.
+            Trường hợp sinh viên hoàn thành chương trình đào tạo sớm tiến độ vào
+            HK1 và sẽ xét tốt nghiệp trong HK2, sinh viên vẫn sẽ cần phải đóng
+            học phí của HK2 để được đăng ký xét tốt nghiệp và khoản tiền học phí
+            này sẽ được hoàn trả.
             <span className="text-yellow-600 text-[11px] block mt-1.5">
               - Nguồn tham khảo: sinh viên K17 khoa Mạng.
             </span>

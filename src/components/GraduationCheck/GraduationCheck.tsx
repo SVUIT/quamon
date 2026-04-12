@@ -17,7 +17,7 @@ Object.entries(SUBJECTS_DATA).forEach(([categoryName, courses]) => {
   });
 });
 
-console.log(courseToCategoryMap)
+console.log(courseToCategoryMap);
 
 export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
   const creditSummary = useMemo(() => {
@@ -56,7 +56,6 @@ export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
   });
 
   const [result, setResult] = useState<GraduationResultData | null>(null);
-
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -141,16 +140,29 @@ export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
     if (!form.completedMilitaryTraining)
       generalIssues.push("Chưa hoàn thành Giáo dục Quốc phòng (GDQP)");
 
-    const codes = semesters?.flatMap(sem => sem.subjects.map(subj => subj.courseCode.trim().toUpperCase())) || [];
-    const hasNT505 = codes.some(c => c.startsWith("NT505"));
-    const hasNT506 = codes.some(c => c.startsWith("NT506"));
-    const hasNT508 = codes.some(c => c.startsWith("NT508"));
-    const hasRequiredElective = codes.some(c => c.startsWith("NT332") || c.startsWith("NT539") || c.startsWith("NT541") || c.startsWith("NT544") || c.startsWith("NT548"));
+    const codes =
+      semesters?.flatMap((sem) =>
+        sem.subjects.map((subj) => subj.courseCode.trim().toUpperCase()),
+      ) || [];
+    const hasNT505 = codes.some((c) => c.startsWith("NT505"));
+    const hasNT506 = codes.some((c) => c.startsWith("NT506"));
+    const hasNT508 = codes.some((c) => c.startsWith("NT508"));
+    const hasRequiredElective = codes.some(
+      (c) =>
+        c.startsWith("NT332") ||
+        c.startsWith("NT539") ||
+        c.startsWith("NT541") ||
+        c.startsWith("NT544") ||
+        c.startsWith("NT548"),
+    );
 
-    const meetsGraduationPath = hasNT505 || hasNT506 || (hasNT508 && hasRequiredElective);
+    const meetsGraduationPath =
+      hasNT505 || hasNT506 || (hasNT508 && hasRequiredElective);
 
     if (!meetsGraduationPath) {
-      generalIssues.push(`Cần hoàn thành 1 trong các hình thức tốt nghiệp sau: Khóa luận tốt nghiệp, Đồ án thực tập tại doanh nghiệp và Đồ án tốt nghiệp + chuyên đề tốt nghiệp tự chọn`);
+      generalIssues.push(
+        `Cần hoàn thành 1 trong các hình thức tốt nghiệp sau: Khóa luận tốt nghiệp, Đồ án thực tập tại doanh nghiệp và Đồ án tốt nghiệp + chuyên đề tốt nghiệp tự chọn`,
+      );
     }
 
     const eligible =
@@ -175,9 +187,7 @@ export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
       <form onSubmit={checkEligibility} className="subject-form-layout">
         <div className="form-section-card">
           <label className="form-label">1. Tín chỉ tích lũy</label>
-          <p className="form-description">
-            Số tín chỉ tự động tính từ bảng điểm. Bạn có thể nhập đè nếu cần.
-          </p>
+
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="weight-item">
               <span className="weight-label">Đại cương </span>
@@ -284,7 +294,7 @@ export const GraduationCheck = ({ semesters }: { semesters: Semester[] }) => {
 
         <div className="form-section-card">
           <label className="form-label">3. Yêu cầu chung</label>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm text-(--text-color) mt-2">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm text-[var(--text-color)] mt-2">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
