@@ -24,10 +24,11 @@ const GpaScaleSelector: React.FC<GpaScaleSelectorProps> = ({
       setTimeout(() => setIsAnimating(false), 300);
     }
   }, [currentScale, previousScale]);
-  const scales: { value: GpaScale; label: string; description: string }[] = [
-    { value: "10", label: "Thang 10", description: "0-10 điểm" },
-    { value: "4", label: "Thang 4", description: "0-4 điểm" },
-    { value: "100", label: "Thang 100", description: "0-100 điểm" }
+  
+  const scales: { value: GpaScale; label: string; }[] = [
+    { value: "10", label: "Thang 10" },
+    { value: "4", label: "Thang 4"},
+    { value: "100", label: "Thang 100" }
   ];
 
   return (
@@ -68,7 +69,7 @@ const GpaScaleSelector: React.FC<GpaScaleSelectorProps> = ({
             type="button"
             onClick={() => onScaleChange(scale.value)}
             style={{
-              padding: "8px 16px",
+              padding: "4px 12px",
               border: "none",
               borderRadius: "8px",
               backgroundColor: currentScale === scale.value 
@@ -80,11 +81,10 @@ const GpaScaleSelector: React.FC<GpaScaleSelectorProps> = ({
               cursor: "pointer",
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
-              gap: "3px",
+              justifyContent: "center",
               minWidth: "70px",
-              minHeight: "44px",
+              minHeight: "30px",
               position: "relative",
               overflow: "hidden",
               transform: currentScale === scale.value && isAnimating ? "scale(1.05)" : "scale(1)",
@@ -104,15 +104,8 @@ const GpaScaleSelector: React.FC<GpaScaleSelectorProps> = ({
                 e.currentTarget.style.transform = "translateY(0) scale(1)";
               }
             }}
-            title={scale.description}
           >
             <span>{scale.label}</span>
-            <span style={{
-              fontSize: "10px",
-              opacity: 0.8
-            }}>
-              {scale.description}
-            </span>
           </button>
         ))}
       </div>

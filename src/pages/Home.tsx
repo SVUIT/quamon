@@ -508,7 +508,7 @@ export default function Home() {
                       position: 'absolute',
                       left: '1px',
                       top: '1px',
-                      height: '38px',
+                      height: '46px',
                       width: '50px',
                       borderRadius: '6px 0 0 6px',
                       border: 'none',
