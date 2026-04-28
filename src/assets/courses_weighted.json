@@ -1221,5 +1221,19 @@
       "finalTermWeight": 0.5
     }
   }
+,
+  {
+  "courseCode": "IT071",
+  "courseNameEn": "test",
+  "courseNameVi": "Môn test",
+  "courseType": "TN",
+  "credits": 4,
+  "defaultWeights": {
+    "progressWeight": 0.2,
+    "practiceWeight": 0.1,
+    "midtermWeight": 0.3,
+    "finalTermWeight": 0.4
+  },
+  "description": ""
+}
 ]
-
