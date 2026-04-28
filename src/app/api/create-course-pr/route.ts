@@ -7,7 +7,10 @@ const repo = process.env.GITHUB_REPO!;
 const baseBranch = process.env.GITHUB_BASE_BRANCH || "main";
 const filePath = "src/assets/courses_weighted.json";
 
-const privateKey = process.env.PRIVATE_KEY?.replace(/\\n/g, "\n");
+const privateKey = Buffer.from(
+  process.env.GITHUB_PRIVATE_KEY_BASE64!,
+  "base64"
+).toString("utf-8");
 
 if (!privateKey) {
   throw new Error("Missing PRIVATE_KEY");
