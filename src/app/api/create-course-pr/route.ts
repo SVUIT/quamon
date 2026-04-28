@@ -7,19 +7,19 @@ const repo = process.env.GITHUB_REPO!;
 const baseBranch = process.env.GITHUB_BASE_BRANCH || "main";
 const filePath = "src/assets/courses_weighted.json";
 
-const privateKey = process.env.PRIVATE_KEY?.replace(/\\n/g, "\n");
-
-if (!privateKey) {
-  throw new Error("Missing PRIVATE_KEY");
-}
-
-const app = new App({
-  appId: process.env.GITHUB_APP_ID!,
-  privateKey,
-  Octokit,
-});
-
 export async function POST(req: NextRequest) {
+  const privateKey = process.env.PRIVATE_KEY?.replace(/\\n/g, "\n");
+
+  if (!privateKey) {
+    console.warn("Missing PRIVATE_KEY - API route disabled");
+    return new Response("API route disabled - missing environment variables", { status: 503 });
+  }
+
+  const app = new App({
+    appId: process.env.GITHUB_APP_ID!,
+    privateKey,
+    Octokit,
+  });
   try {
     const { user, ...newCourse } = await req.json();
 
