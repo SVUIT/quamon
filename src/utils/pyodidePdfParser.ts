@@ -9,6 +9,7 @@ declare global {
 
 // Python code that will be executed in Pyodide
 const PYTHON_CODE = `
+!pip install pdfplumber
 import pdfplumber
 import io
 import json
