@@ -9,8 +9,12 @@ declare global {
 
 // Python code that will be executed in Pyodide
 const PYTHON_CODE = `
-!pip install pdfplumber
-import pdfplumber
+try:
+    import pdfplumber
+    HAS_PDFPLUMBER = True
+except ImportError:
+    HAS_PDFPLUMBER = False
+
 import io
 import json
 import base64
@@ -36,6 +40,12 @@ def main(context):
                 "success": False,
                 "error": "No file content received."
             }, 400)
+
+        if not HAS_PDFPLUMBER:
+            return context.res.json({
+                "success": False,
+                "error": "pdfplumber not available in Pyodide environment"
+            }, 500)
 
         with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
             all_tables = []
@@ -249,15 +259,8 @@ const initializePyodide = async (): Promise<any> => {
       indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
     });
 
-    // Try to load PDF processing package, fallback to basic approach if not available
-    console.log('Attempting to load pdfplumber package...');
-    try {
-      await pyodideInstance.loadPackage(['pdfplumber']);
-      console.log('pdfplumber loaded successfully');
-    } catch (error) {
-      console.warn('pdfplumber not available, using basic text processing approach');
-      // Continue without PDF library - will use a simplified approach
-    }
+    // Note: pdfplumber is not available in Pyodide, will use fallback approach
+    console.log('pdfplumber not available in Pyodide, using fallback approach');
     
     // Set up the Python code and ensure functions are in global scope
     console.log('Executing Python code...');
