@@ -249,12 +249,12 @@ const initializePyodide = async (): Promise<any> => {
     });
 
     // Try to load PDF processing package, fallback to basic approach if not available
-    console.log('Attempting to load pypdf package...');
+    console.log('Attempting to load pdfplumber package...');
     try {
-      await pyodideInstance.loadPackage(['pypdf']);
-      console.log('pypdf loaded successfully');
+      await pyodideInstance.loadPackage(['pdfplumber']);
+      console.log('pdfplumber loaded successfully');
     } catch (error) {
-      console.warn('pypdf not available, using basic text processing approach');
+      console.warn('pdfplumber not available, using basic text processing approach');
       // Continue without PDF library - will use a simplified approach
     }
     
