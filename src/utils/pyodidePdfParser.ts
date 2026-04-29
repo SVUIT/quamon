@@ -113,7 +113,7 @@ def parse_transcript(tables_data):
                 # Note: The mapping depends on exact column indices from the sample
                 course = {
                     "courseCode": row[1],
-                    "courseNameVi": row[2].replace('\n', ' ').strip(),
+                    "courseNameVi": row[2].replace('\\n', ' ').strip(),
                     "credits": float(row[3]) if row[3].replace('.','',1).isdigit() else 0,
                     "scores": {
                         "progressScore": _parse_score(row[4]),
