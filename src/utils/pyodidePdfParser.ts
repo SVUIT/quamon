@@ -318,16 +318,28 @@ export const parsePdfWithPyodide = async (file: File): Promise<ProcessedPdfData>
           headers: { get: () => 'application/pdf' }
         },
         res: {
-          json: (data: any, _status: any) => JSON.stringify(data),
-          text: (data: any, _status: any, _headers: any) => data
-        }
+          json: (data: any, _status: any) => {
+            // Store the response data to be returned
+            mockContext._response = data;
+            return data;
+          },
+          text: (data: any, _status: any, _headers: any) => {
+            // Store the response data to be returned
+            mockContext._response = data;
+            return data;
+          }
+        },
+        _response: null
       };
       
       // Set the context in Python globals
       pyodide.globals.set('context', mockContext);
       
       // Call the main function we defined earlier
-      const result = pyodide.runPython('main(context)');
+      pyodide.runPython('main(context)');
+      
+      // Check if the mock context has a response stored
+      const result = mockContext._response || '{}';
       
       // Parse the result
       console.log('Python result type:', typeof result);
@@ -354,8 +366,8 @@ export const parsePdfWithPyodide = async (file: File): Promise<ProcessedPdfData>
           console.error('JSON parse error:', parseError);
           throw new Error(`Failed to parse PDF result: ${parseError}`);
         }
-      } else if (result && typeof result === 'object' && result.success === false) {
-        throw new Error(result.error || 'PDF processing failed');
+      } else if (result && typeof result === 'object' && (result as any).success === false) {
+        throw new Error((result as any).error || 'PDF processing failed');
       } else {
         console.error('Unexpected result format:', result);
         throw new Error(`Unexpected response format from PDF parser. Type: ${typeof result}, Value: ${result}`);
