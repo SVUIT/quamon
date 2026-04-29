@@ -116,11 +116,11 @@ def parse_transcript(tables_data):
                     "courseNameVi": row[2].replace('\n', ' ').strip(),
                     "credits": float(row[3]) if row[3].replace('.','',1).isdigit() else 0,
                     "scores": {
-                        "progressScore": float(row[4]) if row[4] and row[4].replace('.','',1).isdigit() else None,
-                        "midtermScore": float(row[5]) if row[5] and row[5].replace('.','',1).isdigit() else None,
-                        "practiceScore": float(row[6]) if row[6] and row[6].replace('.','',1).isdigit() else None,
-                        "finaltermScore": float(row[7]) if row[7] and row[7].replace('.','',1).isdigit() else None,
-                        "totalScore": float(row[8]) if row[8] and row[8].replace('.','',1).isdigit() else None
+                        "progressScore": _parse_score(row[4]),
+                        "midtermScore": _parse_score(row[5]),
+                        "practiceScore": _parse_score(row[6]),
+                        "finalScore": _parse_score(row[7]),  # Fixed field name
+                        "totalScore": _parse_score(row[8])
                     },
                     "note": row[9] if len(row) > 9 else ""
                 }
@@ -172,6 +172,23 @@ def parse_transcript(tables_data):
                  if val:
                     transcript["cumulativeSummary"]["cumulativeGpa"] = float(val)
              except: pass
+
+def _parse_score(score_str):
+    """
+    Parse score from string to string format expected by frontend.
+    Returns empty string if score is missing or invalid.
+    """
+    if not score_str or not score_str.strip():
+        return ""
+    
+    score_str = score_str.strip()
+    
+    # Check if it's a valid number
+    if score_str.replace('.','',1).isdigit():
+        # Return as string, not as float
+        return score_str
+    
+    return ""
 
     return transcript
 `;
