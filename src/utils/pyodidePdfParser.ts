@@ -19,6 +19,8 @@ import io
 import json
 import base64
 
+from pyodide.ffi import create_proxy
+
 def main(context):
     """
     Extract tables from a PDF file.
