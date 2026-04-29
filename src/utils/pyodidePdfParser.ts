@@ -318,8 +318,8 @@ export const parsePdfWithPyodide = async (file: File): Promise<ProcessedPdfData>
           headers: { get: () => 'application/pdf' }
         },
         res: {
-          json: (data, status) => JSON.stringify(data),
-          text: (data, status, headers) => data
+          json: (data: any, status: any) => JSON.stringify(data),
+          text: (data: any, status: any, headers: any) => data
         }
       };
       
