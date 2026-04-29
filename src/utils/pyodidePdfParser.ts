@@ -9,43 +9,10 @@ declare global {
 
 // Python code that will be executed in Pyodide
 const PYTHON_CODE = `
+import pdfplumber
 import io
 import json
 import base64
-import re
-
-# Try to import pypdf, fallback to basic approach if not available
-try:
-    import pypdf
-    HAS_PYPDF = True
-except ImportError:
-    HAS_PYPDF = False
-
-def extract_pdf_text(pdf_bytes):
-    """Extract text from PDF using available method."""
-    if HAS_PYPDF:
-        try:
-            pdf_reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
-            all_text = ""
-            for page in pdf_reader.pages:
-                all_text += page.extract_text() + "\\n"
-            return all_text
-        except Exception as e:
-            print(f"pypdf extraction failed: {e}")
-    
-    # Fallback: try to extract raw text from PDF (very basic)
-    # This is a last resort - PDF text extraction is complex
-    try:
-        # Convert bytes to string and look for readable text patterns
-        text = pdf_bytes.decode('utf-8', errors='ignore')
-        # Look for patterns that might be Vietnamese text or numbers
-        readable_text = ""
-        for line in text.split('\\n'):
-            if any(c.isalnum() or c.isspace() for c in line) and len(line.strip()) > 3:
-                readable_text += line + "\\n"
-        return readable_text
-    except:
-        return ""
 
 def main(context):
     """
@@ -69,38 +36,13 @@ def main(context):
                 "error": "No file content received."
             }, 400)
 
-        # Extract text from PDF
-        text = extract_pdf_text(pdf_bytes)
-        
-        if not text.strip():
-            return context.res.json({
-                "success": False,
-                "error": "Could not extract text from PDF. The PDF might be image-based or encrypted."
-            }, 400)
-
-        # Parse the extracted text into table-like structures
-        all_tables = []
-        
-        # Split into lines and process
-        lines = text.split('\\n')
-        table_data = []
-        
-        for line in lines:
-            # Skip empty lines
-            if not line.strip():
-                continue
-                
-            # Try to split by multiple spaces to create table-like structure
-            cells = re.split(r'\\s{2,}', line.strip())
-            
-            # Filter out empty cells and clean up
-            cleaned_cells = [cell.strip() for cell in cells if cell.strip()]
-            
-            if len(cleaned_cells) > 1:  # Only keep rows with multiple cells
-                table_data.append(cleaned_cells)
-        
-        if table_data:
-            all_tables.append(table_data)
+        with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+            all_tables = []
+            for i, page in enumerate(pdf.pages):
+                tables = page.extract_tables()
+                if tables:
+                    # Append each table. A table is a list of rows (lists).
+                    all_tables.extend(tables)
         
         parsed_data = parse_transcript(all_tables)
 
@@ -135,7 +77,8 @@ def parse_transcript(tables_data):
     
     current_semester = None
     
-    # Flatten the list of tables to a single list of rows
+    # Flatten the list of lists of lists to a single list of rows
+    # The pdfplumber text extraction might result in headers sitting in their own rows
     rows = []
     for table in tables_data:
         for row in table:
@@ -170,7 +113,7 @@ def parse_transcript(tables_data):
                 # Note: The mapping depends on exact column indices from the sample
                 course = {
                     "courseCode": row[1],
-                    "courseNameVi": row[2].replace('\\n', ' ').strip(),
+                    "courseNameVi": row[2].replace('\n', ' ').strip(),
                     "credits": float(row[3]) if row[3].replace('.','',1).isdigit() else 0,
                     "scores": {
                         "progressScore": float(row[4]) if row[4] and row[4].replace('.','',1).isdigit() else None,
