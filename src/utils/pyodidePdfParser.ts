@@ -319,20 +319,14 @@ export const parsePdfWithPyodide = async (file: File): Promise<ProcessedPdfData>
           headers: { get: () => 'application/pdf' }
         },
         res: {
-          json: pyodide.runPython(`create_proxy(lambda data, status: None)`),
-          text: pyodide.runPython(`create_proxy(lambda data, status, headers: None)`)
+          json: pyodide.runPython(`
+            create_proxy(lambda data, status: globals().set('_response_data', data))
+          `),
+          text: pyodide.runPython(`
+            create_proxy(lambda data, status, headers: globals().set('_response_data', data))
+          `)
         },
         _response: null
-      };
-      
-      // Set up the actual response handlers by replacing the proxies
-      mockContext.res.json = (data: any, _status: any) => {
-        mockContext._response = data;
-        return data;
-      };
-      mockContext.res.text = (data: any, _status: any, _headers: any) => {
-        mockContext._response = data;
-        return data;
       };
       
       // Set the context in Python globals
@@ -341,8 +335,8 @@ export const parsePdfWithPyodide = async (file: File): Promise<ProcessedPdfData>
       // Call the main function we defined earlier
       pyodide.runPython('main(context)');
       
-      // Check if the mock context has a response stored
-      const result = mockContext._response || '{}';
+      // Get the response data from Python globals
+      const result = pyodide.globals.get('_response_data') || '{}';
       
       // Parse the result
       console.log('Python result type:', typeof result);
