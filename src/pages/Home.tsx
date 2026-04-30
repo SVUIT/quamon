@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, lazy, Suspense } from "react";
+import { useState, useCallback, useMemo, lazy, Suspense, useEffect } from "react";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import EditModal from "../components/GradeTable/EditModal";
@@ -14,7 +14,7 @@ const AddSubjectForm = lazy(
   () => import("../components/AddSubject/AddSubjectForm"),
 );
 import { useGradeApp } from "../hooks/useGradeApp";
-import { uploadPdf } from "../config/appwrite";
+import { parsePdfWithPyodide, isPyodideSupported, preloadPyodide } from "../utils/pyodidePdfParser";
 import {
   Subject,
   ProcessedPdfData,
@@ -85,6 +85,13 @@ export default function Home() {
     addSearchResults,
     editSearchResults,
   } = useGradeApp();
+
+  // Preload Pyodide for better performance
+  useEffect(() => {
+    if (isPyodideSupported()) {
+      preloadPyodide().catch(console.warn);
+    }
+  }, []);
 
   // Memoized data preparation for Excel export
   const prepareExcelData = useMemo(() => {
@@ -267,11 +274,17 @@ export default function Home() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Check if Pyodide is supported
+    if (!isPyodideSupported()) {
+      setPdfError("Trình duyệt của bạn không hỗ trợ xử lý PDF cục bộ. Vui lòng sử dụng trình duyệt hiện đại hơn.");
+      return;
+    }
+
     setLoadingPdf(true);
     setPdfError(null);
 
     try {
-      const data: ProcessedPdfData = await uploadPdf(file);
+      const data: ProcessedPdfData = await parsePdfWithPyodide(file);
       const allCourses = getAllCourses();
 
       const formattedSemesters = data.semesters.map((sem, semIndex) => {
@@ -725,7 +738,7 @@ export default function Home() {
                                   animation: "spin 1s linear infinite",
                                 }}
                               ></span>
-                              Đang xử lý...
+                              Đang xử lý PDF...
                             </span>
                           ) : (
                             <span
@@ -749,7 +762,7 @@ export default function Home() {
                                 <line x1="16" y1="17" x2="8" y2="17" />
                                 <polyline points="10,9 9,9 8,9" />
                               </svg>
-                              Nhập điểm từ PDF
+                              Nhập điểm từ PDF (cục bộ)
                             </span>
                           )}
                         </label>
