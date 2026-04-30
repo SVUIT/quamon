@@ -18,7 +18,6 @@ except ImportError:
 import io
 import json
 import base64
-
 from pyodide.ffi import create_proxy
 
 def main(context):
@@ -314,24 +313,26 @@ export const parsePdfWithPyodide = async (file: File): Promise<ProcessedPdfData>
     
     try {
       // Create a mock context object for the main function
-      const mockContext = {
+      const mockContext: any = {
         req: {
           body_binary: pdfBytes,
           headers: { get: () => 'application/pdf' }
         },
         res: {
-          json: (data: any, _status: any) => {
-            // Store the response data to be returned
-            mockContext._response = data;
-            return data;
-          },
-          text: (data: any, _status: any, _headers: any) => {
-            // Store the response data to be returned
-            mockContext._response = data;
-            return data;
-          }
+          json: pyodide.runPython(`create_proxy(lambda data, status: None)`),
+          text: pyodide.runPython(`create_proxy(lambda data, status, headers: None)`)
         },
         _response: null
+      };
+      
+      // Set up the actual response handlers by replacing the proxies
+      mockContext.res.json = (data: any, _status: any) => {
+        mockContext._response = data;
+        return data;
+      };
+      mockContext.res.text = (data: any, _status: any, _headers: any) => {
+        mockContext._response = data;
+        return data;
       };
       
       // Set the context in Python globals
