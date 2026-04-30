@@ -307,7 +307,7 @@ export const parsePdfWithPyodide = async (file: File): Promise<ProcessedPdfData>
 context = {
     'req': {
         'body_binary': globals().get('pdf_bytes'),
-        'headers': {'get': lambda: 'application/pdf'}
+        'headers': {'get': lambda header_name: 'application/pdf'}
     },
     'res': {
         'json': lambda data, status: globals().update({'_response_data': data}),
