@@ -23,27 +23,27 @@ from pyodide.ffi import create_proxy
 def main(context):
     """
     Extract tables from a PDF file.
-    Expects PDF binary data in context.req.body_binary.
+    Expects PDF binary data in context['req']['body_binary'].
     Returns JSON object with extracted tables.
     """
     try:
-        content_type = context.req.headers.get('content-type', '')
+        content_type = context['req']['headers']['get']('content-type', '')
         
         # If sent via curl --data-binary with PDF content type
         if 'application/pdf' in content_type:
-            pdf_bytes = context.req.body_binary
+            pdf_bytes = context['req']['body_binary']
         else:
             # Fallback for SDK/JSON which sends Base64
-            pdf_bytes = base64.b64decode(context.req.body)
+            pdf_bytes = base64.b64decode(context['req']['body'])
        
         if not pdf_bytes:
-             return context.res.json({
+             return context['res']['json']({
                 "success": False,
                 "error": "No file content received."
             }, 400)
 
         if not HAS_PDFPLUMBER:
-            return context.res.json({
+            return context['res']['json']({
                 "success": False,
                 "error": "pdfplumber not available in Pyodide environment"
             }, 500)
@@ -58,21 +58,10 @@ def main(context):
         
         parsed_data = parse_transcript(all_tables)
 
-        # Use json.dumps with ensure_ascii=False to preserve Unicode characters
         json_data = json.dumps(parsed_data, ensure_ascii=False)
-
-        return context.res.text(json_data, 200, {'Content-Type': 'application/json'})
-
+        return context['res']['text'](json_data, 200, {'Content-Type': 'application/json'})
     except Exception as e:
-        context.error(f"Error extracting tables: {str(e)}")
-        # Debugging: return available attributes of context.req
-        req_attributes = dir(context.req)
-        error_data = json.dumps({
-            "success": False,
-            "error": str(e),
-            "req_attributes": req_attributes
-        }, ensure_ascii=False)
-        return context.res.text(error_data, 500, {'Content-Type': 'application/json'})
+        return context['res']['text'](json.dumps({"success": False, "error": str(e)}), 500)
 
 def parse_transcript(tables_data):
     """
