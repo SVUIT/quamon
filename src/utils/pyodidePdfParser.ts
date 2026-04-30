@@ -312,27 +312,22 @@ export const parsePdfWithPyodide = async (file: File): Promise<ProcessedPdfData>
     pyodide.globals.set('pdf_bytes', pdfBytes);
     
     try {
-      // Create a mock context object for the main function
-      const mockContext: any = {
-        req: {
-          body_binary: pdfBytes,
-          headers: { get: () => 'application/pdf' }
-        },
-        res: {
-          json: pyodide.runPython(`
-            create_proxy(lambda data, status: globals().update({'_response_data': data}))
-          `),
-          text: pyodide.runPython(`
-            create_proxy(lambda data, status, headers: globals().update({'_response_data': data}))
-          `)
-        },
-        _response: null
-      };
+      // Set up the context directly in Python globals
+      pyodide.runPython(`
+# Create mock context
+context = {
+    'req': {
+        'body_binary': globals().get('pdf_bytes'),
+        'headers': {'get': lambda: 'application/pdf'}
+    },
+    'res': {
+        'json': lambda data, status: globals().update({'_response_data': data}),
+        'text': lambda data, status, headers: globals().update({'_response_data': data})
+    }
+}
+      `);
       
-      // Set the context in Python globals
-      pyodide.globals.set('context', mockContext);
-      
-      // Call the main function we defined earlier
+      // Call the main function
       pyodide.runPython('main(context)');
       
       // Get the response data from Python globals
