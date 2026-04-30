@@ -320,10 +320,10 @@ export const parsePdfWithPyodide = async (file: File): Promise<ProcessedPdfData>
         },
         res: {
           json: pyodide.runPython(`
-            create_proxy(lambda data, status: globals().set('_response_data', data))
+            create_proxy(lambda data, status: globals().update({'_response_data': data}))
           `),
           text: pyodide.runPython(`
-            create_proxy(lambda data, status, headers: globals().set('_response_data', data))
+            create_proxy(lambda data, status, headers: globals().update({'_response_data': data}))
           `)
         },
         _response: null
