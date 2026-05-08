@@ -10,16 +10,16 @@ Prerequisites: Node 18+ and a package manager (npm, pnpm, or yarn).
 Install dependencies and start the dev server:
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 Useful scripts
 
-- `npm run dev` — start the development server (HMR)
-- `npm run build` — compile TypeScript and build for production (`tsc -b && vite build`)
-- `npm run preview` — preview the production build locally
-- `npm run lint` — run ESLint across the project
+- `pnpm run dev` — start the development server (HMR)
+- `pnpm run build` — compile TypeScript and build for production (`tsc -b && vite build`)
+- `pnpm run preview` — preview the production build locally
+- `pnpm run lint` — run ESLint across the project
 
 Usage
 
