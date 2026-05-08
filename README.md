@@ -1,42 +1,94 @@
 # Quamon
 
-A compact, browser-based grade management app built with React and TypeScript. Track semesters and subjects and calculate weighted averages with local persistence.
+A compact browser-based grade management app built with React and TypeScript.
 
+Quamon helps students manage semesters, subjects, and weighted grade calculations with automatic local persistence.
 
-Quick start
+---
 
-Prerequisites: Node 18+ and a package manager (npm, pnpm, or yarn).
+## Features
 
-Install dependencies and start the dev server:
+- Semester and subject management
+- Weighted average calculations
+- Searchable course catalog
+- Custom subject creation
+- Automatic localStorage persistence
+- Fast React + Vite workflow
+- Type-safe architecture with TypeScript
+
+---
+
+## Quick Start
+
+### Prerequisites
+
+- Node.js 18+
+- pnpm
+
+Install pnpm globally if needed:
+
+```bash
+npm install -g pnpm
+```
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone <your-repo-url>
+cd quamon
+```
+
+Install dependencies:
 
 ```bash
 pnpm install
-pnpm run dev
 ```
 
-Useful scripts
+Start the development server:
 
-- `pnpm run dev` — start the development server (HMR)
-- `pnpm run build` — compile TypeScript and build for production (`tsc -b && vite build`)
-- `pnpm run preview` — preview the production build locally
-- `pnpm run lint` — run ESLint across the project
+```bash
+pnpm dev
+```
 
-Usage
+---
 
-1. Click the Add Semester row to append a new semester.
-2. Use the searchable dropdown to add a course from the catalog or create a custom subject.
-3. Click a subject to open the advanced editor and set scores/weights per component.
-4. Review the Summary rows for weighted semester averages and the overall average.
-5. Close the app or reload the page — your data is automatically saved to `localStorage`.
+## Available Scripts
 
-Developer notes
+| Command | Description |
+|---|---|
+| `pnpm dev` | Start the development server |
+| `pnpm build` | Build the project for production |
+| `pnpm preview` | Preview the production build |
+| `pnpm lint` | Run ESLint |
 
-- State and persistence: `src/hooks/useGradeApp.ts`
-- Grade and score calculations: `src/utils/gradeUtils.ts`
-- Course catalog: `src/assets/courses_weighted.json`
+---
 
-**Documentation:** See the [`docs/`](./docs) folder for detailed technical documentation.
+## Usage
 
-If you add or change fields related to scores or weights, add tests or manually verify behavior in the UI to avoid regressions.
+1. Add a semester using the "Add Semester" row.
+2. Add subjects from the searchable catalog or create custom subjects.
+3. Open a subject to edit scores and weight distributions.
+4. Review weighted semester averages and the overall average.
+5. Data is automatically saved to localStorage.
 
+---
 
+## Build
+
+Create a production build:
+
+```bash
+pnpm build
+```
+
+Preview the production build locally:
+
+```bash
+pnpm preview
+```
+
+---
