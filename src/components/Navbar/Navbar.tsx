@@ -27,7 +27,7 @@ const Navbar: React.FC<NavbarProps> = ({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const logoSrc = theme === "light" ? "/logo_light.svg" : "/logo_dark.svg";
+  const logoSrc = theme === "light" ? "/logolight.png" : "/logodark.png";
 
   if (!mounted) return null;
 
