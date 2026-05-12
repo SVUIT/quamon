@@ -38,7 +38,7 @@ npm install -g pnpm
 Clone the repository:
 
 ```bash
-git clone <your-repo-url>
+git clone [<your-repo-url>](https://github.com/SVUIT/quamon/tree/feat/pnpm-update)
 cd quamon
 ```
 
