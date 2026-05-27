@@ -34,8 +34,5 @@
     "eslint-config-next": "14.0.4",
     "postcss": "^8.5.9",
     "typescript": "^5.3.3"
-  },
-  "optionalDependencies": {
-    "lightningcss-linux-x64-musl": "1.48.0"
   }
 }
