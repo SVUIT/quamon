@@ -1236,4 +1236,19 @@
   },
   "description": ""
 }
+,
+  {
+  "courseCode": "IT008",
+  "courseNameEn": "Visual Programming",
+  "courseNameVi": "Lập trình trực quan",
+  "courseType": "CSN",
+  "credits": 4,
+  "defaultWeights": {
+    "progressWeight": 0.2,
+    "practiceWeight": 0.3,
+    "midtermWeight": 0,
+    "finalTermWeight": 0.5
+  },
+  "description": ""
+}
 ]
