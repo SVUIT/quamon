@@ -1246,6 +1246,10 @@
   "defaultWeights": {
     "progressWeight": 0.25,
     "practiceWeight": 0.25,
+    "midtermWeight": 0,
+    "finalTermWeight": 0.5
+  },
+  "description": "Khoa Kỹ thuật Máy tính phụ trách"
   },
     {
   "courseCode": "CE122",
