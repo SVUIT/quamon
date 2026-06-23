@@ -1238,6 +1238,20 @@
 }
 ,
   {
+  "courseCode": "CE118",
+  "courseNameEn": "Digital Logic Design",
+  "courseNameVi": "Thiết kế luận lý số",
+  "courseType": "CSN",
+  "credits": 4,
+  "defaultWeights": {
+    "progressWeight": 0.25,
+    "practiceWeight": 0.25,
+    "midtermWeight": 0,
+    "finalTermWeight": 0.5
+  },
+  "description": "Khoa Kỹ thuật Máy tính phụ trách"
+  },
+    {
   "courseCode": "CE122",
   "courseNameEn": "Introduction to Circuit Analysis",
   "courseNameVi": "Phân tích mạch kỹ thuật",
