@@ -1278,5 +1278,19 @@
     "finalTermWeight": 1
   },
   "description": ""
+},
+  {
+  "courseCode": "IE005",
+  "courseNameEn": "Introducing the Information Technology industry",
+  "courseNameVi": " Giới thiệu ngành Công nghệ Thông tin",
+  "courseType": "CSN",
+  "credits": 1,
+  "defaultWeights": {
+    "progressWeight": 0.3,
+    "practiceWeight": 0,
+    "midtermWeight": 0,
+    "finalTermWeight": 0.7
+  },
+  "description": ""
 }
 ]
