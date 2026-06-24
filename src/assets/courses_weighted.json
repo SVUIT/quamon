@@ -1264,5 +1264,19 @@
     "finalTermWeight": 0.5
   },
   "description": "Khoa Kỹ thuật Máy tính phụ trách"
+},
+  {
+  "courseCode": "CE119",
+  "courseNameEn": "Computer Architecture Laboratory",
+  "courseNameVi": "Thực hành Kiến trúc máy tính",
+  "courseType": "CSN",
+  "credits": 1,
+  "defaultWeights": {
+    "progressWeight": 0,
+    "practiceWeight": 0,
+    "midtermWeight": 0,
+    "finalTermWeight": 1
+  },
+  "description": ""
 }
 ]
