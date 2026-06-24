@@ -1306,5 +1306,19 @@
     "finalTermWeight": 0.5
   },
   "description": ""
+},
+  {
+  "courseCode": "JAN01",
+  "courseNameEn": "Japanese 1",
+  "courseNameVi": "Tiếng Nhật 1",
+  "courseType": "ĐC",
+  "credits": 5,
+  "defaultWeights": {
+    "progressWeight": 0.15,
+    "practiceWeight": 0.3,
+    "midtermWeight": 0.15,
+    "finalTermWeight": 0.4
+  },
+  "description": ""
 }
 ]
