@@ -12,8 +12,8 @@ interface AddSubjectFormProps {
 
 const regex = {
   courseCode: /^[A-Z]{2,4}[0-9]{2,4}$/,
-  courseNameVi: /^[a-zA-ZÀ-ỹ0-9\s]{3,100}$/,
-  courseNameEn: /^[a-zA-Z0-9\s]{3,100}$/,
+  courseNameVi: /^[a-zA-ZÀ-ỹ0-9\s\-]{3,100}$/,
+  courseNameEn: /^[a-zA-Z0-9\s\-]{3,100}$/,
   credits: /^(10|[1-9])$/,
   weight: /^(100|[1-9]?[0-9])$/,
   description: /^[a-zA-ZÀ-ỹ0-9\s.,\-()]{0,255}$/,
