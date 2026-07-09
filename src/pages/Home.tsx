@@ -13,6 +13,9 @@ const Instructions = lazy(
 const AddSubjectForm = lazy(
   () => import("../components/AddSubject/AddSubjectForm"),
 );
+const SubjectCatalog = lazy(
+  () => import("../components/SubjectCatalog/SubjectCatalog"),
+);
 import { useGradeApp } from "../hooks/useGradeApp";
 import { uploadPdf } from "../config/appwrite";
 import {
@@ -29,7 +32,8 @@ export type TabType =
   | "grades"
   | "instructions"
   | "add_subject"
-  | "graduation_check";
+  | "graduation_check"
+  | "subject_catalog";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabType>("grades");
@@ -1140,6 +1144,18 @@ export default function Home() {
               }
             >
               <GraduationCheck semesters={semesters} />
+            </Suspense>
+          )}
+
+          {activeTab === "subject_catalog" && (
+            <Suspense
+              fallback={
+                <div style={{ padding: "20px", textAlign: "center" }}>
+                  Loading subject catalog...
+                </div>
+              }
+            >
+              <SubjectCatalog />
             </Suspense>
           )}
 
