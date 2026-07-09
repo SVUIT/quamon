@@ -27,11 +27,6 @@ const SubjectCatalog: React.FC = () => {
     new Set(CATEGORY_ORDER),
   );
 
-  const totalCount = useMemo(
-    () => Object.values(SUBJECTS_DATA).reduce((sum, arr) => sum + arr.length, 0),
-    [],
-  );
-
   const groups = useMemo(() => {
     const term = normalize(searchTerm);
     return CATEGORY_ORDER.map((category) => {
