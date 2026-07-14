@@ -1321,4 +1321,19 @@
   },
   "description": ""
 }
+,
+  {
+  "courseCode": "NT005",
+  "courseNameEn": "Introduction to Computer Networks and Data Communication",
+  "courseNameVi": "Giới thiệu ngành Mạng máy tính và Truyền thông dữ liệu",
+  "courseType": "ĐC",
+  "credits": 1,
+  "defaultWeights": {
+    "progressWeight": 0.2,
+    "practiceWeight": 0.2,
+    "midtermWeight": 0.2,
+    "finalTermWeight": 0.4
+  },
+  "description": ""
+}
 ]
