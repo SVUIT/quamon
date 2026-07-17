@@ -7,8 +7,8 @@ import EditModal from "../components/GradeTable/EditModal";
 import GradeTable from "../components/GradeTable/GradeTable";
 
 // Lazy load components that are not immediately needed
-const Instructions = lazy(
-  () => import("../components/Instructions/Instructions"),
+const OnboardingTour = lazy(
+  () => import("../components/OnboardingTour/OnboardingTour"),
 );
 const AddSubjectForm = lazy(
   () => import("../components/AddSubject/AddSubjectForm"),
@@ -615,7 +615,7 @@ export default function Home() {
           {activeTab === "grades" && (
             <>
               <div style={{ marginBottom: "20px" }}>
-                <h1 style={{ textAlign: "center", marginBottom: "10px" }}>
+                <h1 id="tour-grades-header" style={{ textAlign: "center", marginBottom: "10px" }}>
                   Bảng điểm
                 </h1>
                 <div
@@ -665,6 +665,7 @@ export default function Home() {
                     {importType === "pdf" ? (
                       <>
                         <label
+                          id="tour-pdf-import"
                           htmlFor="pdf-upload"
                           className="action-btn pdf-import-btn"
                           style={{
@@ -766,6 +767,7 @@ export default function Home() {
                     ) : (
                       <>
                         <label
+                          id="tour-excel-import"
                           htmlFor="excel-upload"
                           className="action-btn excel-import-btn"
                           style={{
@@ -868,6 +870,7 @@ export default function Home() {
                   </div>
 
                   <button
+                    id="tour-export"
                     onClick={() => exportToExcel(semesters)}
                     className="action-btn export-excel-btn"
                     disabled={exportStatus === "loading"}
@@ -1095,11 +1098,11 @@ export default function Home() {
             <Suspense
               fallback={
                 <div style={{ padding: "20px", textAlign: "center" }}>
-                  Loading instructions...
+                  Loading tour...
                 </div>
               }
             >
-              <Instructions />
+              <OnboardingTour />
             </Suspense>
           )}
 
