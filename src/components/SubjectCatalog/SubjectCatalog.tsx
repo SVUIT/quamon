@@ -55,6 +55,14 @@ const SubjectCatalog: React.FC = () => {
   return (
     <div className="instructions-container">
       <h1>Danh mục môn học</h1>
+      <div className="instruction-item">
+        <p style={{ margin: 0 }}>
+          Đây là danh sách các môn học hiện có trong hệ thống, kèm theo
+          trọng số tính điểm (Quá trình / Giữa kỳ / Thực hành / Cuối kỳ) của
+          từng môn. Nếu môn bạn cần không có trong danh sách này, bạn có thể
+          tự thêm vào ở tab <em>&quot;Thêm môn&quot;</em>. Xin chân thành cảm ơn và chúc bạn có một trải nghiệm tốt ở Quamon.
+        </p>
+      </div>
       <div className="dropdown-search-container" style={{ marginBottom: 20 }}>
         <div className="search-input-wrapper">
           <svg
