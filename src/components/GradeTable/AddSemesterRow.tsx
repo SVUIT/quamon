@@ -52,11 +52,12 @@ const AddSemesterRow: React.FC<AddSemesterRowProps> = ({
             }
           }}
           style={{
-            padding: "6px 12px",
-            borderRadius: 4,
-            background: "transparent",
-            color: "#8C8C8C",
-            border: "none",
+            padding: "8px 16px",
+            borderRadius: "6px",
+            background: "rgba(37, 99, 235, 0.15)",
+            color: "#2563eb",
+            border: "1px solid rgba(37, 99, 235, 0.4)",
+            fontWeight: "700",
             cursor: "pointer"
           }}
         >

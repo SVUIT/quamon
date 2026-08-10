@@ -233,8 +233,8 @@ const SemesterBlock: React.FC<SemesterBlockProps> = ({
             contentEditable
             suppressContentEditableWarning
             data-placeholder={"Nhập điểm kỳ vọng học kỳ"}
+            aria-label="Nhập điểm kỳ vọng học kỳ"
             className="editable-cell expected-score-cell"
-            style={{ color: sem.isExpectedAverageManual ? "white" : undefined }}
             role="textbox"
             tabIndex={0}
             onKeyDown={(e) => {

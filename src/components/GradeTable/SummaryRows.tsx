@@ -90,6 +90,7 @@ const SummaryRows: React.FC<SummaryRowsProps> = ({
             contentEditable
             suppressContentEditableWarning
             data-placeholder={"Nhập điểm kỳ vọng cả khóa"}
+            aria-label="Nhập điểm kỳ vọng cả khóa"
             className="editable-cell expected-score-cell"
             style={{ color: isCumulativeManual ? "white" : undefined }}
             role="textbox"
