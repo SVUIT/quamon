@@ -45,8 +45,8 @@ const GpaScaleSelector: React.FC<GpaScaleSelectorProps> = ({
       <span 
         style={{
           fontSize: "12px",
-          fontWeight: "500",
-          color: "inherit",
+          fontWeight: "600",
+          color: "#ffffff",
           marginRight: "8px"
         }}
       >
@@ -55,11 +55,11 @@ const GpaScaleSelector: React.FC<GpaScaleSelectorProps> = ({
       <div 
         style={{
           display: "flex",
-          backgroundColor: "rgba(255, 255, 255, 0.15)",
+          backgroundColor: "rgba(15, 23, 42, 0.75)",
           borderRadius: "10px",
           padding: "4px",
           gap: "3px",
-          border: "1px solid rgba(255, 255, 255, 0.2)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
           backdropFilter: "blur(10px)"
         }}
       >
@@ -73,11 +73,11 @@ const GpaScaleSelector: React.FC<GpaScaleSelectorProps> = ({
               border: "none",
               borderRadius: "8px",
               backgroundColor: currentScale === scale.value 
-                ? "rgba(99, 102, 241, 0.8)" 
+                ? "#4f46e5" 
                 : "transparent",
               color: currentScale === scale.value ? "white" : "inherit",
               fontSize: "13px",
-              fontWeight: currentScale === scale.value ? "500" : "400",
+              fontWeight: currentScale === scale.value ? "700" : "400",
               cursor: "pointer",
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               display: "flex",

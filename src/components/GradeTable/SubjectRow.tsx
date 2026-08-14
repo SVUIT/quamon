@@ -151,7 +151,7 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
             padding: field.key === "credits" ? "0" : "8px 6px"
           }}
         >
-          
+          {/* Ô Nhập Mã HP và Tên HP */}
           {(field.key === "courseCode" || field.key === "courseName") && (
             <>
               <div
@@ -159,10 +159,11 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
                 suppressContentEditableWarning
                 className="editable-cell"
                 data-placeholder={field.placeholder}
+                aria-label={field.key === "courseCode" ? "Mã học phần" : "Tên học phần"}
                 role="textbox"
                 tabIndex={0}
                 style={
-                  field.key === "courseCode" ? { whiteSpace: "pre-wrap", lineHeight: "1.2", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", } : {}
+                  field.key === "courseCode" ? { whiteSpace: "pre-wrap", lineHeight: "1.2", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center" } : {}
                 }
                 onClick={(e) => {
                   e.stopPropagation();
@@ -218,12 +219,14 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
             </>
           )}
 
+          {/* Ô Nhập Số Tín Chỉ */}
           {field.key === "credits" && (
             <div
               contentEditable
               suppressContentEditableWarning
-              className="editable-cell editable-cell-multiline"
-              data-placeholder="Nhập tín chỉ"
+              className="editable-cell"
+              data-placeholder={field.placeholder}
+              aria-label="Số tín chỉ"
               role="textbox"
               tabIndex={0}
               style={{
@@ -291,18 +294,13 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
               contentEditable
               suppressContentEditableWarning
               title={`Trọng số: ${weight}%`}
-              className={`score-content ${
-                hasMinScore
-                  ? isOver10
-                    ? "score-over-10"
-                    : "text-white"
-                  : "text-normal"
-              }`}
+              className={`score-content ...`}
               data-placeholder={
                 isZeroWeight
                   ? `Điểm ${f.label}`
                   : `Nhập điểm ${f.label}`
               }
+              aria-label={`Nhập điểm ${f.label}`}
               role="textbox"
               tabIndex={0}
               onKeyDown={(e) => {
@@ -345,12 +343,8 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
           contentEditable
           suppressContentEditableWarning
           data-placeholder={hasAllScores(sub) ? "" : "Nhập điểm\nkỳ vọng"}
-          className={`editable-cell expected-score-cell ${
-            hasAllScores(sub) ? "text-gray cursor-not-allowed" : ""
-          }`}
-          style={{
-            color: sub.isExpectedManual ? "white" : undefined
-          }}
+          aria-label="Điểm kỳ vọng môn học"
+          className={`editable-cell expected-score-cell ...`}
           role="textbox"
           tabIndex={hasAllScores(sub) ? -1 : 0}
           onBlur={handleExpectedScoreBlur}
@@ -368,6 +362,7 @@ const SubjectRow: React.FC<SubjectRowProps> = ({
           className="row-action-dots"
           role="button"
           tabIndex={0}
+          aria-label="Tùy chọn thao tác môn học"
           aria-haspopup="true"
           aria-expanded={openMenu?.s === si && openMenu?.i === i}
           onKeyDown={(e) => handleKeyDown(e, () => {

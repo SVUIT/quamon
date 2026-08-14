@@ -603,7 +603,7 @@ export default function Home() {
           setActiveTab={setActiveTab}
         />
 
-        <div
+        <main
           className="app-container"
           onClick={() => {
             setOpenMenu(null);
@@ -633,6 +633,7 @@ export default function Home() {
                     style={{ position: "relative", display: "inline-block" }}
                   >
                     <select
+                      aria-label="Chọn định dạng nhập điểm (PDF hoặc Excel)"
                       value={importType}
                       onChange={(e) =>
                         setImportType(e.target.value as "pdf" | "excel")
@@ -1157,7 +1158,7 @@ export default function Home() {
               gpaScale={gpaScale}
             />
           )}
-        </div>
+        </main>
 
         <Footer />
       </div>
