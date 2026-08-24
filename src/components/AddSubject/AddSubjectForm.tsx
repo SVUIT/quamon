@@ -41,6 +41,8 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd, existingSubjects
   });
 
   const [isSubmittingPR, setIsSubmittingPR] = useState(false);
+  const [prStatus, setPrStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [prMessage, setPrMessage] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const getTotalWeight = (formData = form) => {
@@ -210,6 +212,8 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd, existingSubjects
   const createPR = async (courseObj: Course, newTab?: Window | null) => {
     try {
       setIsSubmittingPR(true);
+      setPrStatus("loading");
+      setPrMessage("Đang gửi PR lên GitHub... Vui lòng chờ trong khi hệ thống xử lý.");
 
       const res = await fetch("/api/create-course-pr", {
         method: "POST",
@@ -232,6 +236,8 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd, existingSubjects
       }
 
       localStorage.removeItem("pendingPR");
+      setPrStatus("success");
+      setPrMessage("PR đã tạo thành công. Trang PR đang mở...");
 
       if (data.url) {
         if (newTab) {
@@ -243,6 +249,8 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd, existingSubjects
       }
     } catch (err: any) {
       console.error(err);
+      setPrStatus("error");
+      setPrMessage(err.message || "Tạo PR thất bại. Vui lòng thử lại.");
       alert(err.message || "Có lỗi xảy ra khi tạo PR");
     } finally {
       setIsSubmittingPR(false);
@@ -250,6 +258,8 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd, existingSubjects
   };
 
   const handleCreatePR = async () => {
+    setPrStatus("idle");
+    setPrMessage("");
     const errors = validateForm();
 
     if (Object.keys(errors).length > 0) {
@@ -265,6 +275,8 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd, existingSubjects
     const courseObj = getCourseObject();
 
     if (!session) {
+      setPrStatus("loading");
+      setPrMessage("Chuyển tới GitHub để đăng nhập trước khi tạo PR...");
       localStorage.setItem("pendingPR", JSON.stringify(courseObj));
       signIn("github", { callbackUrl: "/" });
       return;
@@ -471,6 +483,12 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd, existingSubjects
             </span>
           </button>
         </div>
+        {prStatus !== "idle" && (
+          <div className={`pr-status-message ${prStatus}`}>
+            {prStatus === "loading" && <span className="pr-loader" />}
+            <span>{prMessage}</span>
+          </div>
+        )}
       </form>
     </div>
   );
