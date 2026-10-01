@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, useCallback, useMemo, lazy, Suspense } from "react";
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from "react";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import EditModal from "../components/GradeTable/EditModal";
 import GradeTable from "../components/GradeTable/GradeTable";
+import {
+  startOnboardingTour,
+  ONBOARDING_STORAGE_KEY,
+} from "../utils/onboardingTour";
 
 // Lazy load components that are not immediately needed
 const Instructions = lazy(
@@ -43,6 +47,27 @@ export default function Home() {
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [statusMessage, setStatusMessage] = useState<string>("");
+
+  const handleStartTour = useCallback(() => {
+    if (activeTab !== "grades") {
+      setActiveTab("grades");
+      setTimeout(() => {
+        startOnboardingTour();
+      }, 150);
+    } else {
+      startOnboardingTour();
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    const hasSeenTour = localStorage.getItem(ONBOARDING_STORAGE_KEY);
+    if (!hasSeenTour) {
+      const timer = setTimeout(() => {
+        startOnboardingTour();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const {
     theme,
@@ -591,6 +616,28 @@ export default function Home() {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.7; }
         }
+        .driver-popover {
+          border-radius: 14px !important;
+          padding: 18px !important;
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35) !important;
+        }
+        .driver-popover-title {
+          font-size: 16px !important;
+          font-weight: 700 !important;
+          color: #6366f1 !important;
+        }
+        .driver-popover-description {
+          font-size: 13.5px !important;
+          line-height: 1.6 !important;
+        }
+        .driver-popover-next-btn {
+          background: linear-gradient(145deg, #6366f1, #8b5cf6) !important;
+          color: #ffffff !important;
+          border: none !important;
+          text-shadow: none !important;
+          border-radius: 6px !important;
+          padding: 6px 12px !important;
+        }
       `}</style>
       <div
         className={theme === "light" ? "light-mode" : ""}
@@ -601,6 +648,7 @@ export default function Home() {
           toggleTheme={toggleTheme}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          onStartTour={handleStartTour}
         />
 
         <main
@@ -630,6 +678,7 @@ export default function Home() {
                   }}
                 >
                   <div
+                    id="tour-import-section"
                     style={{ position: "relative", display: "inline-block" }}
                   >
                     <select
@@ -869,6 +918,7 @@ export default function Home() {
                   </div>
 
                   <button
+                    id="tour-export-btn"
                     onClick={() => exportToExcel(semesters)}
                     className="action-btn export-excel-btn"
                     disabled={exportStatus === "loading"}
@@ -1054,7 +1104,7 @@ export default function Home() {
                 <p style={{ color: "red" }}>{pdfError || excelError}</p>
               )}
 
-              <div className="table-wrapper">
+              <div id="tour-grade-table" className="table-wrapper">
                 <GradeTable
                   semesters={semesters}
                   setSemesters={setSemesters}
