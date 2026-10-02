@@ -103,6 +103,18 @@ const Navbar: React.FC<NavbarProps> = ({
       >
         Kiểm tra tốt nghiệp
       </button>
+      <button
+        className={`tab-button ${activeTab === "subject_catalog" ? "active" : ""}`}
+        onClick={() => setActiveTab("subject_catalog")}
+        style={{
+          whiteSpace: "nowrap",
+          padding: isMobile ? "6px 8px" : "10px 20px",
+          fontSize: isMobile ? "12px" : "15px",
+          fontWeight: 600,
+        }}
+      >
+        Danh mục môn học
+      </button>
     </div>
   );
 

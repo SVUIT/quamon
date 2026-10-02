@@ -1,0 +1,66 @@
+diff --git a/src/components/Navbar/Navbar.tsx b/src/components/Navbar/Navbar.tsx
+index 232bc4d..fd5253c 100644
+--- a/src/components/Navbar/Navbar.tsx
++++ b/src/components/Navbar/Navbar.tsx
+@@ -103,6 +103,18 @@ const Navbar: React.FC<NavbarProps> = ({
+       >
+         Kiểm tra tốt nghiệp
+       </button>
++      <button
++        className={`tab-button ${activeTab === "subject_catalog" ? "active" : ""}`}
++        onClick={() => setActiveTab("subject_catalog")}
++        style={{
++          whiteSpace: "nowrap",
++          padding: isMobile ? "6px 8px" : "10px 20px",
++          fontSize: isMobile ? "12px" : "15px",
++          fontWeight: 600,
++        }}
++      >
++        Danh mục môn học
++      </button>
+     </div>
+   );
+ 
+diff --git a/src/pages/Home.tsx b/src/pages/Home.tsx
+index f83e9fe..64f7eb5 100644
+--- a/src/pages/Home.tsx
++++ b/src/pages/Home.tsx
+@@ -13,6 +13,9 @@ const Instructions = lazy(
+ const AddSubjectForm = lazy(
+   () => import("../components/AddSubject/AddSubjectForm"),
+ );
++const SubjectCatalog = lazy(
++  () => import("../components/SubjectCatalog/SubjectCatalog"),
++);
+ import { useGradeApp } from "../hooks/useGradeApp";
+ import { uploadPdf } from "../config/appwrite";
+ import {
+@@ -29,7 +32,8 @@ export type TabType =
+   | "grades"
+   | "instructions"
+   | "add_subject"
+-  | "graduation_check";
++  | "graduation_check"
++  | "subject_catalog";
+ 
+ export default function Home() {
+   const [activeTab, setActiveTab] = useState<TabType>("grades");
+@@ -1143,6 +1147,18 @@ export default function Home() {
+             </Suspense>
+           )}
+ 
++          {activeTab === "subject_catalog" && (
++            <Suspense
++              fallback={
++                <div style={{ padding: "20px", textAlign: "center" }}>
++                  Loading subject catalog...
++                </div>
++              }
++            >
++              <SubjectCatalog />
++            </Suspense>
++          )}
++
+           {modalOpen && editing && (
+             <EditModal
+               editing={editing}
