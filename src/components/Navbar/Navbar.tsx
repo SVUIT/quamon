@@ -8,6 +8,7 @@ interface NavbarProps {
   toggleTheme: () => void;
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
+  onStartTour: () => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({
@@ -15,6 +16,7 @@ const Navbar: React.FC<NavbarProps> = ({
   toggleTheme,
   activeTab,
   setActiveTab,
+  onStartTour,
 }) => {
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -36,11 +38,62 @@ const Navbar: React.FC<NavbarProps> = ({
       style={{
         display: "flex",
         alignItems: "center",
-        gap: isMobile ? "6px" : "15px",
+        gap: isMobile ? "6px" : "12px",
         transform: isMobile ? "scale(0.75)" : "none",
         transformOrigin: isMobile ? "right center" : "center",
       }}
     >
+      {/* Button to reopen Onboarding Tour */}
+      <button
+        id="tour-guide-btn"
+        onClick={onStartTour}
+        title="Hướng dẫn sử dụng"
+        aria-label="Hướng dẫn sử dụng"
+        style={{
+          width: "36px",
+          height: "36px",
+          borderRadius: "50%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          border:
+            theme === "light"
+              ? "1px solid rgba(99, 102, 241, 0.3)"
+              : "1px solid rgba(255, 255, 255, 0.18)",
+          background:
+            theme === "light"
+              ? "rgba(99, 102, 241, 0.08)"
+              : "rgba(255, 255, 255, 0.08)",
+          color: theme === "light" ? "#6366f1" : "#e5e7eb",
+          fontWeight: 700,
+          fontSize: "16px",
+          transition: "all 0.25s ease",
+          padding: 0,
+          flexShrink: 0,
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.background =
+            "linear-gradient(145deg, #6366f1, #8b5cf6)";
+          e.currentTarget.style.color = "#ffffff";
+          e.currentTarget.style.transform = "scale(1.08)";
+          e.currentTarget.style.boxShadow =
+            "0 4px 12px rgba(99, 102, 241, 0.35)";
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.background =
+            theme === "light"
+              ? "rgba(99, 102, 241, 0.08)"
+              : "rgba(255, 255, 255, 0.08)";
+          e.currentTarget.style.color =
+            theme === "light" ? "#6366f1" : "#e5e7eb";
+          e.currentTarget.style.transform = "scale(1)";
+          e.currentTarget.style.boxShadow = "none";
+        }}
+      >
+        ?
+      </button>
+
       <GitHubStats />
       <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
     </div>
@@ -48,6 +101,7 @@ const Navbar: React.FC<NavbarProps> = ({
 
   const NavigationTabs = (
     <div
+      id="tour-nav-tabs"
       style={{
         display: "flex",
         gap: isMobile ? "4px" : "12px",
@@ -66,18 +120,6 @@ const Navbar: React.FC<NavbarProps> = ({
         }}
       >
         Bảng điểm
-      </button>
-      <button
-        className={`tab-button ${activeTab === "instructions" ? "active" : ""}`}
-        onClick={() => setActiveTab("instructions")}
-        style={{
-          whiteSpace: "nowrap",
-          padding: isMobile ? "6px 8px" : "10px 20px",
-          fontSize: isMobile ? "12px" : "15px",
-          fontWeight: 600,
-        }}
-      >
-        Hướng dẫn
       </button>
       <button
         className={`tab-button ${activeTab === "add_subject" ? "active" : ""}`}
@@ -209,7 +251,7 @@ const Navbar: React.FC<NavbarProps> = ({
             {NavigationTabs}
           </div>
 
-          {/* Right: GitHub + Toggle */}
+          {/* Right: Help + GitHub + Toggle */}
           <div
             style={{
               flex: 1,
