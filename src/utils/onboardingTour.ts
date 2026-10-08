@@ -27,9 +27,9 @@ export const startOnboardingTour = () => {
       {
         element: "#tour-import-section",
         popover: {
-          title: "1. Nhập bảng điểm tự động (PDF / Excel)",
+          title: "1. Nhập bảng điểm tự động",
           description:
-            "Thay vì nhập tay từng môn, bạn có thể chọn định dạng <b>PDF</b> (tải từ trang <i>student.uit.edu.vn/sinhvien/kqhoctap → In Bảng Điểm → Ctrl+P lưu PDF</i>) hoặc <b>Excel</b> để hệ thống tự động điền mã môn, tín chỉ, điểm và trọng số.",
+            "Thay vì nhập tay từng môn, bạn có thể chọn định dạng <b>PDF</b> hoặc <b>Excel</b> để hệ thống tự động điền mã môn, tín chỉ, điểm và trọng số.",
           side: "bottom",
           align: "start",
         },
@@ -47,11 +47,9 @@ export const startOnboardingTour = () => {
       {
         element: "#tour-grade-table",
         popover: {
-          title: "3. Bảng điểm và tìm kiếm môn học",
+          title: "3. Tùy chỉnh trọng số môn học",
           description:
-            "• <b>Tìm kiếm nhanh:</b> Click vào ô <i>Mã HP</i> hoặc <i>Tên HP</i> để chọn môn học chuẩn UIT.<br/>" +
-            "• <b>Công thức:</b> <code>Điểm HP = (QT×wQT) + (GK×wGK) + (TH×wTH) + (CK×wCK)</code>.<br/>" +
-            "• <b>Tùy chỉnh:</b> Nhấn biểu tượng <b>⋮</b> ở cuối dòng/học kỳ để chỉnh trọng số, xóa môn hoặc khôi phục mặc định.",
+            "Để thay đổi phần trăm điểm (QT, GK, TH, CK), bạn hãy nhấn vào <b>biểu tượng ⋮</b> ở cuối mỗi dòng môn học hoặc góc học kỳ. Tại đây bạn có thể <b>chỉnh sửa trọng số</b>, xóa môn hoặc khôi phục về mặc định.",
           side: "top",
           align: "center",
         },
@@ -59,12 +57,9 @@ export const startOnboardingTour = () => {
       {
         element: "#tour-grade-table",
         popover: {
-          title: "4. Phân biệt màu sắc điểm số",
+          title: "4. Cách nhập điểm kỳ vọng",
           description:
-            "• <b>Trắng / Đen:</b> Điểm thực tế bạn nhập thủ công (được dùng để tính GPA).<br/>" +
-            "• <b>Vàng / Xanh dương:</b> Điểm do hệ thống gợi ý từ <i>Điểm kỳ vọng</i> (chỉ mang tính tham khảo, click vào nhập lại để xác nhận thành điểm thật).<br/>" +
-            "• <b>Màu xám:</b> Cột có trọng số = 0% (bị vô hiệu hóa).<br/>" +
-            "• <b>Màu đỏ:</b> Cảnh báo điểm cần đạt > 10.0 (mục tiêu quá khó/không khả thi).",
+            "Hãy <b>click trực tiếp vào ô Điểm kỳ vọng</b> của từng môn học, hoặc ô <b>TBHK kỳ vọng</b> ở dưới cùng để nhập mục tiêu của bạn. Hệ thống sẽ tự động tính toán và phân bổ điểm số cần đạt cho các cột còn trống.",
           side: "top",
           align: "center",
         },
@@ -72,11 +67,11 @@ export const startOnboardingTour = () => {
       {
         element: "#tour-grade-table",
         popover: {
-          title: "5. Điểm kỳ vọng và tự động phân bổ",
+          title: "5. Phân biệt màu sắc điểm số",
           description:
-            "Khi bạn nhập <b>Điểm kỳ vọng</b> cho môn học, <b>TBHK kỳ vọng</b> hoặc <b>ĐTB chung toàn khóa</b>, hệ thống sẽ tự động tính điểm tối thiểu cần đạt ở các cột/học kỳ còn trống theo công thức:<br/>" +
-            "<code>(Điểm kỳ vọng − Điểm đã có) / Trọng số còn lại</code><br/>" +
-            "<i>Lưu ý: Các môn đã được bạn nhập kỳ vọng thủ công sẽ luôn được ưu tiên giữ nguyên!</i>",
+            "• <b>Trắng / Đen:</b> Điểm thực tế do bạn tự nhập.<br/>" +
+            "• <b>Vàng / Xanh dương:</b> Điểm do hệ thống tự gợi ý để đạt Điểm kỳ vọng (hãy click vào nhập lại để biến nó thành điểm thật).<br/>" +
+            "• <b>Màu đỏ:</b> Cảnh báo mục tiêu điểm cần đạt > 10.0.",
           side: "top",
           align: "center",
         },
@@ -84,9 +79,9 @@ export const startOnboardingTour = () => {
       {
         element: "#tour-nav-tabs",
         popover: {
-          title: "6. Các công cụ mở rộng",
+          title: "6. Thêm môn học và Subject Catalog",
           description:
-            "Sử dụng thanh điều hướng để chuyển sang mục <b>Thêm môn</b> thủ công hoặc <b>Kiểm tra tốt nghiệp</b>.",
+            "Sau khi xem xong bảng điểm, bạn hãy nhấn sang tab <b>Thêm môn</b>. Tại đây, bạn có thể kiểm tra danh mục <b>Subject Catalog</b> để xác minh thông tin, tra cứu và thêm các môn học mới vào bảng điểm của mình.",
           side: "bottom",
           align: "center",
         },
@@ -94,9 +89,9 @@ export const startOnboardingTour = () => {
       {
         element: "#tour-guide-btn",
         popover: {
-          title: "7. Xem lại hướng dẫn bất cứ lúc nào",
+          title: "7. Xem lại hướng dẫn",
           description:
-            "Bất cứ khi nào bạn muốn xem lại các bước hướng dẫn này, chỉ cần nhấn vào nút dấu hỏi <b>?</b> ở góc phải trên cùng nhé!",
+            "Bất cứ khi nào bạn muốn xem lại các bước hướng dẫn này, chỉ cần nhấn vào <b>nút dấu hỏi (?)</b> ở góc phải trên cùng nhé!",
           side: "bottom",
           align: "end",
         },
