@@ -1336,4 +1336,19 @@
   },
   "description": ""
 }
+,
+  {
+  "courseCode": "SE370",
+  "courseNameEn": "Game development on the Roblox platform",
+  "courseNameVi": "Phát triển Game trên nền tảng Roblox",
+  "courseType": "CNTC",
+  "credits": 4,
+  "defaultWeights": {
+    "progressWeight": 0.4,
+    "practiceWeight": 0,
+    "midtermWeight": 0,
+    "finalTermWeight": 0.6
+  },
+  "description": ""
+}
 ]
